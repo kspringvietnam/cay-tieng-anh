@@ -1,0 +1,14 @@
+{
+  "name": "CÀY - Học tiếng Anh",
+  "short_name": "CÀY",
+  "description": "Học tiếng Anh kiểu cày cuốc, có trợ lý AI đồng hành",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#14213D",
+  "theme_color": "#14213D",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
