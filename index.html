@@ -286,6 +286,13 @@
   .char-avatar{width:46px;height:46px;border-radius:50%;margin:0 auto 6px;display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;overflow:hidden;}
   .char-avatar img{width:100%;height:100%;object-fit:cover;display:block;}
   .mini-speak-btn{border:none;background:none;cursor:pointer;font-size:14px;padding:2px 4px;vertical-align:middle;}
+  .voice-row{display:flex;align-items:center;gap:8px;}
+  .voice-play-btn{width:32px;height:32px;min-width:32px;border-radius:50%;border:none;background:var(--navy);color:#fff;font-size:13px;cursor:pointer;flex-shrink:0;}
+  .msg.user .voice-play-btn{background:rgba(255,255,255,0.25);color:#fff;}
+  .voice-wave{flex:1;height:14px;background:repeating-linear-gradient(90deg, currentColor 0 3px, transparent 3px 6px);opacity:0.35;border-radius:3px;min-width:50px;max-width:120px;}
+  .voice-toggle-btn{width:24px;height:24px;min-width:24px;border-radius:50%;border:1px solid currentColor;background:none;font-size:10px;font-weight:700;cursor:pointer;flex-shrink:0;opacity:0.75;line-height:1;}
+  .voice-text{margin-top:6px;font-size:13px;display:none;}
+  .voice-text.show{display:block;}
   .char-name{font-size:12px;font-weight:600;color:var(--ink);}
   .char-role{font-size:10px;color:var(--muted);}
 
@@ -464,6 +471,7 @@
           </div>
           <button class="btn small" id="noi-play">▶ Nghe</button>
         </div>
+        <div id="noi-tip-box" style="margin-top:10px;padding:10px 12px;background:rgba(240,180,60,0.12);border-radius:8px;font-size:12.5px;line-height:1.6;color:var(--ink);"></div>
         <div class="row" style="margin-top:14px;">
           <button class="btn small" id="noi-done">Tôi đã đọc theo ✓</button>
           <span id="noi-count" style="font-size:12px;color:var(--muted);">0/6 từ</span>
@@ -704,6 +712,9 @@
       <div class="row" style="margin-top:12px;">
         <button class="btn ghost small" id="review-next" style="display:none;">Từ tiếp theo →</button>
       </div>
+      <h2 class="stitle" style="margin-top:22px;font-size:17px;">💡 Điều cần nhớ</h2>
+      <p class="shint">Tự động gom lại từ ngữ pháp và mẹo bạn ảo đã sửa cho bạn.</p>
+      <div id="reminders-area"></div>
     </section>
 
     <p class="progress-note">Tiến trình học, ghi chú và lịch sử chat được lưu ngay trên trình duyệt này — thoát app rồi vào lại vẫn còn. Đổi sang điện thoại/máy khác thì cần đăng nhập để đồng bộ (sắp có).</p>
@@ -795,16 +806,18 @@
     });
     return genderGuess[0] || basePool[0];
   }
-  function speak(text){
-    if(!('speechSynthesis' in window)) return;
+  function speak(text, onEnd){
+    if(!('speechSynthesis' in window)) return null;
     const u = new SpeechSynthesisUtterance(text);
     u.lang = voiceSettings.accent;
     u.rate = voiceSettings.rate;
     u.volume = voiceSettings.volume;
     const v = pickVoice();
     if(v) u.voice = v;
+    if(onEnd) u.onend = onEnd;
     speechSynthesis.cancel();
     speechSynthesis.speak(u);
+    return u;
   }
 
   document.getElementById('voice-accent').addEventListener('change', e => { voiceSettings.accent = e.target.value; voiceSettings.specificVoiceURI=''; renderSpecificVoiceOptions(); });
@@ -899,21 +912,21 @@
 
   // ---- NGHE (listening fill-in-blank) ----
   const nghe_data = [
-    {full:"Can you send me the receipt?", missing:"receipt", sentence:"Can you send me the ___?", vi:"Bạn gửi cho tôi hóa đơn được không?"},
-    {full:"We offer a ten percent discount.", missing:"discount", sentence:"We offer a ten percent ___.", vi:"Chúng tôi giảm giá mười phần trăm."},
-    {full:"I need to check the deadline.", missing:"deadline", sentence:"I need to check the ___.", vi:"Tôi cần kiểm tra hạn chót."},
-    {full:"Please confirm the appointment.", missing:"appointment", sentence:"Please confirm the ___.", vi:"Vui lòng xác nhận cuộc hẹn."},
-    {full:"Can I get a refund?", missing:"refund", sentence:"Can I get a ___?", vi:"Tôi có thể được hoàn tiền không?"},
-    {full:"The weather is really hot today.", missing:"hot", sentence:"The weather is really ___ today.", vi:"Hôm nay trời nóng thật đấy."},
-    {full:"My family is having dinner together.", missing:"dinner", sentence:"My family is having ___ together.", vi:"Gia đình tôi đang ăn tối cùng nhau."},
-    {full:"I usually travel by motorbike.", missing:"motorbike", sentence:"I usually travel by ___.", vi:"Tôi thường đi lại bằng xe máy."},
-    {full:"She feels tired after work.", missing:"tired", sentence:"She feels ___ after work.", vi:"Cô ấy cảm thấy mệt sau giờ làm."},
-    {full:"We are planning a short trip.", missing:"trip", sentence:"We are planning a short ___.", vi:"Chúng tôi đang lên kế hoạch cho một chuyến đi ngắn."},
-    {full:"This phone has a great camera.", missing:"camera", sentence:"This phone has a great ___.", vi:"Chiếc điện thoại này có camera rất tốt."},
-    {full:"He always arrives early for meetings.", missing:"meetings", sentence:"He always arrives early for ___.", vi:"Anh ấy luôn đến sớm các cuộc họp."},
-    {full:"I enjoy listening to music at night.", missing:"music", sentence:"I enjoy listening to ___ at night.", vi:"Tôi thích nghe nhạc vào buổi tối."},
-    {full:"The traffic here is very heavy.", missing:"traffic", sentence:"The traffic here is very ___.", vi:"Giao thông ở đây rất đông đúc."},
-    {full:"Please turn off the lights before you leave.", missing:"lights", sentence:"Please turn off the ___ before you leave.", vi:"Vui lòng tắt đèn trước khi ra về."}
+    {full:"Can you send me the receipt?", missing:"receipt", wordVi:"hóa đơn", sentence:"Can you send me the ___?", vi:"Bạn gửi cho tôi hóa đơn được không?"},
+    {full:"We offer a ten percent discount.", missing:"discount", wordVi:"giảm giá", sentence:"We offer a ten percent ___.", vi:"Chúng tôi giảm giá mười phần trăm."},
+    {full:"I need to check the deadline.", missing:"deadline", wordVi:"hạn chót", sentence:"I need to check the ___.", vi:"Tôi cần kiểm tra hạn chót."},
+    {full:"Please confirm the appointment.", missing:"appointment", wordVi:"cuộc hẹn", sentence:"Please confirm the ___.", vi:"Vui lòng xác nhận cuộc hẹn."},
+    {full:"Can I get a refund?", missing:"refund", wordVi:"hoàn tiền", sentence:"Can I get a ___?", vi:"Tôi có thể được hoàn tiền không?"},
+    {full:"The weather is really hot today.", missing:"hot", wordVi:"nóng", sentence:"The weather is really ___ today.", vi:"Hôm nay trời nóng thật đấy."},
+    {full:"My family is having dinner together.", missing:"dinner", wordVi:"bữa tối", sentence:"My family is having ___ together.", vi:"Gia đình tôi đang ăn tối cùng nhau."},
+    {full:"I usually travel by motorbike.", missing:"motorbike", wordVi:"xe máy", sentence:"I usually travel by ___.", vi:"Tôi thường đi lại bằng xe máy."},
+    {full:"She feels tired after work.", missing:"tired", wordVi:"mệt mỏi", sentence:"She feels ___ after work.", vi:"Cô ấy cảm thấy mệt sau giờ làm."},
+    {full:"We are planning a short trip.", missing:"trip", wordVi:"chuyến đi", sentence:"We are planning a short ___.", vi:"Chúng tôi đang lên kế hoạch cho một chuyến đi ngắn."},
+    {full:"This phone has a great camera.", missing:"camera", wordVi:"máy ảnh", sentence:"This phone has a great ___.", vi:"Chiếc điện thoại này có camera rất tốt."},
+    {full:"He always arrives early for meetings.", missing:"meetings", wordVi:"cuộc họp", sentence:"He always arrives early for ___.", vi:"Anh ấy luôn đến sớm các cuộc họp."},
+    {full:"I enjoy listening to music at night.", missing:"music", wordVi:"âm nhạc", sentence:"I enjoy listening to ___ at night.", vi:"Tôi thích nghe nhạc vào buổi tối."},
+    {full:"The traffic here is very heavy.", missing:"traffic", wordVi:"giao thông", sentence:"The traffic here is very ___.", vi:"Giao thông ở đây rất đông đúc."},
+    {full:"Please turn off the lights before you leave.", missing:"lights", wordVi:"đèn", sentence:"Please turn off the ___ before you leave.", vi:"Vui lòng tắt đèn trước khi ra về."}
   ];
   const nghe_topic_pool = ["gia đình","công việc","du lịch","sức khỏe","mua sắm","thời tiết","sở thích","công nghệ","ẩm thực","thể thao","bạn bè","tiền bạc","nhà cửa","giao thông"];
   let nghe_used_words = [];
@@ -929,18 +942,28 @@
   document.getElementById('nghe-play').addEventListener('click', ()=>{
     speak(nghe_current.full);
   });
-  document.getElementById('nghe-check').addEventListener('click', ()=>{
+  document.getElementById('nghe-check').addEventListener('click', async ()=>{
     const d = nghe_current;
     const val = document.getElementById('nghe-input').value.trim().toLowerCase();
     const fb = document.getElementById('nghe-feedback');
+    const wordViText = d.wordVi ? (' — "'+d.missing+'" nghĩa là "'+d.wordVi+'"') : '';
     if(val === d.missing.toLowerCase()){
-      fb.textContent = 'Chính xác! 🎯';
+      fb.innerHTML = 'Chính xác! 🎯' + wordViText + ' <button class="mini-speak-btn" id="nghe-fb-speak">🔊</button>';
       fb.className = 'feedback ok';
       showMentorToast('Chuẩn không cần chỉnh! 🎯 Mẹo nhỏ: nghe lại câu 2 lần liền sẽ nhớ lâu hơn đó.');
     } else {
-      fb.textContent = 'Chưa đúng, đáp án là "'+d.missing+'"';
+      fb.innerHTML = 'Chưa đúng, đáp án là "'+d.missing+'"' + wordViText + ' <button class="mini-speak-btn" id="nghe-fb-speak">🔊</button>';
       fb.className = 'feedback bad';
       showMentorToast('Chưa đúng, không sao cả — nghe lại xem tai bắt được từ nào nhé 👂');
+    }
+    const speakBtn = document.getElementById('nghe-fb-speak');
+    if(speakBtn) speakBtn.addEventListener('click', ()=> speak(d.missing));
+    // Tự gom từ vừa gặp vào Ôn tập luôn (dù đúng hay sai), khỏi cần bấm thêm bước nào khác
+    if(d.wordVi && !noi_learned.some(x=>x.w===d.missing)){
+      noi_learned.push({w:d.missing, p:'', vi:d.wordVi});
+      progress.learnedWords = noi_learned;
+      await saveProgress(progress);
+      renderReview();
     }
     bumpActionCount();
   });
@@ -956,12 +979,12 @@
     const lv = currentLevelInfo();
     const topic = nghe_topic_pool[Math.floor(Math.random()*nghe_topic_pool.length)];
     const avoidList = nghe_used_words.slice(-12).join(', ') || 'không có';
-    const sys = "Write ONE short everyday English sentence for a Vietnamese learner at level " + lv.name + " (" + lv.desc + "), on the topic of " + topic + ". Feel free to occasionally use natural, casual spoken-style phrasing (contractions like I'm/that's/gonna, natural expressions) like real conversation or movie dialogue — it doesn't always need to be textbook-perfect grammar. Pick one common word in the sentence to blank out. IMPORTANT: do NOT reuse or closely resemble these already-used blanked words/themes: " + avoidList + " — pick a genuinely different word this time. Respond ONLY with raw JSON: {\"full\":\"<full sentence>\",\"missing\":\"<the blanked word, exactly as in full, lowercase>\",\"vi\":\"<Vietnamese translation of the full sentence>\"}.";
+    const sys = "Write ONE short everyday English sentence for a Vietnamese learner at level " + lv.name + " (" + lv.desc + "), on the topic of " + topic + ". Feel free to occasionally use natural, casual spoken-style phrasing (contractions like I'm/that's/gonna, natural expressions) like real conversation or movie dialogue — it doesn't always need to be textbook-perfect grammar. Pick one common word in the sentence to blank out. IMPORTANT: do NOT reuse or closely resemble these already-used blanked words/themes: " + avoidList + " — pick a genuinely different word this time. Respond ONLY with raw JSON: {\"full\":\"<full sentence>\",\"missing\":\"<the blanked word, exactly as in full, lowercase>\",\"word_vi\":\"<short Vietnamese meaning of just the blanked word>\",\"vi\":\"<Vietnamese translation of the full sentence>\"}.";
     try{
       const raw = await callClaude(sys, [{role:'user', content:'Cho câu mới.'}], 400);
       const d = safeParseJSON(raw);
       const sentence = d.full.replace(new RegExp('\\b'+d.missing+'\\b','i'), '___');
-      nghe_current = { full:d.full, missing:d.missing.toLowerCase(), sentence:sentence, vi:d.vi };
+      nghe_current = { full:d.full, missing:d.missing.toLowerCase(), wordVi:d.word_vi, sentence:sentence, vi:d.vi };
       nghe_used_words.push(d.missing.toLowerCase());
       loadNghe();
     }catch(err){
@@ -973,12 +996,12 @@
 
   // ---- NOI (speaking) ----
   const noi_data = [
-    {w:"delivery", p:"/dɪˈlɪvəri/", vi:"giao hàng"},
-    {w:"receipt", p:"/rɪˈsiːt/", vi:"hóa đơn"},
-    {w:"discount", p:"/ˈdɪskaʊnt/", vi:"giảm giá"},
-    {w:"refund", p:"/ˈriːfʌnd/", vi:"hoàn tiền"},
-    {w:"appointment", p:"/əˈpɔɪntmənt/", vi:"cuộc hẹn"},
-    {w:"deadline", p:"/ˈdedlaɪn/", vi:"hạn chót"}
+    {w:"delivery", p:"/dɪˈlɪvəri/", vi:"giao hàng", tip:"Âm 'r' trong tiếng Anh KHÔNG đọc thành 'z' như người Việt hay quen — cong nhẹ đầu lưỡi lên, không chạm vòm miệng, rồi bật hơi ra. Trọng âm rơi vào 'li' (de-LI-ve-ry)."},
+    {w:"receipt", p:"/rɪˈsiːt/", vi:"hóa đơn", tip:"Chú ý chữ 'p' bị CÂM, không đọc âm /p/ nào cả. Âm cuối 't' bật nhẹ, đừng nuốt mất như thói quen tiếng Việt hay bỏ phụ âm cuối."},
+    {w:"discount", p:"/ˈdɪskaʊnt/", vi:"giảm giá", tip:"Âm cuối 't' phải bật hơi rõ, không được nuốt âm cuối như khi nói tiếng Việt. Trọng âm rơi vào âm đầu 'DIS'."},
+    {w:"refund", p:"/ˈriːfʌnd/", vi:"hoàn tiền", tip:"Âm 'f' cắn nhẹ môi dưới vào răng trên rồi đẩy hơi ra, không phát âm như 'ph' tiếng Việt bình thường. Âm cuối 'd' bật nhẹ, đừng bỏ qua."},
+    {w:"appointment", p:"/əˈpɔɪntmənt/", vi:"cuộc hẹn", tip:"Âm cuối 't' phải bật hơi, không nuốt như tiếng Việt. Trọng âm rơi vào 'POINT' ở giữa từ."},
+    {w:"deadline", p:"/ˈdedlaɪn/", vi:"hạn chót", tip:"Âm cuối 'n' đưa lưỡi chạm nhẹ vòm miệng trên, giữ hơi mũi — khác hẳn cách bỏ lửng phụ âm cuối trong tiếng Việt."}
   ];
   let noi_current = noi_data[0];
   let noi_i = 0;
@@ -988,6 +1011,8 @@
     document.getElementById('noi-word').textContent = noi_current.w;
     document.getElementById('noi-phon').textContent = noi_current.p;
     document.getElementById('noi-vi').textContent = noi_current.vi;
+    document.getElementById('noi-tip-box').textContent = noi_current.tip ? ('👄 ' + noi_current.tip) : '';
+    document.getElementById('noi-tip-box').style.display = noi_current.tip ? 'block' : 'none';
   }
   document.getElementById('noi-play').addEventListener('click', ()=>{
     speak(noi_current.w);
@@ -1017,9 +1042,9 @@
     const lv = currentLevelInfo();
     const topic = nghe_topic_pool[Math.floor(Math.random()*nghe_topic_pool.length)];
     const avoidList = noi_used_words.slice(-15).join(', ') || 'không có';
-    const sys = "Give ONE useful, common everyday English word or short phrase for a Vietnamese learner at level " + lv.name + " (" + lv.desc + "), themed around " + topic + ". IMPORTANT: do NOT repeat or resemble any of these already-given words: " + avoidList + " — must be genuinely different. Respond ONLY with raw JSON: {\"w\":\"<the word/phrase>\",\"p\":\"<IPA phonetic>\",\"vi\":\"<Vietnamese meaning>\"}.";
+    const sys = "Give ONE useful, common everyday English word or short phrase for a Vietnamese learner at level " + lv.name + " (" + lv.desc + "), themed around " + topic + ". IMPORTANT: do NOT repeat or resemble any of these already-given words: " + avoidList + " — must be genuinely different. Also give ONE short, practical pronunciation tip IN VIETNAMESE aimed specifically at common mistakes Vietnamese speakers make with this word (e.g. dropping final consonants, confusing 'r' with 'z', not distinguishing 'th', mixing up 'l'/'n', not aspirating certain sounds) — mention concrete mouth/tongue positioning (uốn lưỡi, mở họng, bật hơi...). Respond ONLY with raw JSON: {\"w\":\"<the word/phrase>\",\"p\":\"<IPA phonetic>\",\"vi\":\"<Vietnamese meaning>\",\"tip\":\"<the Vietnamese pronunciation tip>\"}.";
     try{
-      const raw = await callClaude(sys, [{role:'user', content:'Cho từ mới.'}], 300);
+      const raw = await callClaude(sys, [{role:'user', content:'Cho từ mới.'}], 350);
       const d = safeParseJSON(raw);
       noi_current = d;
       noi_used_words.push(d.w.toLowerCase());
@@ -1163,7 +1188,7 @@
       const btn = document.createElement('button');
       btn.className = 'quiz-opt';
       btn.textContent = opt;
-      btn.addEventListener('click', ()=>{
+      btn.addEventListener('click', async ()=>{
         optWrap.querySelectorAll('.quiz-opt').forEach((b,i)=>{
           b.disabled = true;
           if(i === d.correct) b.classList.add('correct');
@@ -1171,6 +1196,11 @@
         });
         if(idx2 === d.correct){
           showMentorToast('Chuẩn! Công thức nhớ nhanh: ' + d.explain);
+          if(!progress.remindersToReview.some(r=>r.title===d.title)){
+            progress.remindersToReview.push({type:'grammar', title:d.title, note:d.explain});
+            await saveProgress(progress);
+            renderReview();
+          }
         } else {
           showMentorToast('Chưa đúng, đọc lại phần giải thích ở trên rồi thử lại nhé 💪');
         }
@@ -1197,7 +1227,7 @@
       const res = await storage.get('progress');
       return JSON.parse(res.value);
     }catch(e){
-      return {streak:0, lastActive:null, learnedWords:[], placementDone:false};
+      return {streak:0, lastActive:null, learnedWords:[], placementDone:false, contentIndex:{}, remindersToReview:[]};
     }
   }
   async function saveProgress(p){
@@ -1214,6 +1244,7 @@
   async function initApp(){
     progress = await loadProgress();
     const today = todayStr();
+    const isNewDay = progress.lastActive !== today;
     if(progress.lastActive === today){
       // same day, keep streak
     } else if(progress.lastActive === yesterdayStr()){
@@ -1223,11 +1254,35 @@
     }
     progress.lastActive = today;
     if(!progress.learnedWords) progress.learnedWords = [];
+    if(!progress.contentIndex) progress.contentIndex = {};
+    if(!progress.remindersToReview) progress.remindersToReview = [];
     // tuong thich nguoc: ban cu luu index so, ban moi luu object {w,p,vi}
     noi_learned = progress.learnedWords.map(item =>
       typeof item === 'number' ? noi_data[item % noi_data.length] : item
     ).filter(Boolean);
     progress.learnedWords = noi_learned;
+
+    // Quay lại vào một ngày MỚI (không phải mở lại trong cùng ngày) → tự động nhảy sang
+    // câu/bài/từ khác thay vì luôn bắt đầu lại từ đầu, đỡ nhàm cho học viên.
+    if(isNewDay){
+      const ci = progress.contentIndex;
+      ci.nghe = ((ci.nghe||0) + 1 + Math.floor(Math.random()*2)) % nghe_data.length;
+      ci.noi = ((ci.noi||0) + 1 + Math.floor(Math.random()*2)) % noi_data.length;
+      ci.viet = ((ci.viet||0) + 1 + Math.floor(Math.random()*2)) % viet_prompts.length;
+      ci.phap_de = ((ci.phap_de||0) + 1) % phap_data.de.length;
+      ci.phap_vua = ((ci.phap_vua||0) + 1) % phap_data.vua.length;
+      ci.phap_kho = ((ci.phap_kho||0) + 1) % phap_data.kho.length;
+    }
+    nghe_i = progress.contentIndex.nghe || 0;
+    nghe_current = nghe_data[nghe_i];
+    loadNghe();
+    noi_i = progress.contentIndex.noi || 0;
+    noi_current = noi_data[noi_i];
+    loadNoi();
+    viet_i = progress.contentIndex.viet || 0;
+    loadVietPrompt();
+    loadPhap('de', progress.contentIndex.phap_de || 0);
+
     await saveProgress(progress);
     document.getElementById('streakText').textContent = 'Ngày cày thứ ' + progress.streak;
     document.getElementById('noi-count').textContent = noi_learned.length+' từ';
@@ -1315,16 +1370,30 @@
     if(noi_learned.length === 0){
       area.innerHTML = '<p class="review-empty">Chưa có từ nào để ôn — sang tab NÓI học vài từ trước đã nhé.</p>';
       nextBtn.style.display = 'none';
+    } else {
+      nextBtn.style.display = 'inline-block';
+      showReviewCard();
+    }
+    renderReminders();
+  }
+  function renderReminders(){
+    const box = document.getElementById('reminders-area');
+    if(!box) return;
+    const list = progress.remindersToReview || [];
+    if(list.length === 0){
+      box.innerHTML = '<p class="review-empty">Chưa có mẹo nào — cứ học tự nhiên, cái gì đáng nhớ sẽ tự xuất hiện ở đây.</p>';
       return;
     }
-    nextBtn.style.display = 'inline-block';
-    showReviewCard();
+    box.innerHTML = list.slice().reverse().map(r=>
+      '<div class="card" style="padding:12px 14px;margin-bottom:8px;"><p style="font-size:12px;color:var(--muted);margin:0 0 4px;">'+(r.type==='grammar'?'📘 '+r.title:'🗣️ '+r.title)+'</p><p style="font-size:13px;margin:0;">'+r.note+'</p></div>'
+    ).join('');
   }
   function showReviewCard(){
     if(review_i >= noi_learned.length) review_i = 0;
     const word = noi_learned[review_i];
     const area = document.getElementById('review-area');
-    area.innerHTML = '<div class="flashcard"><div class="fw">'+word.w+'</div><div class="fv" style="display:none;" id="review-vi">'+word.vi+' — '+word.p+'</div><button class="btn small" id="review-flip" style="align-self:center;margin-top:6px;">Xem nghĩa</button></div>';
+    const tipHtml = word.tip ? '<div style="font-size:12px;color:var(--muted);margin-top:8px;line-height:1.5;">👄 '+word.tip+'</div>' : '';
+    area.innerHTML = '<div class="flashcard"><div class="fw">'+word.w+'</div><div class="fv" style="display:none;" id="review-vi">'+word.vi+' — '+word.p+tipHtml+'</div><button class="btn small" id="review-flip" style="align-self:center;margin-top:6px;">Xem nghĩa</button></div>';
     document.getElementById('review-flip').addEventListener('click', ()=>{
       document.getElementById('review-vi').style.display = 'block';
       speak(word.w);
@@ -1402,7 +1471,8 @@
     wordPopup.classList.add('show');
     try{
       const raw = await callClaude("You are a compact EN-VI dictionary. Respond ONLY with the Vietnamese meaning of the given English word as used in everyday context, 1-4 words, no explanation, no quotes.", [{role:'user', content:word}], 60);
-      wordPopup.textContent = word + ' → ' + raw.trim();
+      wordPopup.innerHTML = word + ' → ' + raw.trim() + ' <button class="mini-speak-btn" id="word-popup-speak">🔊</button>';
+      document.getElementById('word-popup-speak').addEventListener('click', (ev)=>{ ev.stopPropagation(); speak(word); });
     }catch(err){
       wordPopup.textContent = 'Lỗi tra từ: ' + err.message;
     }
@@ -1567,7 +1637,7 @@
     }
   });
 
-  initApp();
+  // initApp() được gọi ở cuối file (sau khi mọi dữ liệu như viet_prompts, phap_data đã khai báo xong)
 
   if('serviceWorker' in navigator){
     navigator.serviceWorker.register('/sw.js').catch(()=>{});
@@ -1685,57 +1755,98 @@
   async function saveChatHistory(){
     try{ await storage.set('chat_history_'+activeChar.id, JSON.stringify(chatMessages.slice(-30))); }catch(e){}
   }
-  function addSpeakBtn(div, text){
-    const enPart = text.split('(')[0].trim();
-    if(!enPart) return;
-    const btn = document.createElement('button');
-    btn.textContent = '🔊';
-    btn.style.cssText = 'background:none;border:none;margin-left:6px;font-size:13px;vertical-align:middle;';
-    btn.addEventListener('click', (e)=>{ e.stopPropagation(); speak(enPart); });
-    div.appendChild(btn);
+  // Bong bóng tin nhắn kiểu "voice message" (giống Zalo): có nút play + nút "Aa" để
+  // hiện/ẩn chữ. Với tin của học viên (thu âm thật) thì play = phát lại đúng giọng đã thu.
+  // Với tin của nhân vật (không có file âm thanh thật) thì play = đọc to bằng giọng máy (TTS).
+  function buildVoiceBubble(isUser, text, audioURL){
+    const wrap = document.createElement('div');
+    wrap.className = 'msg ' + (isUser ? 'user' : 'bot');
+    const row = document.createElement('div');
+    row.className = 'voice-row';
+    const playBtn = document.createElement('button');
+    playBtn.className = 'voice-play-btn';
+    playBtn.textContent = '▶';
+    const wave = document.createElement('div');
+    wave.className = 'voice-wave';
+    const toggleBtn = document.createElement('button');
+    toggleBtn.className = 'voice-toggle-btn';
+    toggleBtn.textContent = 'Aa';
+    row.appendChild(playBtn);
+    row.appendChild(wave);
+    row.appendChild(toggleBtn);
+    wrap.appendChild(row);
+    const textDiv = document.createElement('div');
+    textDiv.className = 'voice-text';
+    textDiv.textContent = text;
+    wrap.appendChild(textDiv);
+
+    let audioEl = audioURL ? new Audio(audioURL) : null;
+    if(audioEl) audioEl.onended = () => { playBtn.textContent = '▶'; };
+
+    playBtn.addEventListener('click', ()=>{
+      if(audioEl){
+        if(audioEl.paused){ audioEl.play(); playBtn.textContent = '⏸'; }
+        else { audioEl.pause(); playBtn.textContent = '▶'; }
+      } else {
+        if(speechSynthesis.speaking){ speechSynthesis.cancel(); playBtn.textContent = '▶'; return; }
+        const enPart = text.split('(')[0].trim() || text;
+        playBtn.textContent = '⏸';
+        speak(enPart, () => { playBtn.textContent = '▶'; });
+      }
+    });
+    toggleBtn.addEventListener('click', ()=>{
+      textDiv.classList.toggle('show');
+    });
+    return wrap;
   }
 
   function renderChatHistory(){
     const box = document.getElementById('chatbox');
     box.innerHTML = '';
     if(chatMessages.length === 0){
-      const greetDiv = document.createElement('div');
-      greetDiv.className = 'msg bot';
-      greetDiv.textContent = "Hi! I'm "+activeChar.name+". Nice to meet you! (Chào bạn! Mình là "+activeChar.name+". Rất vui được gặp bạn!)";
+      const greetText = "Hi! I'm "+activeChar.name+". Nice to meet you! (Chào bạn! Mình là "+activeChar.name+". Rất vui được gặp bạn!)";
+      const greetDiv = buildVoiceBubble(false, greetText, null);
       box.appendChild(greetDiv);
-      wrapWords(greetDiv);
-      addSpeakBtn(greetDiv, greetDiv.textContent);
       return;
     }
     chatMessages.forEach(m=>{
-      const div = document.createElement('div');
-      div.className = m.role === 'user' ? 'msg user' : 'msg bot';
-      div.textContent = m.content;
+      const div = buildVoiceBubble(m.role === 'user', m.content, null);
       box.appendChild(div);
-      if(m.role !== 'user'){
-        wrapWords(div);
-        addSpeakBtn(div, m.content);
-      }
     });
     box.scrollTop = box.scrollHeight;
   }
 
-  document.getElementById('chat-send').addEventListener('click', sendChat);
-  document.getElementById('chat-mic').addEventListener('click', ()=>{
+  document.getElementById('chat-send').addEventListener('click', ()=>sendChat());
+  let chatMediaRecorder = null;
+  document.getElementById('chat-mic').addEventListener('click', async ()=>{
     const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
     const micBtn = document.getElementById('chat-mic');
     if(!SpeechRec){
       showMentorToast('Trình duyệt này chưa hỗ trợ nói bằng mic, thử bằng Chrome trên điện thoại nhé.');
       return;
     }
+    // Thu 2 thứ CÙNG LÚC: SpeechRecognition để lấy chữ (gửi cho AI hiểu), và MediaRecorder
+    // để lấy file âm thanh thật (để phát lại đúng giọng mình vừa nói, kiểu tin nhắn thoại Zalo).
+    let stream = null;
+    try{
+      stream = await navigator.mediaDevices.getUserMedia({audio:true});
+    }catch(e){
+      showMentorToast('Trình duyệt đang chặn quyền micro — bấm biểu tượng 🔒/ⓘ trên thanh địa chỉ, cho phép Micrô rồi thử lại nhé.');
+      return;
+    }
+    const chunks = [];
+    const mr = new MediaRecorder(stream);
+    chatMediaRecorder = mr;
+    mr.ondataavailable = e => { if(e.data.size > 0) chunks.push(e.data); };
+    mr.start();
+
     const rec = new SpeechRec();
     rec.lang = voiceSettings.accent;
     rec.interimResults = false;
+    let transcript = '';
     micBtn.textContent = '🎙️';
     micBtn.classList.add('recording');
-    rec.onresult = (event) => {
-      document.getElementById('chat-input').value = event.results[0][0].transcript;
-    };
+    rec.onresult = (event) => { transcript = event.results[0][0].transcript; };
     rec.onerror = (ev) => {
       const msg = ev.error === 'not-allowed'
         ? 'Trình duyệt đang chặn quyền micro — bấm biểu tượng 🔒/ⓘ trên thanh địa chỉ, cho phép Micrô rồi thử lại nhé.'
@@ -1745,21 +1856,35 @@
     rec.onend = () => {
       micBtn.textContent = '🎤';
       micBtn.classList.remove('recording');
+      if(mr.state !== 'inactive') mr.stop();
+    };
+    mr.onstop = () => {
+      stream.getTracks().forEach(t => t.stop());
+      const blob = new Blob(chunks, {type: mr.mimeType || 'audio/webm'});
+      const url = URL.createObjectURL(blob);
+      if(transcript.trim()){
+        sendChat(transcript.trim(), url);
+      } else {
+        showMentorToast('Không nghe rõ, thử nói lại nhé.');
+      }
     };
     rec.start();
   });
   document.getElementById('chat-input').addEventListener('keydown', (e)=>{
     if(e.key==='Enter') sendChat();
   });
-  async function sendChat(){
+  async function sendChat(voiceText, voiceAudioURL){
     const inp = document.getElementById('chat-input');
-    const text = inp.value.trim();
+    const text = voiceText || inp.value.trim();
     if(!text) return;
     const box = document.getElementById('chatbox');
 
-    const userDiv = document.createElement('div');
-    userDiv.className = 'msg user';
-    userDiv.textContent = text;
+    const userDiv = voiceAudioURL ? buildVoiceBubble(true, text, voiceAudioURL) : (()=>{
+      const d = document.createElement('div');
+      d.className = 'msg user';
+      d.textContent = text;
+      return d;
+    })();
     box.appendChild(userDiv);
     inp.value = '';
     chatMessages.push({role:'user', content:text});
@@ -1775,28 +1900,31 @@
     const sys = activeChar.persona + " You act like a real friend/mentor who has been chatting with this Vietnamese learner for a while and genuinely remembers them — refer back naturally to earlier parts of the conversation when it fits. Never mock mistakes; make corrections feel like a caring tip, not a red pen. CRITICAL FORMAT RULE: every reply MUST be bilingual — write the English sentence(s) first, then immediately the full Vietnamese translation in parentheses, e.g. 'That sounds fun! (Nghe vui đấy!)'. Never send English-only text. Keep the English part short: 1-3 simple sentences (A2-B1 level). " + memoryNote + " Respond ONLY with raw JSON, no markdown fences, no preamble, in this exact shape: {\"reply\": \"your bilingual English (Vietnamese) reply\", \"correction\": \"if the learner's message had a grammar or word-choice mistake, a short one-sentence explanation IN VIETNAMESE of the fix, caring tone, otherwise null\"}";
 
     try{
-      // "Ép" AI luôn bắt đầu bằng '{' bằng kỹ thuật prefill — giúp các nhân vật phong cách
-      // phá cách (Peter, Emma...) vẫn tuân thủ đúng định dạng JSON dù đang nói chuyện tự nhiên,
-      // đỡ hẳn tình trạng thỉnh thoảng trả lời "chay" không đúng khuôn khiến app báo lỗi.
-      const apiMessages = chatMessages.slice(-20).concat([{role:'assistant', content:'{"reply":'}]);
-      const raw = await callClaude(sys, apiMessages, 500);
+      const raw = await callClaude(sys, chatMessages.slice(-20), 500);
       let parsed;
       try{
-        parsed = safeParseJSON('{"reply":' + raw);
+        parsed = safeParseJSON(raw);
       }catch(parseErr){
-        // Lớp phòng vệ thứ 2: nếu vẫn không phải JSON hợp lệ, coi cả câu trả lời là "reply"
-        // luôn, không để cuộc trò chuyện bị gãy giữa chừng vì lỗi định dạng.
-        parsed = { reply: raw.replace(/^\{?"?reply"?:?\s*"?/,'').replace(/"\}?$/,'').trim() || raw.trim(), correction: null };
+        // Nhân vật phong cách phá cách (Peter, Emma...) đôi khi trả lời tự nhiên mà không
+        // đúng khuôn JSON app cần đọc — thay vì báo lỗi, coi cả câu trả lời là "reply" luôn
+        // để cuộc trò chuyện không bị gãy giữa chừng.
+        parsed = { reply: raw.trim(), correction: null };
       }
       typing.remove();
 
-      const botDiv = document.createElement('div');
-      botDiv.className = 'msg bot';
-      botDiv.textContent = parsed.reply || '...';
+      const replyText = parsed.reply || '...';
+      const botDiv = buildVoiceBubble(false, replyText, null);
       box.appendChild(botDiv);
-      wrapWords(botDiv);
-      addSpeakBtn(botDiv, parsed.reply || '');
-      chatMessages.push({role:'assistant', content: parsed.reply || '...'});
+      // Tự động đọc to câu trả lời ngay khi vừa nhận, giống nghe tin nhắn thoại tự phát
+      const enPart = replyText.split('(')[0].trim() || replyText;
+      speak(enPart, () => {
+        const playBtn = botDiv.querySelector('.voice-play-btn');
+        if(playBtn) playBtn.textContent = '▶';
+      });
+      const playBtnNow = botDiv.querySelector('.voice-play-btn');
+      if(playBtnNow) playBtnNow.textContent = '⏸';
+
+      chatMessages.push({role:'assistant', content: replyText});
       await saveChatHistory();
 
       if(parsed.correction && parsed.correction !== 'null'){
@@ -1804,6 +1932,12 @@
         noteDiv.className = 'msg note';
         noteDiv.textContent = '💡 ' + parsed.correction;
         box.appendChild(noteDiv);
+        if(!progress.remindersToReview.some(r=>r.note===parsed.correction)){
+          progress.remindersToReview.push({type:'chat', title:'Mẹo từ '+activeChar.name, note:parsed.correction});
+          if(progress.remindersToReview.length > 30) progress.remindersToReview.shift();
+          await saveProgress(progress);
+          renderReview();
+        }
       }
     }catch(err){
       typing.remove();
@@ -2089,6 +2223,7 @@
     }
   });
   renderVideoHistory();
+  initApp();
 </script>
 </body>
 </html>
