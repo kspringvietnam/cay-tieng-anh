@@ -397,6 +397,7 @@
       </div>
       <div class="row">
         <button class="btn ghost small" id="nghe-next">Câu tiếp theo →</button>
+        <button class="btn ghost small" id="nghe-ai-new">🔄 Câu mới (AI)</button>
       </div>
     </section>
 
@@ -424,6 +425,7 @@
       </div>
       <div class="row">
         <button class="btn ghost small" id="noi-next">Từ tiếp theo →</button>
+        <button class="btn ghost small" id="noi-ai-new">🔄 Từ mới (AI)</button>
       </div>
     </section>
 
@@ -440,6 +442,7 @@
         <button class="topic-chip" data-topic="cong-nghe">💻 Công nghệ</button>
         <button class="topic-chip" data-topic="doi-song">🌿 Đời sống</button>
         <button class="topic-chip" data-topic="hoi-hoa">🎨 Hội họa</button>
+        <button class="topic-chip" data-topic="danh-ngon">✨ Danh ngôn</button>
       </div>
 
       <div class="row" style="margin:12px 0;">
@@ -518,7 +521,20 @@
       </div>
 
       <div class="card">
-        <p style="font-size:12px;color:var(--muted);margin:0 0 8px;">Đây KHÔNG phải lời thoại thật trong video — là hội thoại mẫu do AI soạn theo chủ đề, để luyện thêm.</p>
+        <p style="font-size:13px;font-weight:600;margin:0 0 4px;">Dịch đúng nội dung video (khuyên dùng)</p>
+        <p style="font-size:12px;color:var(--muted);margin:0 0 8px;">Trên YouTube: bấm "..." dưới video → "Hiện bản ghi" (Show transcript) → copy hết → dán vào đây.</p>
+        <textarea id="video-transcript" placeholder="Dán phụ đề/bản ghi tiếng Anh thật của video vào đây..." style="min-height:80px;"></textarea>
+        <div class="row" style="margin-top:8px;">
+          <button class="btn small" id="video-translate-btn">Dịch song ngữ theo đúng video</button>
+        </div>
+        <div id="video-transcript-result" style="margin-top:10px;"></div>
+        <div class="row" id="video-transcript-copy-row" style="display:none;margin-top:10px;">
+          <button class="btn ghost small" id="video-transcript-copy-btn">📋 Copy toàn bộ để gửi Zalo/Messenger</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <p style="font-size:12px;color:var(--muted);margin:0 0 8px;">Hoặc: chưa có phụ đề thật? AI soạn 1 đoạn hội thoại mẫu theo chủ đề để luyện tạm — LƯU Ý đây KHÔNG phải lời thoại thật trong video.</p>
         <div class="row">
           <input type="text" id="video-topic" placeholder="Chủ đề của video là gì? (VD: du lịch, ẩm thực...)">
           <button class="btn small" id="video-vocab-btn">Soạn hội thoại mẫu</button>
@@ -770,21 +786,22 @@
     {full:"Can I get a refund?", missing:"refund", sentence:"Can I get a ___?", vi:"Tôi có thể được hoàn tiền không?"}
   ];
   let nghe_i = 0;
+  let nghe_current = nghe_data[0];
   function loadNghe(){
-    const d = nghe_data[nghe_i % nghe_data.length];
+    const d = nghe_current;
     document.getElementById('nghe-sentence').textContent = d.sentence;
     document.getElementById('nghe-vi').textContent = d.vi;
     document.getElementById('nghe-input').value = '';
     document.getElementById('nghe-feedback').textContent = '';
   }
   document.getElementById('nghe-play').addEventListener('click', ()=>{
-    speak(nghe_data[nghe_i % nghe_data.length].full);
+    speak(nghe_current.full);
   });
   document.getElementById('nghe-check').addEventListener('click', ()=>{
-    const d = nghe_data[nghe_i % nghe_data.length];
+    const d = nghe_current;
     const val = document.getElementById('nghe-input').value.trim().toLowerCase();
     const fb = document.getElementById('nghe-feedback');
-    if(val === d.missing){
+    if(val === d.missing.toLowerCase()){
       fb.textContent = 'Chính xác! 🎯';
       fb.className = 'feedback ok';
       showMentorToast('Chuẩn không cần chỉnh! 🎯 Mẹo nhỏ: nghe lại câu 2 lần liền sẽ nhớ lâu hơn đó.');
@@ -797,7 +814,25 @@
   });
   document.getElementById('nghe-next').addEventListener('click', ()=>{
     nghe_i++;
+    nghe_current = nghe_data[nghe_i % nghe_data.length];
     loadNghe();
+  });
+  document.getElementById('nghe-ai-new').addEventListener('click', async ()=>{
+    const btn = document.getElementById('nghe-ai-new');
+    btn.disabled = true;
+    document.getElementById('nghe-sentence').textContent = 'Đang soạn câu mới...';
+    const lv = currentLevelInfo();
+    const sys = "Write ONE short everyday English sentence for a Vietnamese learner at level " + lv.name + " (" + lv.desc + "). Pick one common word in the sentence to blank out. Respond ONLY with raw JSON: {\"full\":\"<full sentence>\",\"missing\":\"<the blanked word, exactly as in full, lowercase>\",\"vi\":\"<Vietnamese translation of the full sentence>\"}.";
+    try{
+      const raw = await callClaude(sys, [{role:'user', content:'Cho câu mới.'}]);
+      const d = safeParseJSON(raw);
+      const sentence = d.full.replace(new RegExp('\\\\b'+d.missing+'\\\\b','i'), '___');
+      nghe_current = { full:d.full, missing:d.missing.toLowerCase(), sentence:sentence, vi:d.vi };
+      loadNghe();
+    }catch(err){
+      document.getElementById('nghe-sentence').textContent = 'Lỗi tạo câu, thử lại nhé.';
+    }
+    btn.disabled = false;
   });
   loadNghe();
 
@@ -810,23 +845,22 @@
     {w:"appointment", p:"/əˈpɔɪntmənt/", vi:"cuộc hẹn"},
     {w:"deadline", p:"/ˈdedlaɪn/", vi:"hạn chót"}
   ];
-  let noi_i = 0;
-  let noi_done_count = 0;
-  const noi_seen = new Set();
+  let noi_current = noi_data[0];
+  let noi_learned = []; // array of {w,p,vi}
   function loadNoi(){
-    const d = noi_data[noi_i % noi_data.length];
-    document.getElementById('noi-word').textContent = d.w;
-    document.getElementById('noi-phon').textContent = d.p;
-    document.getElementById('noi-vi').textContent = d.vi;
+    document.getElementById('noi-word').textContent = noi_current.w;
+    document.getElementById('noi-phon').textContent = noi_current.p;
+    document.getElementById('noi-vi').textContent = noi_current.vi;
   }
   document.getElementById('noi-play').addEventListener('click', ()=>{
-    speak(noi_data[noi_i % noi_data.length].w);
+    speak(noi_current.w);
   });
   document.getElementById('noi-done').addEventListener('click', async ()=>{
-    const idx = noi_i % noi_data.length;
-    noi_seen.add(idx);
-    document.getElementById('noi-count').textContent = noi_seen.size+'/6 từ';
-    progress.learnedWords = Array.from(noi_seen);
+    if(!noi_learned.some(x=>x.w===noi_current.w)){
+      noi_learned.push(noi_current);
+    }
+    document.getElementById('noi-count').textContent = noi_learned.length+' từ';
+    progress.learnedWords = noi_learned;
     await saveProgress(progress);
     renderReview();
     showMentorToast('Đã luyện xong từ này! Mẹo: lặp lại to 3 lần liền để in vào phản xạ miệng 🗣️');
@@ -834,7 +868,26 @@
   });
   document.getElementById('noi-next').addEventListener('click', ()=>{
     noi_i++;
+    noi_current = noi_data[noi_i % noi_data.length];
     loadNoi();
+  });
+  document.getElementById('noi-ai-new').addEventListener('click', async ()=>{
+    const btn = document.getElementById('noi-ai-new');
+    btn.disabled = true;
+    document.getElementById('noi-word').textContent = '...';
+    document.getElementById('noi-phon').textContent = '';
+    document.getElementById('noi-vi').textContent = 'Đang soạn từ mới...';
+    const lv = currentLevelInfo();
+    const sys = "Give ONE useful, common everyday English word or short phrase for a Vietnamese learner at level " + lv.name + " (" + lv.desc + "). Respond ONLY with raw JSON: {\"w\":\"<the word/phrase>\",\"p\":\"<IPA phonetic>\",\"vi\":\"<Vietnamese meaning>\"}.";
+    try{
+      const raw = await callClaude(sys, [{role:'user', content:'Cho từ mới.'}]);
+      const d = safeParseJSON(raw);
+      noi_current = d;
+      loadNoi();
+    }catch(err){
+      document.getElementById('noi-vi').textContent = 'Lỗi tạo từ, thử lại nhé.';
+    }
+    btn.disabled = false;
   });
   loadNoi();
 
@@ -951,12 +1004,14 @@
     }
     progress.lastActive = today;
     if(!progress.learnedWords) progress.learnedWords = [];
+    // tuong thich nguoc: ban cu luu index so, ban moi luu object {w,p,vi}
+    noi_learned = progress.learnedWords.map(item =>
+      typeof item === 'number' ? noi_data[item % noi_data.length] : item
+    ).filter(Boolean);
+    progress.learnedWords = noi_learned;
     await saveProgress(progress);
     document.getElementById('streakText').textContent = 'Ngày cày thứ ' + progress.streak;
-
-    // sync noi_seen with stored learnedWords
-    progress.learnedWords.forEach(id => noi_seen.add(id));
-    document.getElementById('noi-count').textContent = noi_seen.size+'/6 từ';
+    document.getElementById('noi-count').textContent = noi_learned.length+' từ';
 
     renderReview();
     wrapAllDocLines();
@@ -1037,18 +1092,17 @@
   function renderReview(){
     const area = document.getElementById('review-area');
     const nextBtn = document.getElementById('review-next');
-    const ids = Array.from(noi_seen);
-    if(ids.length === 0){
+    if(noi_learned.length === 0){
       area.innerHTML = '<p class="review-empty">Chưa có từ nào để ôn — sang tab NÓI học vài từ trước đã nhé.</p>';
       nextBtn.style.display = 'none';
       return;
     }
     nextBtn.style.display = 'inline-block';
-    showReviewCard(ids);
+    showReviewCard();
   }
-  function showReviewCard(ids){
-    if(review_i >= ids.length) review_i = 0;
-    const word = noi_data[ids[review_i]];
+  function showReviewCard(){
+    if(review_i >= noi_learned.length) review_i = 0;
+    const word = noi_learned[review_i];
     const area = document.getElementById('review-area');
     area.innerHTML = '<div class="flashcard"><div class="fw">'+word.w+'</div><div class="fv" style="display:none;" id="review-vi">'+word.vi+' — '+word.p+'</div><button class="btn small" id="review-flip" style="align-self:center;margin-top:6px;">Xem nghĩa</button></div>';
     document.getElementById('review-flip').addEventListener('click', ()=>{
@@ -1057,9 +1111,8 @@
     });
   }
   document.getElementById('review-next').addEventListener('click', ()=>{
-    const ids = Array.from(noi_seen);
     review_i++;
-    showReviewCard(ids);
+    showReviewCard();
   });
 
   // ---- CO VAN THONG MINH ----
@@ -1089,7 +1142,7 @@
     renderLevels();
   }
   async function showMilestoneSummary(){
-    const learnedList = progress.learnedWords.map(id => noi_data[id] ? noi_data[id].w : null).filter(Boolean).join(', ') || 'chưa có từ nào';
+    const learnedList = progress.learnedWords.map(x => x.w).filter(Boolean).join(', ') || 'chưa có từ nào';
     const sys = "You are 'Cày', a warm English mentor for a Vietnamese adult learner. Write ONE short check-in in Vietnamese (a couple of simple English words woven in is fine), 2-3 sentences: (1) acknowledge their progress briefly, (2) give one useful tip or mini formula to remember, (3) end with genuine encouragement. Warm and human, no bullet points, no markdown. Progress: streak " + (progress.streak||0) + " ngày, trình độ " + (progress.placementLevel||'chưa xếp loại') + ", từ đã học: " + learnedList + ".";
     try{
       const raw = await callClaude(sys, [{role:'user', content:'Cho mình một lời tổng kết và động viên ngắn.'}]);
@@ -1231,7 +1284,8 @@
     'nguoi-noi-tieng':'người nổi tiếng (nhân vật hư cấu, không dùng tên người thật)',
     'cong-nghe':'công nghệ',
     'doi-song':'đời sống hằng ngày',
-    'hoi-hoa':'hội họa'
+    'hoi-hoa':'hội họa',
+    'danh-ngon':'danh ngôn truyền cảm hứng'
   };
   document.querySelectorAll('.topic-chip').forEach(chip=>{
     chip.addEventListener('click', ()=>{
@@ -1248,6 +1302,18 @@
       }
     });
   });
+  // Danh ngon DA KIEM CHUNG THAT (khong de AI tu bia), nguon: SUCCESS.com, Goodreads, BrainyQuote, AZQuotes
+  const VERIFIED_QUOTES = [
+    { en:"Discipline is the bridge between goals and accomplishment.", vi:"Kỷ luật là cây cầu nối giữa mục tiêu và thành quả.", author:"Jim Rohn" },
+    { en:"Success is not to be pursued; it is to be attracted by the person you become.", vi:"Thành công không phải để theo đuổi, mà tự tìm đến người mà bạn trở thành.", author:"Jim Rohn" },
+    { en:"Formal education will make you a living; self-education will make you a fortune.", vi:"Học ở trường giúp bạn kiếm sống; tự học giúp bạn làm giàu.", author:"Jim Rohn" },
+    { en:"Don't wish it were easier. Wish you were better.", vi:"Đừng ước mọi thứ dễ dàng hơn. Hãy ước bản thân giỏi hơn.", author:"Jim Rohn" },
+    { en:"Your life does not get better by chance, it gets better by change.", vi:"Cuộc sống không tốt lên nhờ may mắn, mà nhờ sự thay đổi.", author:"Jim Rohn" },
+    { en:"The smallest of disciplines practiced every day start an incredible process that can change our lives forever.", vi:"Chỉ cần một kỷ luật nhỏ được duy trì mỗi ngày cũng có thể khởi đầu một quá trình thay đổi cả cuộc đời bạn.", author:"Jim Rohn" },
+    { en:"Take care of your body. It's the only place you have to live.", vi:"Hãy chăm sóc cơ thể bạn. Đó là nơi duy nhất bạn có để sống.", author:"Jim Rohn" },
+    { en:"Happiness is not by chance, but by choice.", vi:"Hạnh phúc không đến từ may mắn, mà từ sự lựa chọn.", author:"Jim Rohn" }
+  ];
+
   document.getElementById('doc-generate').addEventListener('click', async ()=>{
     const contentEl = document.getElementById('doc-content');
     const quizMau = document.getElementById('doc-quiz-mau');
@@ -1258,6 +1324,14 @@
     }
     quizMau.style.display = 'none';
     quizMau2.style.display = 'none';
+    if(currentTopic === 'danh-ngon'){
+      const q = VERIFIED_QUOTES[Math.floor(Math.random()*VERIFIED_QUOTES.length)];
+      contentEl.innerHTML = '<div class="card doc-line"><p class="doc-en" style="font-size:16px;font-weight:600;">"'+q.en+'"</p>'+
+        '<p class="doc-vi">"'+q.vi+'" <button class="save-btn" data-en="'+q.en.replace(/"/g,'&quot;')+'" data-vi="'+q.vi.replace(/"/g,'&quot;')+'">💾</button></p>'+
+        '<p style="font-size:12px;color:var(--muted);margin-top:8px;text-align:right;">— '+q.author+' (danh ngôn đã kiểm chứng)</p></div>';
+      wrapAllDocLines();
+      return;
+    }
     contentEl.innerHTML = '<p class="doc-loading">Đang soạn bài về '+topicLabels[currentTopic]+'...</p>';
     const lv = currentLevelInfo();
     const sys = "You write short, upbeat reading passages for a Vietnamese adult learning English. Learner's current level tier: " + lv.name + " (" + lv.desc + "). Adjust sentence length, grammar complexity and vocabulary rarity to match this tier — lower tiers get very short simple sentences and only the most common words; higher tiers can use longer sentences and a bit more varied vocabulary, but NEVER academic or highly technical words at any tier. Topic: " + topicLabels[currentTopic] + ". Write 5 sentences forming a mini positive/uplifting article, no real named public figures or brands, keep it fictional/generic. For EACH sentence give the Vietnamese translation too. Respond ONLY with raw JSON, no markdown: {\"lines\":[{\"en\":\"...\",\"vi\":\"...\"}, ...]} with exactly 5 items.";
@@ -1362,7 +1436,7 @@
     box.appendChild(typing);
     box.scrollTop = box.scrollHeight;
 
-    const learnedList = progress.learnedWords.map(id => noi_data[id] ? noi_data[id].w : null).filter(Boolean).join(', ') || 'chưa có';
+    const learnedList = progress.learnedWords.map(x => x.w).filter(Boolean).join(', ') || 'chưa có';
     const memoryNote = "Ghi nhớ về học viên: streak hiện tại " + (progress.streak||0) + " ngày, cấp độ hiện tại: " + currentLevelInfo().name + " (" + currentLevelInfo().desc + "), từ vựng đã học: " + learnedList + ". Điều chỉnh độ khó câu trả lời tiếng Anh cho khớp cấp độ này.";
     const sys = "You are 'Cày' — a witty, warm English-speaking study buddy AND patient teacher for a Vietnamese adult learner. You act like a real friend who has been chatting with this learner for a while and genuinely remembers them — refer back naturally to earlier parts of the conversation or their learning progress when it fits, the way a friend would say 'oh yeah, like you mentioned...'. Personality: playful and a little funny, light jokes and emoji here and there, never boring or textbook-like — but never mock mistakes; make corrections feel like a fun tip from a friend, not a red pen. CRITICAL FORMAT RULE: every reply MUST be bilingual — write the English sentence(s) first, then immediately the full Vietnamese translation in parentheses, e.g. 'That sounds fun! (Nghe vui đấy!)'. Never send English-only text. Keep the English part short: 1-3 simple sentences (A2-B1 level). " + memoryNote + " Respond ONLY with raw JSON, no markdown fences, no preamble, in this exact shape: {\"reply\": \"your bilingual English (Vietnamese) reply\", \"correction\": \"if the learner's message had a grammar or word-choice mistake, a short one-sentence explanation IN VIETNAMESE of the fix, playful tone, otherwise null\"}";
 
@@ -1513,6 +1587,38 @@
       }
     }
   });
+  document.getElementById('video-translate-btn').addEventListener('click', async ()=>{
+    const transcript = document.getElementById('video-transcript').value.trim();
+    const resultEl = document.getElementById('video-transcript-result');
+    const copyRow = document.getElementById('video-transcript-copy-row');
+    if(!transcript){ resultEl.innerHTML = '<p class="notes-empty">Dán phụ đề/bản ghi video vào ô trên trước đã.</p>'; return; }
+    resultEl.innerHTML = '<p class="doc-loading">Đang dịch song ngữ theo đúng nội dung...</p>';
+    copyRow.style.display = 'none';
+    const sys = "The user will give you a real English transcript/subtitle text from a video (it may be messy, no punctuation, run-on). Split it into natural short sentences/segments and translate EACH into Vietnamese. Keep the English EXACTLY as given (do not rewrite or invent), just segment it sensibly. Respond ONLY with raw JSON: {\"lines\":[{\"en\":\"...\",\"vi\":\"...\"}, ...]}.";
+    try{
+      const raw = await callClaude(sys, [{role:'user', content: transcript}]);
+      const d = safeParseJSON(raw);
+      resultEl.innerHTML = d.lines.map(l=>
+        '<div class="card doc-line" style="padding:10px 14px;"><p class="doc-en" style="margin:0;">'+l.en+'</p><p class="doc-vi" style="margin:2px 0 0;">'+l.vi+'</p></div>'
+      ).join('');
+      wrapAllDocLines();
+      window.__lastTranscript = d.lines;
+      copyRow.style.display = 'flex';
+    }catch(err){
+      resultEl.innerHTML = '<p class="notes-empty">Lỗi kết nối: '+err.message+' — thử lại nhé.</p>';
+    }
+  });
+  document.getElementById('video-transcript-copy-btn').addEventListener('click', async ()=>{
+    const lines = window.__lastTranscript || [];
+    const text = lines.map(l => l.en+'\n'+l.vi).join('\n\n');
+    try{
+      await navigator.clipboard.writeText(text);
+      showMentorToast('Đã copy đúng nội dung video! Dán vào Zalo/Messenger để lưu và học lại nhé 📋');
+    }catch(e){
+      showMentorToast('Trình duyệt chặn copy tự động, bôi đen đoạn text rồi copy tay nhé.');
+    }
+  });
+
   document.getElementById('video-vocab-btn').addEventListener('click', async ()=>{
     const topic = document.getElementById('video-topic').value.trim();
     const resultEl = document.getElementById('video-vocab-result');
