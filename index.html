@@ -285,6 +285,7 @@
   .char-card.active{border-color:var(--navy);background:#EFEAD9;}
   .char-avatar{width:46px;height:46px;border-radius:50%;margin:0 auto 6px;display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;overflow:hidden;}
   .char-avatar img{width:100%;height:100%;object-fit:cover;display:block;}
+  .mini-speak-btn{border:none;background:none;cursor:pointer;font-size:14px;padding:2px 4px;vertical-align:middle;}
   .char-name{font-size:12px;font-weight:600;color:var(--ink);}
   .char-role{font-size:10px;color:var(--muted);}
 
@@ -834,8 +835,14 @@
     try{
       const raw = await callClaude(sys, [{role:'user', content:text}], 250);
       const d = safeParseJSON(raw);
+      const englishText = d.phonetic ? d.word : d.translation;
       resultEl.innerHTML = '<b>'+d.word+'</b>' + (d.phonetic ? ' <span style="color:var(--muted);">'+d.phonetic+'</span>' : '') +
-        '<br>' + d.translation + '<br><span style="color:var(--muted);font-style:italic;">'+d.example+'</span>';
+        ' <button class="mini-speak-btn" data-say="'+englishText.replace(/"/g,'&quot;')+'">🔊</button>' +
+        '<br>' + d.translation +
+        '<br><span style="color:var(--muted);font-style:italic;">'+d.example+'</span> <button class="mini-speak-btn" data-say="'+d.example.replace(/"/g,'&quot;')+'">🔊</button>';
+      resultEl.querySelectorAll('.mini-speak-btn').forEach(b=>{
+        b.addEventListener('click', ()=> speak(b.dataset.say));
+      });
     }catch(e){
       resultEl.textContent = 'Lỗi: ' + e.message;
     }
@@ -949,7 +956,7 @@
     const lv = currentLevelInfo();
     const topic = nghe_topic_pool[Math.floor(Math.random()*nghe_topic_pool.length)];
     const avoidList = nghe_used_words.slice(-12).join(', ') || 'không có';
-    const sys = "Write ONE short everyday English sentence for a Vietnamese learner at level " + lv.name + " (" + lv.desc + "), on the topic of " + topic + ". Pick one common word in the sentence to blank out. IMPORTANT: do NOT reuse or closely resemble these already-used blanked words/themes: " + avoidList + " — pick a genuinely different word this time. Respond ONLY with raw JSON: {\"full\":\"<full sentence>\",\"missing\":\"<the blanked word, exactly as in full, lowercase>\",\"vi\":\"<Vietnamese translation of the full sentence>\"}.";
+    const sys = "Write ONE short everyday English sentence for a Vietnamese learner at level " + lv.name + " (" + lv.desc + "), on the topic of " + topic + ". Feel free to occasionally use natural, casual spoken-style phrasing (contractions like I'm/that's/gonna, natural expressions) like real conversation or movie dialogue — it doesn't always need to be textbook-perfect grammar. Pick one common word in the sentence to blank out. IMPORTANT: do NOT reuse or closely resemble these already-used blanked words/themes: " + avoidList + " — pick a genuinely different word this time. Respond ONLY with raw JSON: {\"full\":\"<full sentence>\",\"missing\":\"<the blanked word, exactly as in full, lowercase>\",\"vi\":\"<Vietnamese translation of the full sentence>\"}.";
     try{
       const raw = await callClaude(sys, [{role:'user', content:'Cho câu mới.'}], 400);
       const d = safeParseJSON(raw);
@@ -974,7 +981,9 @@
     {w:"deadline", p:"/ˈdedlaɪn/", vi:"hạn chót"}
   ];
   let noi_current = noi_data[0];
+  let noi_i = 0;
   let noi_learned = []; // array of {w,p,vi}
+  const noi_used_words = [];
   function loadNoi(){
     document.getElementById('noi-word').textContent = noi_current.w;
     document.getElementById('noi-phon').textContent = noi_current.p;
@@ -1006,11 +1015,14 @@
     document.getElementById('noi-phon').textContent = '';
     document.getElementById('noi-vi').textContent = 'Đang soạn từ mới...';
     const lv = currentLevelInfo();
-    const sys = "Give ONE useful, common everyday English word or short phrase for a Vietnamese learner at level " + lv.name + " (" + lv.desc + "). Respond ONLY with raw JSON: {\"w\":\"<the word/phrase>\",\"p\":\"<IPA phonetic>\",\"vi\":\"<Vietnamese meaning>\"}.";
+    const topic = nghe_topic_pool[Math.floor(Math.random()*nghe_topic_pool.length)];
+    const avoidList = noi_used_words.slice(-15).join(', ') || 'không có';
+    const sys = "Give ONE useful, common everyday English word or short phrase for a Vietnamese learner at level " + lv.name + " (" + lv.desc + "), themed around " + topic + ". IMPORTANT: do NOT repeat or resemble any of these already-given words: " + avoidList + " — must be genuinely different. Respond ONLY with raw JSON: {\"w\":\"<the word/phrase>\",\"p\":\"<IPA phonetic>\",\"vi\":\"<Vietnamese meaning>\"}.";
     try{
       const raw = await callClaude(sys, [{role:'user', content:'Cho từ mới.'}], 300);
       const d = safeParseJSON(raw);
       noi_current = d;
+      noi_used_words.push(d.w.toLowerCase());
       loadNoi();
     }catch(err){
       document.getElementById('noi-vi').textContent = 'Lỗi tạo từ, thử lại nhé.';
@@ -1626,17 +1638,17 @@
   // ---- NHAN VAT TRO CHUYEN (6 nguoi, moi nguoi nho rieng lich su) ----
   const CHARACTERS = [
     { id:'peter', name:'Peter', role:'Bạn thân Gen Z', gender:'nam', color:'#4A6FA5', avatar:'😎', avatarSeed:'Peter-cool-guy',
-      persona:"You are Peter, a chill Gen-Z guy around the learner's age. Talk like texting a close bro: casual slang (yo, lol, ngl, fr, bruh-style energy but keep it tasteful), light jokes, emojis sometimes, super relaxed — never formal or teacher-like." },
+      persona:"You are Peter, a chill Gen-Z guy around the learner's age. Talk like texting a close bro: casual slang (yo, lol, ngl, fr, bruh-style energy but keep it tasteful), light jokes, emojis sometimes, super relaxed — never formal or teacher-like. Use natural everyday spoken English with contractions (gonna, wanna, kinda, I'm, it's) — real-life texting style, not textbook-perfect grammar." },
     { id:'james', name:'James', role:'Thầy giáo nghiêm túc', gender:'nam', color:'#2F6E4F', avatar:'🧐', avatarSeed:'James-teacher-formal',
       persona:"You are James, a strict, old-school, formal male English teacher. Speak properly and precisely, address the learner respectfully, correct mistakes clearly and directly (still kindly), avoid slang or casual tone entirely." },
     { id:'david', name:'David', role:'Mentor kinh doanh', gender:'nam', color:'#8A5A2B', avatar:'🕴️', avatarSeed:'David-business-mentor',
       persona:"You are David, a confident, sharp male business mentor. Speak like a senior exec giving advice — professional vocabulary, weave in career/business/negotiation context, motivating but businesslike tone." },
     { id:'emma', name:'Emma', role:'Bạn gái vui vẻ', gender:'nu', color:'#B5548B', avatar:'🤩', avatarSeed:'Emma-cheerful-girl',
-      persona:"You are Emma, a super bubbly, high-energy female friend. Chat with lots of enthusiasm, compliments, exclamation points, playful emojis — like an excitable best friend hyping the learner up." },
+      persona:"You are Emma, a super bubbly, high-energy female friend. Chat with lots of enthusiasm, compliments, exclamation points, playful emojis — like an excitable best friend hyping the learner up. Speak like real everyday chatting/movie dialogue, contractions and casual expressions welcome — doesn't need to be textbook-perfect." },
     { id:'sophia', name:'Sophia', role:'Cô giáo tận tâm', gender:'nu', color:'#3B8A8C', avatar:'👩‍🏫', avatarSeed:'Sophia-caring-teacher',
       persona:"You are Sophia, a warm, nurturing, patient female English teacher. Explain gently and clearly, praise effort generously, correct mistakes softly like a caring mentor, never rushed." },
     { id:'lisa', name:'Lisa', role:'Đồng nghiệp lầy lội', gender:'nu', color:'#C1721E', avatar:'💁‍♀️', avatarSeed:'Lisa-witty-coworker',
-      persona:"You are Lisa, a witty, sassy, a bit cheeky female coworker. Talk casually about everyday office life and gossip with humor and playful sarcasm (always friendly, never mean), relaxed and fun tone." }
+      persona:"You are Lisa, a witty, sassy, a bit cheeky female coworker. Talk casually about everyday office life and gossip with humor and playful sarcasm (always friendly, never mean), relaxed and fun tone. Sound like a real person chatting or a character in a movie — natural contractions and casual phrasing over stiff textbook grammar." }
   ];
   let activeChar = CHARACTERS[0];
   let chatMessages = []; // {role:'user'|'assistant', content:string}
@@ -1763,8 +1775,19 @@
     const sys = activeChar.persona + " You act like a real friend/mentor who has been chatting with this Vietnamese learner for a while and genuinely remembers them — refer back naturally to earlier parts of the conversation when it fits. Never mock mistakes; make corrections feel like a caring tip, not a red pen. CRITICAL FORMAT RULE: every reply MUST be bilingual — write the English sentence(s) first, then immediately the full Vietnamese translation in parentheses, e.g. 'That sounds fun! (Nghe vui đấy!)'. Never send English-only text. Keep the English part short: 1-3 simple sentences (A2-B1 level). " + memoryNote + " Respond ONLY with raw JSON, no markdown fences, no preamble, in this exact shape: {\"reply\": \"your bilingual English (Vietnamese) reply\", \"correction\": \"if the learner's message had a grammar or word-choice mistake, a short one-sentence explanation IN VIETNAMESE of the fix, caring tone, otherwise null\"}";
 
     try{
-      const raw = await callClaude(sys, chatMessages.slice(-20), 500);
-      const parsed = safeParseJSON(raw);
+      // "Ép" AI luôn bắt đầu bằng '{' bằng kỹ thuật prefill — giúp các nhân vật phong cách
+      // phá cách (Peter, Emma...) vẫn tuân thủ đúng định dạng JSON dù đang nói chuyện tự nhiên,
+      // đỡ hẳn tình trạng thỉnh thoảng trả lời "chay" không đúng khuôn khiến app báo lỗi.
+      const apiMessages = chatMessages.slice(-20).concat([{role:'assistant', content:'{"reply":'}]);
+      const raw = await callClaude(sys, apiMessages, 500);
+      let parsed;
+      try{
+        parsed = safeParseJSON('{"reply":' + raw);
+      }catch(parseErr){
+        // Lớp phòng vệ thứ 2: nếu vẫn không phải JSON hợp lệ, coi cả câu trả lời là "reply"
+        // luôn, không để cuộc trò chuyện bị gãy giữa chừng vì lỗi định dạng.
+        parsed = { reply: raw.replace(/^\{?"?reply"?:?\s*"?/,'').replace(/"\}?$/,'').trim() || raw.trim(), correction: null };
+      }
       typing.remove();
 
       const botDiv = document.createElement('div');
@@ -1810,7 +1833,11 @@
 
     try{
       const raw = await callClaude(sys, [{role:'user', content:text}], 800);
-      resultEl.textContent = raw.trim();
+      const translated = raw.trim();
+      const englishSide = (dir === 'vi-en') ? translated : text;
+      resultEl.innerHTML = translated.replace(/"/g,'&quot;') +
+        ' <button class="mini-speak-btn" id="dich-speak-btn">🔊</button>';
+      document.getElementById('dich-speak-btn').addEventListener('click', ()=> speak(englishSide));
     }catch(err){
       resultEl.textContent = 'Lỗi: ' + err.message;
     }
@@ -1948,6 +1975,31 @@
       }
     }
   });
+
+  // Điện thoại (đặc biệt Android Chrome) hay tự tải lại trang khi mình chuyển sang app khác
+  // (ví dụ sang copy phụ đề) rồi quay lại — mọi thứ đang gõ dở trong ô nhớ tạm (RAM) sẽ mất trắng.
+  // Lưu nháp link/chủ đề/phụ đề liên tục vào localStorage để quay lại vẫn còn nguyên.
+  function saveVideoDraft(){
+    const draft = {
+      url: document.getElementById('video-url').value,
+      topic: document.getElementById('video-topic').value,
+      transcript: document.getElementById('video-transcript').value
+    };
+    storage.set('video_draft', JSON.stringify(draft)).catch(()=>{});
+  }
+  async function restoreVideoDraft(){
+    try{
+      const res = await storage.get('video_draft');
+      const d = JSON.parse(res.value);
+      if(d.url){ document.getElementById('video-url').value = d.url; embedVideo(d.url); }
+      if(d.topic) document.getElementById('video-topic').value = d.topic;
+      if(d.transcript) document.getElementById('video-transcript').value = d.transcript;
+    }catch(e){}
+  }
+  ['video-url','video-topic','video-transcript'].forEach(id=>{
+    document.getElementById(id).addEventListener('input', saveVideoDraft);
+  });
+  restoreVideoDraft();
   // Chia phụ đề dài thành từng đoạn nhỏ (~900 ký tự) rồi dịch tuần tự từng đoạn.
   // Lý do: gửi nguyên cả phụ đề dài trong 1 lần dễ khiến AI trả JSON bị cắt giữa chừng
   // (đây là nguyên nhân gây lỗi "Expected ',' or ']'..." trước đây) hoặc vượt thời gian chờ server.
@@ -2012,7 +2064,7 @@
     if(!topic){ resultEl.innerHTML = '<p class="notes-empty">Gõ chủ đề video trước đã.</p>'; return; }
     resultEl.innerHTML = '<p class="doc-loading">Đang soạn hội thoại mẫu...</p>';
     copyRow.style.display = 'none';
-    const sys = "Write a short sample bilingual dialogue (8 lines) between two people about this topic, using common everyday English: \"" + topic + "\". This is a PRACTICE dialogue, not a real transcript. Each line: give the English sentence and its Vietnamese translation. Respond ONLY with raw JSON: {\"lines\":[{\"speaker\":\"A or B\",\"en\":\"...\",\"vi\":\"...\"}, ...]} with exactly 8 items.";
+    const sys = "Write a short sample bilingual dialogue (8 lines) between two people about this topic, using common everyday English: \"" + topic + "\". This is a PRACTICE dialogue, not a real transcript. Make it sound natural and 'alive' like real conversation or movie dialogue — use contractions (I'm, that's, gonna) and casual everyday phrasing, not stiff textbook grammar. Each line: give the English sentence and its Vietnamese translation. Respond ONLY with raw JSON: {\"lines\":[{\"speaker\":\"A or B\",\"en\":\"...\",\"vi\":\"...\"}, ...]} with exactly 8 items.";
     try{
       const raw = await callClaude(sys, [{role:'user', content: topic}], 1200);
       const d = safeParseJSON(raw);
