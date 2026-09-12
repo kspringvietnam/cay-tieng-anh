@@ -26,7 +26,7 @@ module.exports = async function handler(req, res) {
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
+        model: 'claude-sonnet-5',
         max_tokens: 1000,
         system: system,
         messages: messages
@@ -34,6 +34,9 @@ module.exports = async function handler(req, res) {
     });
 
     const data = await response.json();
+    if(data.type === 'error'){
+      return res.status(response.status).json({ error: (data.error && data.error.message) || 'Lỗi từ Anthropic API' });
+    }
     return res.status(200).json(data);
   } catch (err) {
     return res.status(500).json({ error: 'Lỗi gọi AI: ' + err.message });

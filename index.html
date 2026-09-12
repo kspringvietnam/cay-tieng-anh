@@ -511,12 +511,22 @@
         </div>
         <div id="video-embed-box" style="background:#000;border-radius:8px;min-height:180px;display:flex;align-items:center;justify-content:center;color:#888;font-size:13px;">Chưa có video nào được tải.</div>
       </div>
+
+      <div class="card" id="video-history-card" style="display:none;">
+        <p style="font-size:12px;font-weight:600;margin:0 0 8px;color:var(--muted);">Video đã xem gần đây — bấm để mở lại, không cần dán link nữa</p>
+        <div id="video-history-list"></div>
+      </div>
+
       <div class="card">
+        <p style="font-size:12px;color:var(--muted);margin:0 0 8px;">Đây KHÔNG phải lời thoại thật trong video — là hội thoại mẫu do AI soạn theo chủ đề, để luyện thêm.</p>
         <div class="row">
           <input type="text" id="video-topic" placeholder="Chủ đề của video là gì? (VD: du lịch, ẩm thực...)">
-          <button class="btn small" id="video-vocab-btn">Gợi ý từ vựng</button>
+          <button class="btn small" id="video-vocab-btn">Soạn hội thoại mẫu</button>
         </div>
         <div id="video-vocab-result" style="margin-top:10px;"></div>
+        <div class="row" id="video-copy-row" style="display:none;margin-top:10px;">
+          <button class="btn ghost small" id="video-copy-btn">📋 Copy toàn bộ để gửi Zalo/Messenger</button>
+        </div>
       </div>
     </section>
 
@@ -697,8 +707,7 @@
     const sys = "You are a compact Vietnamese-English dictionary. The user gives a word or phrase in English or Vietnamese. Respond ONLY with raw JSON, no markdown: {\"word\":\"<the term>\",\"translation\":\"<translation, EN->VI or VI->EN>\",\"phonetic\":\"<IPA phonetic if it's an English word, else empty string>\",\"example\":\"<one short example sentence in English>\"}";
     try{
       const raw = await callClaude(sys, [{role:'user', content:text}]);
-      const clean = raw.replace(/```json|```/g,'').trim();
-      const d = JSON.parse(clean);
+      const d = safeParseJSON(raw);
       resultEl.innerHTML = '<b>'+d.word+'</b>' + (d.phonetic ? ' <span style="color:var(--muted);">'+d.phonetic+'</span>' : '') +
         '<br>' + d.translation + '<br><span style="color:var(--muted);font-style:italic;">'+d.example+'</span>';
     }catch(e){
@@ -1122,7 +1131,7 @@
       const raw = await callClaude("You are a compact EN-VI dictionary. Respond ONLY with the Vietnamese meaning of the given English word as used in everyday context, 1-4 words, no explanation, no quotes.", [{role:'user', content:word}]);
       wordPopup.textContent = word + ' → ' + raw.trim();
     }catch(err){
-      wordPopup.textContent = 'Lỗi tra từ, thử lại.';
+      wordPopup.textContent = 'Lỗi tra từ: ' + err.message;
     }
   });
 
@@ -1254,14 +1263,13 @@
     const sys = "You write short, upbeat reading passages for a Vietnamese adult learning English. Learner's current level tier: " + lv.name + " (" + lv.desc + "). Adjust sentence length, grammar complexity and vocabulary rarity to match this tier — lower tiers get very short simple sentences and only the most common words; higher tiers can use longer sentences and a bit more varied vocabulary, but NEVER academic or highly technical words at any tier. Topic: " + topicLabels[currentTopic] + ". Write 5 sentences forming a mini positive/uplifting article, no real named public figures or brands, keep it fictional/generic. For EACH sentence give the Vietnamese translation too. Respond ONLY with raw JSON, no markdown: {\"lines\":[{\"en\":\"...\",\"vi\":\"...\"}, ...]} with exactly 5 items.";
     try{
       const raw = await callClaude(sys, [{role:'user', content:'Soạn bài đọc mới.'}]);
-      const clean = raw.replace(/```json|```/g,'').trim();
-      const data = JSON.parse(clean);
+      const data = safeParseJSON(raw);
       contentEl.innerHTML = data.lines.map(l=>
         '<div class="card doc-line"><p class="doc-en">'+l.en+'</p><p class="doc-vi">'+l.vi+' <button class="save-btn" data-en="'+l.en.replace(/"/g,'&quot;')+'" data-vi="'+l.vi.replace(/"/g,'&quot;')+'">💾</button></p></div>'
       ).join('');
       wrapAllDocLines();
     }catch(err){
-      contentEl.innerHTML = '<p class="doc-loading">Lỗi soạn bài, thử bấm lại nhé.</p>';
+      contentEl.innerHTML = '<p class="doc-loading">Lỗi soạn bài: '+err.message+' — thử bấm lại nhé.</p>';
     }
   });
 
@@ -1282,18 +1290,27 @@
     });
   });
 
+  function safeParseJSON(raw){
+    let clean = raw.replace(/```json|```/g,'').trim();
+    const first = clean.indexOf('{');
+    const last = clean.lastIndexOf('}');
+    if(first !== -1 && last !== -1 && last > first){
+      clean = clean.slice(first, last+1);
+    }
+    return JSON.parse(clean);
+  }
+
   async function callClaude(systemPrompt, messages){
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
+    const response = await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: "claude-sonnet-4-6",
-        max_tokens: 1000,
         system: systemPrompt,
         messages: messages
       })
     });
     const data = await response.json();
+    if(data.error){ throw new Error(typeof data.error === 'string' ? data.error : JSON.stringify(data.error)); }
     const text = (data.content || []).map(b => b.text || "").join("");
     return text;
   }
@@ -1431,8 +1448,7 @@
     const sys = "You are a warm, encouraging English mentor for a Vietnamese learner. The learner was asked to freely express this Vietnamese sentence in English (grammar and spelling mistakes are totally fine, the goal is confidence and fluency, NOT accuracy): \"" + viCau + "\". They wrote: \"" + attempt + "\". Respond ONLY with raw JSON: {\"encouragement\":\"<1 short warm Vietnamese sentence praising the EFFORT, never criticize>\",\"natural_version\":\"<one natural, everyday way a native speaker might say it, simple level>\"}. Keep it light and positive, this is not a grading exercise.";
     try{
       const raw = await callClaude(sys, [{role:'user', content: attempt}]);
-      const clean = raw.replace(/```json|```/g,'').trim();
-      const d = JSON.parse(clean);
+      const d = safeParseJSON(raw);
       box.innerHTML = '<div class="card"><p style="font-size:13px;color:var(--green);font-weight:600;margin:0 0 8px;">'+d.encouragement+'</p>'+
         '<p style="font-size:12px;color:var(--muted);margin:0 0 4px;">Một cách nói tự nhiên khác:</p>'+
         '<p style="font-size:14px;margin:0;">'+d.natural_version+'</p></div>';
@@ -1448,34 +1464,87 @@
     const m = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([a-zA-Z0-9_-]{6,15})/);
     return m ? m[1] : null;
   }
-  document.getElementById('video-load').addEventListener('click', ()=>{
-    const url = document.getElementById('video-url').value.trim();
+  async function loadVideoHistory(){
+    try{
+      const res = await window.storage.get('video_history');
+      return JSON.parse(res.value);
+    }catch(e){ return []; }
+  }
+  async function saveVideoHistory(list){
+    try{ await window.storage.set('video_history', JSON.stringify(list.slice(-10))); }catch(e){}
+  }
+  async function renderVideoHistory(){
+    const list = await loadVideoHistory();
+    const card = document.getElementById('video-history-card');
+    const box = document.getElementById('video-history-list');
+    if(list.length === 0){ card.style.display = 'none'; return; }
+    card.style.display = 'block';
+    box.innerHTML = list.slice().reverse().map((v,i)=>
+      '<button class="qt-btn" style="margin:0 6px 6px 0;" data-url="'+v.url.replace(/"/g,'&quot;')+'" data-topic="'+(v.topic||'').replace(/"/g,'&quot;')+'">▶ '+(v.topic || 'Video')+'</button>'
+    ).join('');
+    box.querySelectorAll('button').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        document.getElementById('video-url').value = btn.dataset.url;
+        document.getElementById('video-topic').value = btn.dataset.topic;
+        document.getElementById('video-load').click();
+      });
+    });
+  }
+  async function embedVideo(url){
     const box = document.getElementById('video-embed-box');
     const id = extractYouTubeId(url);
     if(!id){
       box.innerHTML = '<span style="color:#f66;font-size:13px;padding:20px;">Link chưa đúng định dạng YouTube, thử dán lại nhé.</span>';
-      return;
+      return false;
     }
     box.innerHTML = '<iframe width="100%" height="220" style="border-radius:8px;border:none;" src="https://www.youtube.com/embed/'+id+'" allowfullscreen></iframe>';
+    return true;
+  }
+  document.getElementById('video-load').addEventListener('click', async ()=>{
+    const url = document.getElementById('video-url').value.trim();
+    const topic = document.getElementById('video-topic').value.trim();
+    const ok = await embedVideo(url);
+    if(ok){
+      const list = await loadVideoHistory();
+      if(!list.some(v=>v.url===url)){
+        list.push({url, topic, ts: Date.now()});
+        await saveVideoHistory(list);
+        renderVideoHistory();
+      }
+    }
   });
   document.getElementById('video-vocab-btn').addEventListener('click', async ()=>{
     const topic = document.getElementById('video-topic').value.trim();
     const resultEl = document.getElementById('video-vocab-result');
+    const copyRow = document.getElementById('video-copy-row');
     if(!topic){ resultEl.innerHTML = '<p class="notes-empty">Gõ chủ đề video trước đã.</p>'; return; }
-    resultEl.innerHTML = '<p class="doc-loading">Đang soạn từ vựng...</p>';
-    const sys = "Give 5 useful, common English words or short phrases related to this topic that a learner might hear in a video about it: \"" + topic + "\". Use only everyday, high-frequency vocabulary. Respond ONLY with raw JSON: {\"items\":[{\"en\":\"...\",\"vi\":\"...\"}, ...]} with exactly 5 items, each en is a word/short phrase (not a full sentence) and vi is its Vietnamese meaning.";
+    resultEl.innerHTML = '<p class="doc-loading">Đang soạn hội thoại mẫu...</p>';
+    copyRow.style.display = 'none';
+    const sys = "Write a short sample bilingual dialogue (8 lines) between two people about this topic, using common everyday English: \"" + topic + "\". This is a PRACTICE dialogue, not a real transcript. Each line: give the English sentence and its Vietnamese translation. Respond ONLY with raw JSON: {\"lines\":[{\"speaker\":\"A or B\",\"en\":\"...\",\"vi\":\"...\"}, ...]} with exactly 8 items.";
     try{
       const raw = await callClaude(sys, [{role:'user', content: topic}]);
-      const clean = raw.replace(/```json|```/g,'').trim();
-      const d = JSON.parse(clean);
-      resultEl.innerHTML = d.items.map(it=>
-        '<div class="card doc-line" style="padding:10px 14px;"><p class="doc-en" style="margin:0;">'+it.en+'</p><p class="doc-vi" style="margin:2px 0 0;">'+it.vi+'</p></div>'
+      const d = safeParseJSON(raw);
+      resultEl.innerHTML = d.lines.map(it=>
+        '<div class="card doc-line" style="padding:10px 14px;"><p class="doc-en" style="margin:0;"><b>'+it.speaker+':</b> '+it.en+'</p><p class="doc-vi" style="margin:2px 0 0;">'+it.vi+'</p></div>'
       ).join('');
       wrapAllDocLines();
+      window.__lastDialogue = d.lines;
+      copyRow.style.display = 'flex';
     }catch(err){
-      resultEl.innerHTML = '<p class="notes-empty">Lỗi kết nối, thử lại nhé.</p>';
+      resultEl.innerHTML = '<p class="notes-empty">Lỗi kết nối: '+err.message+' — thử lại nhé.</p>';
     }
   });
+  document.getElementById('video-copy-btn').addEventListener('click', async ()=>{
+    const lines = window.__lastDialogue || [];
+    const text = lines.map(l => l.speaker+': '+l.en+'\n'+l.vi).join('\n\n');
+    try{
+      await navigator.clipboard.writeText(text);
+      showMentorToast('Đã copy! Giờ dán (paste) vào Zalo hoặc Messenger để gửi/lưu nhé 📋');
+    }catch(e){
+      showMentorToast('Trình duyệt chặn copy tự động, bôi đen đoạn text rồi copy tay nhé.');
+    }
+  });
+  renderVideoHistory();
 </script>
 </body>
 </html>
