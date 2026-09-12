@@ -16,7 +16,14 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const { system, messages } = req.body;
+    const { system, messages, max_tokens } = req.body;
+    // Cho phép client chỉ định max_tokens theo nhu cầu (câu ngắn thì nhỏ, dịch phụ đề dài thì lớn hơn),
+    // nhưng luôn giới hạn trong khoảng an toàn để tránh vượt thời gian chờ của Vercel serverless.
+    const safeMaxTokens = Math.max(200, Math.min(parseInt(max_tokens) || 800, 4096));
+
+    // Bỏ qua request nếu client hủy (đóng tab / chuyển bài trong lúc đang chờ)
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 25000); // tự hủy sau 25s tránh treo vô hạn
 
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -27,11 +34,13 @@ module.exports = async function handler(req, res) {
       },
       body: JSON.stringify({
         model: 'claude-sonnet-5',
-        max_tokens: 1000,
+        max_tokens: safeMaxTokens,
         system: system,
         messages: messages
-      })
+      }),
+      signal: controller.signal
     });
+    clearTimeout(timeout);
 
     const data = await response.json();
     if(data.type === 'error'){
@@ -39,6 +48,7 @@ module.exports = async function handler(req, res) {
     }
     return res.status(200).json(data);
   } catch (err) {
-    return res.status(500).json({ error: 'Lỗi gọi AI: ' + err.message });
+    const msg = err.name === 'AbortError' ? 'Yêu cầu mất quá lâu, thử lại với đoạn ngắn hơn nhé.' : ('Lỗi gọi AI: ' + err.message);
+    return res.status(500).json({ error: msg });
   }
 };
