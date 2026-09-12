@@ -283,7 +283,8 @@
   .char-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
   .char-card{background:#fff;border:2px solid var(--paper-line);border-radius:10px;padding:10px 6px;text-align:center;}
   .char-card.active{border-color:var(--navy);background:#EFEAD9;}
-  .char-avatar{width:46px;height:46px;border-radius:50%;margin:0 auto 6px;display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;}
+  .char-avatar{width:46px;height:46px;border-radius:50%;margin:0 auto 6px;display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;overflow:hidden;}
+  .char-avatar img{width:100%;height:100%;object-fit:cover;display:block;}
   .char-name{font-size:12px;font-weight:600;color:var(--ink);}
   .char-role{font-size:10px;color:var(--muted);}
 
@@ -836,7 +837,7 @@
       resultEl.innerHTML = '<b>'+d.word+'</b>' + (d.phonetic ? ' <span style="color:var(--muted);">'+d.phonetic+'</span>' : '') +
         '<br>' + d.translation + '<br><span style="color:var(--muted);font-style:italic;">'+d.example+'</span>';
     }catch(e){
-      resultEl.textContent = 'Lỗi kết nối, thử lại nhé.';
+      resultEl.textContent = 'Lỗi: ' + e.message;
     }
   }
 
@@ -1581,35 +1582,60 @@
     return JSON.parse(clean);
   }
 
-  async function callClaude(systemPrompt, messages, maxTokens){
-    const response = await fetch("/api/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        system: systemPrompt,
-        messages: messages,
-        max_tokens: maxTokens || 800
-      })
-    });
-    const data = await response.json();
-    if(data.error){ throw new Error(typeof data.error === 'string' ? data.error : JSON.stringify(data.error)); }
+  async function callClaude(systemPrompt, messages, maxTokens, _isRetry){
+    let response;
+    try{
+      response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          system: systemPrompt,
+          messages: messages,
+          max_tokens: maxTokens || 800
+        })
+      });
+    }catch(networkErr){
+      // fetch tự nó fail (mất mạng thật sự) — thử lại đúng 1 lần trước khi báo lỗi
+      if(!_isRetry) return callClaude(systemPrompt, messages, maxTokens, true);
+      throw new Error('Mất kết nối mạng, kiểm tra lại Wi-Fi/4G rồi thử lại.');
+    }
+    if(!response.ok){
+      // Vercel timeout (Hobby plan giới hạn ~10s) trả về trang lỗi 504 dạng HTML, không phải JSON —
+      // bắt riêng trường hợp này để báo đúng nguyên nhân thay vì lỗi JSON.parse khó hiểu.
+      if(response.status === 504 || response.status === 502){
+        if(!_isRetry) return callClaude(systemPrompt, messages, Math.min(maxTokens || 800, 500), true);
+        throw new Error('Máy chủ phản hồi quá lâu (timeout), thử lại với nội dung ngắn hơn nhé.');
+      }
+    }
+    let data;
+    try{
+      data = await response.json();
+    }catch(parseErr){
+      if(!_isRetry) return callClaude(systemPrompt, messages, maxTokens, true);
+      throw new Error('Máy chủ trả về dữ liệu không hợp lệ (mã lỗi ' + response.status + '), thử lại nhé.');
+    }
+    if(data.error){
+      const msg = typeof data.error === 'string' ? data.error : JSON.stringify(data.error);
+      if(!_isRetry && /overloaded|rate.?limit|429|529/i.test(msg)) return callClaude(systemPrompt, messages, maxTokens, true);
+      throw new Error(msg);
+    }
     const text = (data.content || []).map(b => b.text || "").join("");
     return text;
   }
 
   // ---- NHAN VAT TRO CHUYEN (6 nguoi, moi nguoi nho rieng lich su) ----
   const CHARACTERS = [
-    { id:'peter', name:'Peter', role:'Bạn thân Gen Z', gender:'nam', color:'#4A6FA5', avatar:'😎',
+    { id:'peter', name:'Peter', role:'Bạn thân Gen Z', gender:'nam', color:'#4A6FA5', avatar:'😎', avatarSeed:'Peter-cool-guy',
       persona:"You are Peter, a chill Gen-Z guy around the learner's age. Talk like texting a close bro: casual slang (yo, lol, ngl, fr, bruh-style energy but keep it tasteful), light jokes, emojis sometimes, super relaxed — never formal or teacher-like." },
-    { id:'james', name:'James', role:'Thầy giáo nghiêm túc', gender:'nam', color:'#2F6E4F', avatar:'🧐',
+    { id:'james', name:'James', role:'Thầy giáo nghiêm túc', gender:'nam', color:'#2F6E4F', avatar:'🧐', avatarSeed:'James-teacher-formal',
       persona:"You are James, a strict, old-school, formal male English teacher. Speak properly and precisely, address the learner respectfully, correct mistakes clearly and directly (still kindly), avoid slang or casual tone entirely." },
-    { id:'david', name:'David', role:'Mentor kinh doanh', gender:'nam', color:'#8A5A2B', avatar:'🕴️',
+    { id:'david', name:'David', role:'Mentor kinh doanh', gender:'nam', color:'#8A5A2B', avatar:'🕴️', avatarSeed:'David-business-mentor',
       persona:"You are David, a confident, sharp male business mentor. Speak like a senior exec giving advice — professional vocabulary, weave in career/business/negotiation context, motivating but businesslike tone." },
-    { id:'emma', name:'Emma', role:'Bạn gái vui vẻ', gender:'nu', color:'#B5548B', avatar:'🤩',
+    { id:'emma', name:'Emma', role:'Bạn gái vui vẻ', gender:'nu', color:'#B5548B', avatar:'🤩', avatarSeed:'Emma-cheerful-girl',
       persona:"You are Emma, a super bubbly, high-energy female friend. Chat with lots of enthusiasm, compliments, exclamation points, playful emojis — like an excitable best friend hyping the learner up." },
-    { id:'sophia', name:'Sophia', role:'Cô giáo tận tâm', gender:'nu', color:'#3B8A8C', avatar:'👩‍🏫',
+    { id:'sophia', name:'Sophia', role:'Cô giáo tận tâm', gender:'nu', color:'#3B8A8C', avatar:'👩‍🏫', avatarSeed:'Sophia-caring-teacher',
       persona:"You are Sophia, a warm, nurturing, patient female English teacher. Explain gently and clearly, praise effort generously, correct mistakes softly like a caring mentor, never rushed." },
-    { id:'lisa', name:'Lisa', role:'Đồng nghiệp lầy lội', gender:'nu', color:'#C1721E', avatar:'💁‍♀️',
+    { id:'lisa', name:'Lisa', role:'Đồng nghiệp lầy lội', gender:'nu', color:'#C1721E', avatar:'💁‍♀️', avatarSeed:'Lisa-witty-coworker',
       persona:"You are Lisa, a witty, sassy, a bit cheeky female coworker. Talk casually about everyday office life and gossip with humor and playful sarcasm (always friendly, never mean), relaxed and fun tone." }
   ];
   let activeChar = CHARACTERS[0];
@@ -1619,7 +1645,9 @@
     const grid = document.getElementById('char-grid');
     grid.innerHTML = CHARACTERS.map(c=>
       '<div class="char-card'+(c.id===activeChar.id?' active':'')+'" data-id="'+c.id+'">'+
-      '<div class="char-avatar" style="background:'+c.color+';">'+c.avatar+'</div>'+
+      '<div class="char-avatar" style="background:'+c.color+';">'+
+        '<img src="https://api.dicebear.com/9.x/notionists/svg?seed='+encodeURIComponent(c.avatarSeed)+'&backgroundColor=transparent" alt="'+c.name+'" onerror="this.remove();this.parentElement.textContent=\''+c.avatar+'\';">'+
+      '</div>'+
       '<div class="char-name">'+c.name+'</div><div class="char-role">'+c.role+'</div></div>'
     ).join('');
     grid.querySelectorAll('.char-card').forEach(card=>{
@@ -1756,9 +1784,14 @@
       }
     }catch(err){
       typing.remove();
+      // Nếu không rollback, tin nhắn lỗi này vẫn nằm trong lịch sử và làm SAI thứ tự
+      // người gửi (user liền user) cho lần chat tiếp theo — đây là lý do chính khiến
+      // 1 lần lỗi kéo theo lỗi liên tục mãi về sau. Bỏ nó ra để lần gửi tiếp theo bình thường trở lại.
+      chatMessages.pop();
+      inp.value = text;
       const errDiv = document.createElement('div');
       errDiv.className = 'msg bot';
-      errDiv.textContent = 'Lỗi kết nối, anh thử gửi lại nhé.';
+      errDiv.textContent = 'Lỗi: ' + err.message + ' — nội dung đã được điền lại vào ô chat, bấm Gửi thử lại nhé.';
       box.appendChild(errDiv);
     }
     box.scrollTop = box.scrollHeight;
@@ -1779,7 +1812,7 @@
       const raw = await callClaude(sys, [{role:'user', content:text}], 800);
       resultEl.textContent = raw.trim();
     }catch(err){
-      resultEl.textContent = 'Lỗi kết nối, thử lại nhé.';
+      resultEl.textContent = 'Lỗi: ' + err.message;
     }
   });
 
@@ -1856,7 +1889,7 @@
         '<p style="font-size:14px;margin:0;">'+d.natural_version+'</p></div>';
       bumpActionCount();
     }catch(err){
-      box.innerHTML = '<p class="notes-empty">Lỗi kết nối, thử lại nhé.</p>';
+      box.innerHTML = '<p class="notes-empty">Lỗi: '+err.message+'</p>';
     }
   });
   loadVietPrompt();
