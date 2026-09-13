@@ -348,7 +348,10 @@
         <input type="text" id="auth-name" placeholder="Họ và tên" style="width:100%;padding:10px;margin-bottom:8px;border-radius:8px;border:1px solid var(--paper-line);">
       </div>
       <input type="tel" id="auth-phone" placeholder="Số điện thoại" style="width:100%;padding:10px;margin-bottom:8px;border-radius:8px;border:1px solid var(--paper-line);">
-      <input type="password" id="auth-password" placeholder="Mật khẩu" style="width:100%;padding:10px;margin-bottom:8px;border-radius:8px;border:1px solid var(--paper-line);">
+      <div style="position:relative;margin-bottom:8px;">
+        <input type="password" id="auth-password" placeholder="Mật khẩu" style="width:100%;padding:10px;padding-right:40px;border-radius:8px;border:1px solid var(--paper-line);box-sizing:border-box;">
+        <button type="button" id="auth-pw-toggle" style="position:absolute;right:6px;top:50%;transform:translateY(-50%);border:none;background:none;cursor:pointer;font-size:16px;">👁️</button>
+      </div>
       <p id="auth-error" style="color:#c0392b;font-size:13px;min-height:18px;margin:4px 0;"></p>
       <button class="btn" id="auth-submit-btn" style="width:100%;">Đăng nhập</button>
       <button class="btn ghost small" id="auth-close-btn" style="margin-top:10px;">Đóng</button>
@@ -862,6 +865,12 @@
       return;
     }
     document.getElementById('auth-modal').style.display = 'flex';
+  });
+  document.getElementById('auth-pw-toggle').addEventListener('click', ()=>{
+    const pw = document.getElementById('auth-password');
+    const btn = document.getElementById('auth-pw-toggle');
+    if(pw.type === 'password'){ pw.type = 'text'; btn.textContent = '🙈'; }
+    else { pw.type = 'password'; btn.textContent = '👁️'; }
   });
   document.getElementById('auth-close-btn').addEventListener('click', ()=>{
     document.getElementById('auth-modal').style.display = 'none';
