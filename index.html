@@ -634,6 +634,7 @@
     <section class="section active" id="sec-troly">
       <h2 class="stitle">Nói chuyện với người bản ngữ</h2>
       <p class="shint">Chat thoải mái mỗi ngày để luyện đủ 4 kỹ năng Nghe – Nói – Đọc – Viết cùng lúc — nói gì cũng được, kể cả tiếng Việt, cứ thả ga tám chuyện với các nhân vật dưới đây nhé!</p>
+      <p style="font-size:12px;color:var(--muted);margin:-8px 0 12px;" id="chat-usage-badge">0/20 lượt hôm nay</p>
 
       <div class="char-grid" id="char-grid"></div>
 
@@ -1466,6 +1467,7 @@
     renderLevels();
 
     renderCharGrid();
+    updateChatUsageBadge();
     chatMessages = await loadChatHistory();
     renderChatHistory();
 
@@ -1989,18 +1991,50 @@
     box.scrollTop = box.scrollHeight;
   }
 
+  const CHAT_DAILY_LIMIT = 20;
+  function getChatUsage(){
+    const today = new Date().toISOString().slice(0,10);
+    if(localStorage.getItem('cay_chat_usage_date') !== today){
+      localStorage.setItem('cay_chat_usage_date', today);
+      localStorage.setItem('cay_chat_usage_count', '0');
+    }
+    return parseInt(localStorage.getItem('cay_chat_usage_count') || '0', 10);
+  }
+  function bumpChatUsage(){
+    localStorage.setItem('cay_chat_usage_count', String(getChatUsage() + 1));
+    updateChatUsageBadge();
+  }
+  function updateChatUsageBadge(){
+    const el = document.getElementById('chat-usage-badge');
+    if(el) el.textContent = getChatUsage() + '/' + CHAT_DAILY_LIMIT + ' lượt hôm nay';
+  }
+
   document.getElementById('chat-send').addEventListener('click', ()=>sendChat());
+  function blobToBase64(blob){
+    return new Promise((resolve, reject)=>{
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result.split(',')[1]);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  }
   let chatMediaRecorder = null;
   document.getElementById('chat-mic').addEventListener('click', async ()=>{
-    const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
-    const micBtn = document.getElementById('chat-mic');
-    if(!SpeechRec){
-      showMentorToast('Trình duyệt này chưa hỗ trợ nói bằng mic, thử bằng Chrome trên điện thoại nhé.');
+    if(getChatUsage() >= CHAT_DAILY_LIMIT){
+      document.getElementById('vip-modal').style.display = 'flex';
       return;
     }
-    // Thu 2 thứ CÙNG LÚC: SpeechRecognition để lấy chữ (gửi cho AI hiểu), và MediaRecorder
-    // để lấy file âm thanh thật (để phát lại đúng giọng mình vừa nói, kiểu tin nhắn thoại Zalo).
-    let stream = null;
+    const micBtn = document.getElementById('chat-mic');
+    // Bấm lần 2 khi đang ghi -> dừng lại
+    if(micBtn.classList.contains('recording')){
+      if(chatMediaRecorder && chatMediaRecorder.state !== 'inactive') chatMediaRecorder.stop();
+      return;
+    }
+    // Chỉ dùng DUY NHẤT 1 đường ghi âm thật (MediaRecorder), rồi gửi file lên OpenAI Whisper để
+    // chuyển thành chữ — tránh hẳn việc chạy chung SpeechRecognition + MediaRecorder cùng lúc
+    // (nguyên nhân khiến điện thoại Android báo "Không nghe rõ" liên tục dù mic vẫn ghi tốt).
+    // Đổi lại: giữ được giọng nói THẬT để phát lại trong bong bóng thoại, giống tin nhắn Zalo.
+    let stream;
     try{
       stream = await navigator.mediaDevices.getUserMedia({audio:true});
     }catch(e){
@@ -2012,41 +2046,49 @@
     chatMediaRecorder = mr;
     mr.ondataavailable = e => { if(e.data.size > 0) chunks.push(e.data); };
     mr.start();
-
-    const rec = new SpeechRec();
-    rec.lang = voiceSettings.accent;
-    rec.interimResults = false;
-    let transcript = '';
-    micBtn.textContent = '🎙️';
+    micBtn.textContent = '⏹️';
     micBtn.classList.add('recording');
-    rec.onresult = (event) => { transcript = event.results[0][0].transcript; };
-    rec.onerror = (ev) => {
-      const msg = ev.error === 'not-allowed'
-        ? 'Trình duyệt đang chặn quyền micro — bấm biểu tượng 🔒/ⓘ trên thanh địa chỉ, cho phép Micrô rồi thử lại nhé.'
-        : 'Không nghe rõ, thử nói lại nhé.';
-      showMentorToast(msg);
-    };
-    rec.onend = () => {
-      micBtn.textContent = '🎤';
-      micBtn.classList.remove('recording');
-      if(mr.state !== 'inactive') mr.stop();
-    };
-    mr.onstop = () => {
+    showMentorToast('Đang ghi âm... bấm lại nút mic khi nói xong nhé.');
+
+    // Tự dừng sau 20 giây phòng trường hợp quên bấm dừng
+    const autoStopTimer = setTimeout(()=>{ if(mr.state !== 'inactive') mr.stop(); }, 20000);
+
+    mr.onstop = async ()=>{
+      clearTimeout(autoStopTimer);
       stream.getTracks().forEach(t => t.stop());
+      micBtn.classList.remove('recording');
+      micBtn.textContent = '⏳';
       const blob = new Blob(chunks, {type: mr.mimeType || 'audio/webm'});
-      const url = URL.createObjectURL(blob);
-      if(transcript.trim()){
-        sendChat(transcript.trim(), url);
-      } else {
-        showMentorToast('Không nghe rõ, thử nói lại nhé.');
+      const audioURL = URL.createObjectURL(blob);
+      try{
+        const base64 = await blobToBase64(blob);
+        const resp = await fetch('/api/transcribe', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ audioBase64: base64, mimeType: blob.type })
+        });
+        const data = await resp.json();
+        micBtn.textContent = '🎤';
+        if(data.error){ showMentorToast('Lỗi nhận diện: ' + data.error); return; }
+        const transcript = (data.text || '').trim();
+        if(transcript){ sendChat(transcript, audioURL); }
+        else { showMentorToast('Không nghe rõ, thử nói lại nhé.'); }
+      }catch(err){
+        micBtn.textContent = '🎤';
+        showMentorToast('Lỗi nhận diện giọng nói: ' + err.message);
       }
     };
-    rec.start();
   });
   document.getElementById('chat-input').addEventListener('keydown', (e)=>{
     if(e.key==='Enter') sendChat();
   });
   async function sendChat(voiceText, voiceAudioURL){
+    // Giới hạn 20 lượt chat/ghi âm miễn phí mỗi ngày với Bạn ảo (tính năng tốn phí AI thật).
+    // Hết lượt trong ngày -> mời nâng cấp VIP thay vì gọi API tốn tiền.
+    if(getChatUsage() >= CHAT_DAILY_LIMIT){
+      document.getElementById('vip-modal').style.display = 'flex';
+      return;
+    }
     const inp = document.getElementById('chat-input');
     const text = voiceText || inp.value.trim();
     if(!text) return;
@@ -2084,6 +2126,7 @@
         parsed = { reply: raw.trim(), correction: null };
       }
       typing.remove();
+      bumpChatUsage(); // chỉ tính lượt khi thật sự nhận được trả lời thành công
 
       const replyText = parsed.reply || '...';
       const botDiv = buildVoiceBubble(false, replyText, null);
