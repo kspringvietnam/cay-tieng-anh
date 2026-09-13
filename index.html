@@ -206,7 +206,8 @@
   .msg.note{align-self:flex-start;background:none;border:none;color:var(--amber);font-size:12px;padding:0 4px;max-width:100%;}
   .chat-input-row{display:flex;gap:8px;}
   .chat-input-row input{flex:1;}
-  .typing{align-self:flex-start;font-size:12px;color:var(--muted);font-style:italic;padding:0 4px;}
+  .typing{align-self:flex-start;font-size:12px;color:var(--muted);font-style:italic;padding:0 4px;animation:pulseText 1.2s infinite;}
+  @keyframes pulseText{0%,100%{opacity:0.4;}50%{opacity:1;}}
 
   .translate-result{margin-top:10px;background:#fff;border:1px solid var(--paper-line);border-radius:8px;padding:12px;font-size:14px;min-height:20px;line-height:1.5;}
 
@@ -245,7 +246,7 @@
     padding:7px 12px;border-radius:8px;font-size:12px;font-weight:600;
   }
   .qt-panel{
-    display:none;background:var(--paper);border-radius:10px;padding:16px;margin-top:10px;
+    display:none;background:var(--paper);border-radius:10px;padding:16px;margin-top:10px;position:relative;
   }
   .qt-panel.open{display:block;}
   .lookup-result{margin-top:10px;background:#fff;border:1px solid var(--paper-line);border-radius:8px;padding:12px;font-size:14px;min-height:20px;color:var(--ink);}
@@ -257,7 +258,12 @@
   .speed-row span{font-size:12px;color:var(--muted);min-width:36px;}
 
   .record-btn{background:var(--red);color:#fff;padding:9px 16px;border-radius:7px;font-size:13px;font-weight:600;}
-  .record-btn.recording{background:#a11f28;}
+  .record-btn.recording{background:#a11f28;animation:pulseRec 1s infinite;}
+  .record-btn.processing{background:#8a7a4f;animation:spinRec 0.9s linear infinite;}
+  @keyframes pulseRec{0%,100%{box-shadow:0 0 0 0 rgba(161,31,40,0.55);}50%{box-shadow:0 0 0 8px rgba(161,31,40,0);}}
+  @keyframes spinRec{from{filter:hue-rotate(0deg);}to{filter:hue-rotate(0deg);}}
+  .spin-inline{display:inline-block;animation:spinIcon 0.8s linear infinite;}
+  @keyframes spinIcon{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
   .pron-result{margin-top:10px;font-size:13px;padding:10px;border-radius:8px;}
   .pron-result.good{background:#EAF6EF;color:var(--green);}
   .pron-result.ok{background:#FFF3E0;color:#B36B00;}
@@ -290,7 +296,8 @@
   .voice-play-btn{width:32px;height:32px;min-width:32px;border-radius:50%;border:none;background:var(--navy);color:#fff;font-size:13px;cursor:pointer;flex-shrink:0;}
   .msg.user .voice-play-btn{background:rgba(255,255,255,0.25);color:#fff;}
   .voice-wave{flex:1;height:14px;background:repeating-linear-gradient(90deg, currentColor 0 3px, transparent 3px 6px);opacity:0.35;border-radius:3px;min-width:50px;max-width:120px;}
-  .voice-toggle-btn{width:24px;height:24px;min-width:24px;border-radius:50%;border:1px solid currentColor;background:none;font-size:10px;font-weight:700;cursor:pointer;flex-shrink:0;opacity:0.75;line-height:1;}
+  .voice-toggle-btn{width:26px;height:26px;min-width:26px;border-radius:50%;border:1px solid var(--amber);background:#fff8e6;color:#8a6415;font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0;opacity:1;line-height:1;}
+  .msg.user .voice-toggle-btn{background:#fff8e6;color:#8a6415;border-color:var(--amber);}
   .voice-text{margin-top:6px;font-size:13px;display:none;}
   .voice-text.show{display:block;}
   .char-name{font-size:12px;font-weight:600;color:var(--ink);}
@@ -392,6 +399,7 @@
   <header>
     <p class="brand">CÀY</p>
     <p class="tagline">caytienganh.kspring.com.vn — Học tiếng Anh kiểu cày cuốc, có trợ lý AI đồng hành</p>
+    <p id="motivation-quote" style="font-size:12px;color:var(--amber);font-style:italic;margin:2px 0 10px;"></p>
     <div class="row" style="gap:8px;">
       <div class="streak">🔥 <span id="streakText">Ngày cày thứ 1</span></div>
       <button class="streak" id="vip-open-btn" style="border-color:var(--amber);color:var(--amber);cursor:pointer;">👑 Nâng cấp VIP</button>
@@ -412,6 +420,7 @@
     </div>
 
     <div class="qt-panel" id="voice-panel">
+      <button id="voice-panel-close" style="position:absolute;top:8px;right:10px;border:none;background:none;font-size:18px;cursor:pointer;color:var(--muted);">✕</button>
       <div class="voice-row">
         <select id="voice-accent">
           <option value="en-US" selected>Giọng Anh - Mỹ (US)</option>
@@ -431,17 +440,19 @@
           <option value="">Tự động chọn giọng hay nhất máy có</option>
         </select>
       </div>
+      <p style="font-size:12px;font-weight:600;margin:10px 0 2px;">🚀 Tốc độ đọc</p>
       <div class="speed-row">
         <span>Chậm</span>
         <input type="range" id="voice-rate" min="0.6" max="1.3" step="0.1" value="0.9">
         <span>Nhanh</span>
       </div>
+      <p style="font-size:12px;font-weight:600;margin:10px 0 2px;">🔊 Âm lượng</p>
       <div class="speed-row">
         <span>Nhỏ</span>
         <input type="range" id="voice-volume" min="0.4" max="1" step="0.1" value="1">
         <span>To</span>
       </div>
-      <p style="font-size:11px;color:var(--muted);margin:0;">Cài đặt này áp dụng cho tất cả các nút "Nghe" trong app. Máy/trình duyệt càng có nhiều giọng cài sẵn thì danh sách "giọng cụ thể" càng phong phú và tự nhiên hơn — nếu vẫn nghe hơi máy móc, thử đổi sang giọng khác trong danh sách hoặc tăng âm lượng thiết bị.</p>
+      <p style="font-size:11px;color:var(--muted);margin:8px 0 0;">Cài đặt này áp dụng cho tất cả các nút "Nghe" trong app. Máy/trình duyệt càng có nhiều giọng cài sẵn thì danh sách "giọng cụ thể" càng phong phú và tự nhiên hơn — nếu vẫn nghe hơi máy móc, thử đổi sang giọng khác trong danh sách hoặc tăng âm lượng thiết bị.</p>
     </div>
   </header>
 
@@ -456,6 +467,7 @@
     <div class="tab" data-tab="video">VIDEO</div>
     <div class="tab" data-tab="capdo">CẤP ĐỘ</div>
     <div class="tab" data-tab="ghichu">GHI CHÚ</div>
+    <div class="tab" data-tab="bikip">✨ BÍ KÍP</div>
     <div class="tab" data-tab="gia">GIÁ</div>
   </div>
 
@@ -490,6 +502,7 @@
       <div class="card">
         <div class="row between">
           <div>
+            <span id="noi-icon" style="font-size:26px;margin-right:6px;vertical-align:middle;"></span>
             <span class="word" id="noi-word">—</span>
             <span class="phon" id="noi-phon"></span>
             <div class="vi" id="noi-vi"></div>
@@ -592,6 +605,33 @@
       <h2 class="stitle">Video học tiếng Anh</h2>
       <p class="shint">Xem video, tự dừng lại khi cần — bên dưới có từ vựng & câu hay song ngữ theo chủ đề để đọc thêm.</p>
       <div class="card">
+        <button class="btn ghost small" id="video-howto-toggle" style="margin-bottom:10px;">❓ Cách lấy link & phụ đề trên YouTube</button>
+        <div id="video-howto-box" style="display:none;margin-bottom:14px;">
+          <p style="font-size:13px;line-height:1.7;margin:0 0 8px;"><b>1. Lấy link video:</b> mở video trên YouTube → bấm nút <b>Chia sẻ / Share</b> (biểu tượng mũi tên) bên dưới video → bấm <b>Copy</b> → quay lại đây dán vào ô link.</p>
+          <p style="font-size:13px;line-height:1.7;margin:0 0 10px;"><b>2. Lấy phụ đề (transcript):</b> dưới video bấm dấu <b>"..." (Xem thêm)</b> → chọn <b>"Hiện bản ghi" (Show transcript)</b> → bôi đen toàn bộ phần chữ hiện ra → Copy → dán vào ô phụ đề bên dưới.</p>
+          <div style="background:#fff;border:1px solid var(--paper-line);border-radius:8px;padding:8px;">
+            <svg viewBox="0 0 600 260" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">
+              <rect x="10" y="10" width="270" height="150" rx="8" fill="#1a1a2e"/>
+              <polygon points="130,65 130,105 160,85" fill="#fff"/>
+              <rect x="10" y="165" width="270" height="26" rx="4" fill="#f2f2f2" stroke="#ddd"/>
+              <circle cx="255" cy="178" r="9" fill="#555"/>
+              <path d="M251 178 l4 4 l6 -8" stroke="#fff" stroke-width="2" fill="none"/>
+              <text x="20" y="182" font-size="11" fill="#555">Chia sẻ (Share)</text>
+              <text x="230" y="205" font-size="10" fill="#888">👆 bấm rồi Copy link</text>
+
+              <rect x="320" y="10" width="270" height="150" rx="8" fill="#fff" stroke="#ddd"/>
+              <text x="332" y="30" font-size="11" fill="#333">Mô tả video...</text>
+              <circle cx="565" cy="24" r="10" fill="#eee" stroke="#bbb"/>
+              <text x="560" y="28" font-size="12" fill="#555">⋯</text>
+              <rect x="470" y="40" width="115" height="60" rx="4" fill="#fafafa" stroke="#ccc"/>
+              <text x="478" y="58" font-size="9" fill="#333">Hiện bản ghi</text>
+              <text x="478" y="72" font-size="9" fill="#333">(Show transcript)</text>
+              <rect x="332" y="110" width="245" height="12" rx="2" fill="#e8e8e8"/>
+              <rect x="332" y="128" width="200" height="12" rx="2" fill="#e8e8e8"/>
+              <text x="332" y="205" font-size="10" fill="#888">👆 bấm "⋯" rồi chọn Hiện bản ghi, sau đó bôi đen &amp; Copy toàn bộ chữ</text>
+            </svg>
+          </div>
+        </div>
         <div class="row" style="margin-bottom:10px;">
           <input type="text" id="video-url" placeholder="Dán link YouTube vào đây...">
           <button class="btn small" id="video-load">Tải video</button>
@@ -681,6 +721,31 @@
       <h2 class="stitle">Ghi chú của tôi</h2>
       <p class="shint">Những câu/từ bạn đã lưu lại (bấm 💾 ở bất cứ đâu trong bài đọc) sẽ hiện ở đây để ôn lại.</p>
       <div id="notes-list"></div>
+    </section>
+
+    <!-- BI KIP -->
+    <section class="section" id="sec-bikip">
+      <h2 class="stitle">✨ Bí kíp học tốt</h2>
+      <p class="shint">Mẹo hay từ cộng đồng học viên CÀY — góp nhặt kinh nghiệm thật để học nhanh hơn.</p>
+      <div class="subtoggle">
+        <button class="cat-btn active" data-cat="noi">Nói tốt</button>
+        <button class="cat-btn" data-cat="nghe">Nghe tốt</button>
+        <button class="cat-btn" data-cat="tuvung">Học từ vựng</button>
+      </div>
+      <div id="bikip-list"></div>
+
+      <div class="card" style="margin-top:16px;">
+        <p style="font-weight:600;font-size:14px;margin:0 0 8px;">💬 Góp bí kíp của bạn</p>
+        <select id="bikip-cat-select" style="width:100%;padding:8px;margin-bottom:8px;border-radius:8px;border:1px solid var(--paper-line);">
+          <option value="noi">Bí kíp Nói tốt</option>
+          <option value="nghe">Bí kíp Nghe tốt</option>
+          <option value="tuvung">Bí kíp học Từ vựng</option>
+        </select>
+        <textarea id="bikip-text" placeholder="Chia sẻ mẹo bạn thấy hiệu quả..." style="width:100%;min-height:70px;padding:10px;border-radius:8px;border:1px solid var(--paper-line);box-sizing:border-box;font-family:inherit;"></textarea>
+        <input type="text" id="bikip-author" placeholder="Tên bạn (không bắt buộc)" style="width:100%;padding:8px;margin-top:8px;border-radius:8px;border:1px solid var(--paper-line);box-sizing:border-box;">
+        <button class="btn small" id="bikip-submit" style="margin-top:10px;">Gửi bí kíp</button>
+        <p style="font-size:11px;color:var(--muted);margin:8px 0 0;">Bí kíp gửi lên sẽ được admin duyệt trước khi hiển thị công khai, không hiện ngay.</p>
+      </div>
     </section>
 
     <!-- GIA -->
@@ -1009,6 +1074,9 @@
   }
   document.getElementById('toggle-lookup').addEventListener('click', ()=> togglePanel('lookup-panel','voice-panel'));
   document.getElementById('toggle-voice').addEventListener('click', ()=> togglePanel('voice-panel','lookup-panel'));
+  document.getElementById('voice-panel-close').addEventListener('click', ()=>{
+    document.getElementById('voice-panel').classList.remove('open');
+  });
 
   // ---- TRA TU NHANH ----
   document.getElementById('lookup-btn').addEventListener('click', lookupWord);
@@ -1170,18 +1238,19 @@
 
   // ---- NOI (speaking) ----
   const noi_data = [
-    {w:"delivery", p:"/dɪˈlɪvəri/", vi:"giao hàng", tip:"Âm 'r' trong tiếng Anh KHÔNG đọc thành 'z' như người Việt hay quen — cong nhẹ đầu lưỡi lên, không chạm vòm miệng, rồi bật hơi ra. Trọng âm rơi vào 'li' (de-LI-ve-ry)."},
-    {w:"receipt", p:"/rɪˈsiːt/", vi:"hóa đơn", tip:"Chú ý chữ 'p' bị CÂM, không đọc âm /p/ nào cả. Âm cuối 't' bật nhẹ, đừng nuốt mất như thói quen tiếng Việt hay bỏ phụ âm cuối."},
-    {w:"discount", p:"/ˈdɪskaʊnt/", vi:"giảm giá", tip:"Âm cuối 't' phải bật hơi rõ, không được nuốt âm cuối như khi nói tiếng Việt. Trọng âm rơi vào âm đầu 'DIS'."},
-    {w:"refund", p:"/ˈriːfʌnd/", vi:"hoàn tiền", tip:"Âm 'f' cắn nhẹ môi dưới vào răng trên rồi đẩy hơi ra, không phát âm như 'ph' tiếng Việt bình thường. Âm cuối 'd' bật nhẹ, đừng bỏ qua."},
-    {w:"appointment", p:"/əˈpɔɪntmənt/", vi:"cuộc hẹn", tip:"Âm cuối 't' phải bật hơi, không nuốt như tiếng Việt. Trọng âm rơi vào 'POINT' ở giữa từ."},
-    {w:"deadline", p:"/ˈdedlaɪn/", vi:"hạn chót", tip:"Âm cuối 'n' đưa lưỡi chạm nhẹ vòm miệng trên, giữ hơi mũi — khác hẳn cách bỏ lửng phụ âm cuối trong tiếng Việt."}
+    {w:"delivery", p:"/dɪˈlɪvəri/", vi:"giao hàng", icon:"📦", tip:"Âm 'r' trong tiếng Anh KHÔNG đọc thành 'z' như người Việt hay quen — cong nhẹ đầu lưỡi lên, không chạm vòm miệng, rồi bật hơi ra. Trọng âm rơi vào 'li' (de-LI-ve-ry)."},
+    {w:"receipt", p:"/rɪˈsiːt/", vi:"hóa đơn", icon:"🧾", tip:"Chú ý chữ 'p' bị CÂM, không đọc âm /p/ nào cả. Âm cuối 't' bật nhẹ, đừng nuốt mất như thói quen tiếng Việt hay bỏ phụ âm cuối."},
+    {w:"discount", p:"/ˈdɪskaʊnt/", vi:"giảm giá", icon:"🏷️", tip:"Âm cuối 't' phải bật hơi rõ, không được nuốt âm cuối như khi nói tiếng Việt. Trọng âm rơi vào âm đầu 'DIS'."},
+    {w:"refund", p:"/ˈriːfʌnd/", vi:"hoàn tiền", icon:"💸", tip:"Âm 'f' cắn nhẹ môi dưới vào răng trên rồi đẩy hơi ra, không phát âm như 'ph' tiếng Việt bình thường. Âm cuối 'd' bật nhẹ, đừng bỏ qua."},
+    {w:"appointment", p:"/əˈpɔɪntmənt/", vi:"cuộc hẹn", icon:"📅", tip:"Âm cuối 't' phải bật hơi, không nuốt như tiếng Việt. Trọng âm rơi vào 'POINT' ở giữa từ."},
+    {w:"deadline", p:"/ˈdedlaɪn/", vi:"hạn chót", icon:"⏰", tip:"Âm cuối 'n' đưa lưỡi chạm nhẹ vòm miệng trên, giữ hơi mũi — khác hẳn cách bỏ lửng phụ âm cuối trong tiếng Việt."}
   ];
   let noi_current = noi_data[0];
   let noi_i = 0;
   let noi_learned = []; // array of {w,p,vi}
   const noi_used_words = [];
   function loadNoi(){
+    document.getElementById('noi-icon').textContent = noi_current.icon || '🔤';
     document.getElementById('noi-word').textContent = noi_current.w;
     document.getElementById('noi-phon').textContent = noi_current.p;
     document.getElementById('noi-vi').textContent = noi_current.vi;
@@ -1210,13 +1279,14 @@
   document.getElementById('noi-ai-new').addEventListener('click', async ()=>{
     const btn = document.getElementById('noi-ai-new');
     btn.disabled = true;
+    document.getElementById('noi-icon').textContent = '⏳';
     document.getElementById('noi-word').textContent = '...';
     document.getElementById('noi-phon').textContent = '';
     document.getElementById('noi-vi').textContent = 'Đang soạn từ mới...';
     const lv = currentLevelInfo();
     const topic = nghe_topic_pool[Math.floor(Math.random()*nghe_topic_pool.length)];
     const avoidList = noi_used_words.slice(-15).join(', ') || 'không có';
-    const sys = "Give ONE useful, common everyday English word or short phrase for a Vietnamese learner at level " + lv.name + " (" + lv.desc + "), themed around " + topic + ". IMPORTANT: do NOT repeat or resemble any of these already-given words: " + avoidList + " — must be genuinely different. Also give ONE short, practical pronunciation tip IN VIETNAMESE aimed specifically at common mistakes Vietnamese speakers make with this word (e.g. dropping final consonants, confusing 'r' with 'z', not distinguishing 'th', mixing up 'l'/'n', not aspirating certain sounds) — mention concrete mouth/tongue positioning (uốn lưỡi, mở họng, bật hơi...). Respond ONLY with raw JSON: {\"w\":\"<the word/phrase>\",\"p\":\"<IPA phonetic>\",\"vi\":\"<Vietnamese meaning>\",\"tip\":\"<the Vietnamese pronunciation tip>\"}.";
+    const sys = "Give ONE useful, common everyday English word or short phrase for a Vietnamese learner at level " + lv.name + " (" + lv.desc + "), themed around " + topic + ". IMPORTANT: do NOT repeat or resemble any of these already-given words: " + avoidList + " — must be genuinely different. Also give ONE short, practical pronunciation tip IN VIETNAMESE aimed specifically at common mistakes Vietnamese speakers make with this word (e.g. dropping final consonants, confusing 'r' with 'z', not distinguishing 'th', mixing up 'l'/'n', not aspirating certain sounds) — mention concrete mouth/tongue positioning (uốn lưỡi, mở họng, bật hơi...). Also give ONE single emoji that visually represents this word's meaning, to help the learner remember it (pick the closest sensible emoji, e.g. receipt -> 🧾). Respond ONLY with raw JSON: {\"w\":\"<the word/phrase>\",\"p\":\"<IPA phonetic>\",\"vi\":\"<Vietnamese meaning>\",\"tip\":\"<the Vietnamese pronunciation tip>\",\"icon\":\"<one emoji>\"}.";
     try{
       const raw = await callClaude(sys, [{role:'user', content:'Cho từ mới.'}], 350);
       const d = safeParseJSON(raw);
@@ -1442,11 +1512,13 @@
       const ci = progress.contentIndex;
       ci.nghe = ((ci.nghe||0) + 1 + Math.floor(Math.random()*2)) % nghe_data.length;
       ci.noi = ((ci.noi||0) + 1 + Math.floor(Math.random()*2)) % noi_data.length;
-      ci.viet = ((ci.viet||0) + 1 + Math.floor(Math.random()*2)) % viet_prompts.length;
       ci.phap_de = ((ci.phap_de||0) + 1) % phap_data.de.length;
       ci.phap_vua = ((ci.phap_vua||0) + 1) % phap_data.vua.length;
       ci.phap_kho = ((ci.phap_kho||0) + 1) % phap_data.kho.length;
     }
+    // Riêng phần Viết: đổi đề bài mỗi lần MỞ LẠI APP (không cần đợi qua ngày mới),
+    // vì đây là bài tập ngắn, đổi liên tục giúp đỡ nhàm hơn.
+    progress.contentIndex.viet = ((progress.contentIndex.viet||0) + 1) % viet_prompts.length;
     nghe_i = progress.contentIndex.nghe || 0;
     nghe_current = nghe_data[nghe_i];
     loadNghe();
@@ -1568,7 +1640,7 @@
     const word = noi_learned[review_i];
     const area = document.getElementById('review-area');
     const tipHtml = word.tip ? '<div style="font-size:12px;color:var(--muted);margin-top:8px;line-height:1.5;">👄 '+word.tip+'</div>' : '';
-    area.innerHTML = '<div class="flashcard"><div class="fw">'+word.w+'</div><div class="fv" style="display:none;" id="review-vi">'+word.vi+' — '+word.p+tipHtml+'</div><button class="btn small" id="review-flip" style="align-self:center;margin-top:6px;">Xem nghĩa</button></div>';
+    area.innerHTML = '<div class="flashcard"><div class="fw">'+(word.icon ? word.icon+' ' : '')+word.w+'</div><div class="fv" style="display:none;" id="review-vi">'+word.vi+' — '+word.p+tipHtml+'</div><button class="btn small" id="review-flip" style="align-self:center;margin-top:6px;">Xem nghĩa</button></div>';
     document.getElementById('review-flip').addEventListener('click', ()=>{
       document.getElementById('review-vi').style.display = 'block';
       speak(word.w);
@@ -1663,6 +1735,59 @@
   async function saveNotes(notes){
     try{ await storage.set('notes', JSON.stringify(notes)); }catch(e){}
   }
+  // ---- BI KIP HOC TOT ----
+  const TIPS_DATA = {
+    noi: [
+      {text:"Nói to thành tiếng mỗi ngày dù chỉ 5 phút, kể cả nói một mình — miệng quen vận động thì phản xạ mới nhanh, chỉ đọc thầm trong đầu sẽ không lên trình được.", author:"CÀY"},
+      {text:"Ghi âm lại giọng mình rồi nghe lại — nghe hơi ngại lúc đầu nhưng đây là cách nhanh nhất để tự phát hiện lỗi phát âm của chính mình.", author:"CÀY"}
+    ],
+    nghe: [
+      {text:"Nghe đi nghe lại ĐÚNG một đoạn ngắn 5-10 lần thay vì nghe lướt qua nhiều đoạn khác nhau — tai sẽ quen dần với tốc độ nói thật của người bản xứ.", author:"CÀY"},
+      {text:"Đừng cố dịch từng từ trong đầu khi nghe — cứ để tai bắt ý chính trước, dịch chi tiết tính sau, không thì sẽ bị \"trôi\" mất đoạn tiếp theo.", author:"CÀY"}
+    ],
+    tuvung: [
+      {text:"Cách để nhớ từ mới là bạn thường xuyên DÙNG từ mới đó trong cuộc sống sinh hoạt như nói, nhắn tin, hoặc viết — học mà không dùng thì quên rất nhanh.", author:"Bùi Văn Khuyến"},
+      {text:"Học từ theo cụm (collocation) thay vì học từ đơn lẻ — ví dụ học nguyên cụm \"make a decision\" sẽ nhớ lâu và dùng đúng hơn là học rời \"make\" và \"decision\".", author:"CÀY"}
+    ]
+  };
+  let bikipCat = 'noi';
+  async function loadPendingTipsCount(){ return 0; } // placeholder cho tương lai nếu cần hiện số lượng chờ duyệt
+  function renderBikip(){
+    const list = document.getElementById('bikip-list');
+    const items = TIPS_DATA[bikipCat] || [];
+    if(!items.length){
+      list.innerHTML = '<p class="notes-empty">Chưa có bí kíp nào ở mục này.</p>';
+      return;
+    }
+    list.innerHTML = items.map(t =>
+      '<div class="card" style="margin-bottom:10px;"><p style="font-size:13px;line-height:1.6;margin:0 0 6px;">💡 '+t.text+'</p><p style="font-size:11px;color:var(--muted);margin:0;text-align:right;">— '+t.author+' góp ý</p></div>'
+    ).join('');
+  }
+  document.querySelectorAll('.cat-btn').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      document.querySelectorAll('.cat-btn').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      bikipCat = b.dataset.cat;
+      renderBikip();
+    });
+  });
+  renderBikip();
+  document.getElementById('bikip-submit').addEventListener('click', async ()=>{
+    const cat = document.getElementById('bikip-cat-select').value;
+    const text = document.getElementById('bikip-text').value.trim();
+    const author = document.getElementById('bikip-author').value.trim() || 'Ẩn danh';
+    if(!text){ showMentorToast('Gõ nội dung bí kíp trước đã nhé.'); return; }
+    if(!window.__db){ showMentorToast('Chưa kết nối được kho lưu trữ, thử lại sau nhé.'); return; }
+    try{
+      await window.__db.collection('pending_tips').add({ category: cat, text, author, createdAt: Date.now(), status: 'pending' });
+      document.getElementById('bikip-text').value = '';
+      document.getElementById('bikip-author').value = '';
+      showMentorToast('Cảm ơn bạn đã góp bí kíp! Admin duyệt xong sẽ hiển thị công khai nhé 🙌');
+    }catch(err){
+      showMentorToast('Lỗi gửi bí kíp: ' + err.message);
+    }
+  });
+
   async function renderNotes(){
     const notes = await loadNotes();
     const list = document.getElementById('notes-list');
@@ -1712,24 +1837,31 @@
       const isCurrent = progress.currentLevelKey === lv.key;
       let cls = 'level-card';
       if(isCurrent) cls += ' current';
-      else if(unlocked) cls += ' unlocked';
-      else cls += ' locked';
+      if(!isCurrent){
+        if(unlocked) cls += ' unlocked';
+        else cls += ' locked';
+      }
       return '<div class="'+cls+'" data-key="'+lv.key+'" data-unlocked="'+unlocked+'">'+
         '<div class="lv-left"><div class="lv-badge'+(unlocked ? '' : ' locked-badge')+'">'+lv.badge+(unlocked ? '' : '<span class="lv-lock-pin">🔒</span>')+'</div>'+
-        '<div><div class="lv-name">'+lv.name+'</div><div class="lv-desc">'+(unlocked ? lv.desc : 'Cần '+lv.need+' hoạt động để mở khóa (đang có '+count+')')+'</div></div></div>'+
-        (isCurrent ? '<span class="lv-current-tag">ĐANG HỌC</span>' : '') +
+        '<div><div class="lv-name">'+lv.name+'</div><div class="lv-desc">'+(unlocked ? lv.desc : 'Cần '+lv.need+' hoạt động để mở khóa (đang có '+count+') — bấm để xem thử')+'</div></div></div>'+
+        (isCurrent ? '<span class="lv-current-tag">'+(unlocked ? 'ĐANG HỌC' : 'ĐANG XEM THỬ')+'</span>' : '') +
         '</div>';
     }).join('');
     list.querySelectorAll('.level-card').forEach(card=>{
       card.addEventListener('click', async ()=>{
+        const lv = LEVELS.find(l=>l.key===card.dataset.key);
         if(card.dataset.unlocked !== 'true') {
-          showMentorToast('Cấp này chưa mở khóa — cứ học đều, sắp tới rồi 💪');
+          const ok = confirm('Cấp "'+lv.name+'" chưa mở khóa thật (cần '+lv.need+' hoạt động). Bạn có muốn XEM THỬ nội dung ở độ khó này không? (Chỉ để xem trước, không tính là đã mở khóa)');
+          if(!ok) return;
+          progress.currentLevelKey = card.dataset.key;
+          await saveProgress(progress);
+          renderLevels();
+          showMentorToast('Đang xem thử độ khó "'+lv.name+'" — bài đọc/trợ lý sẽ theo độ khó này, nhưng thành tích mở khóa thật vẫn giữ nguyên nhé 👀');
           return;
         }
         progress.currentLevelKey = card.dataset.key;
         await saveProgress(progress);
         renderLevels();
-        const lv = LEVELS.find(l=>l.key===card.dataset.key);
         showMentorToast('Đã chuyển sang cấp "'+lv.name+'" — bài đọc và trợ lý sẽ điều chỉnh độ khó theo cấp này nhé 🎯');
       });
     });
@@ -1946,6 +2078,11 @@
     const toggleBtn = document.createElement('button');
     toggleBtn.className = 'voice-toggle-btn';
     toggleBtn.textContent = 'Aa';
+    toggleBtn.title = 'Bấm để hiện/ẩn chữ của tin nhắn thoại này';
+    if(!localStorage.getItem('cay_aa_hint_shown')){
+      localStorage.setItem('cay_aa_hint_shown', '1');
+      setTimeout(()=> showMentorToast('💡 Mẹo: bấm nút "Aa" cạnh tin nhắn thoại để hiện/ẩn chữ nhé!'), 400);
+    }
     row.appendChild(playBtn);
     row.appendChild(wave);
     row.appendChild(toggleBtn);
@@ -1990,6 +2127,27 @@
     });
     box.scrollTop = box.scrollHeight;
   }
+
+  // ---- CAU DONG VIEN MOI LAN MO APP ----
+  const MOTIVATION_QUOTES = [
+    "Tiếng Anh là ngôn ngữ phổ biến nhất thế giới — biết thêm 1 ngôn ngữ là mở thêm 1 cánh cửa cơ hội.",
+    "Học máy tính, công nghệ, AI... tài liệu hay nhất đa số đều bằng tiếng Anh. Giỏi tiếng Anh là đi tắt đón đầu.",
+    "Mỗi ngày cày một ít, một năm sau nhìn lại bạn sẽ bất ngờ vì mình đã đi xa đến đâu.",
+    "Không cần giỏi ngay, chỉ cần không bỏ cuộc. Nhất quán quan trọng hơn hoàn hảo.",
+    "Nói sai không sao, không nói mới là vấn đề. Cứ mạnh dạn mở miệng ra đã.",
+    "Tiếng Anh tốt giúp bạn tự tin hơn khi đi làm, đi phỏng vấn, hay đơn giản là đọc hiểu 1 cái app mới.",
+    "Cơ hội việc làm lương cao đa phần đòi hỏi tiếng Anh — đầu tư hôm nay là tiết kiệm thời gian sau này.",
+    "5 phút mỗi ngày còn hơn 5 tiếng một lần rồi bỏ luôn cả tháng. Đều đặn thắng cường độ.",
+    "Người giỏi tiếng Anh không phải người thông minh nhất, mà là người kiên trì nhất.",
+    "Xem phim, nghe nhạc, lướt mạng bằng tiếng Anh — biến việc học thành giải trí, sẽ nhẹ nhàng hơn nhiều.",
+    "Thế giới đang phẳng hơn từng ngày — tiếng Anh là tấm vé để bạn bước ra ngoài biên giới Việt Nam.",
+    "Bạn không cần hoàn hảo, chỉ cần hôm nay giỏi hơn hôm qua một chút."
+  ];
+  function showMotivationQuote(){
+    const el = document.getElementById('motivation-quote');
+    if(el) el.textContent = '💬 ' + MOTIVATION_QUOTES[Math.floor(Math.random()*MOTIVATION_QUOTES.length)];
+  }
+  showMotivationQuote();
 
   const CHAT_DAILY_LIMIT = 20;
   function getChatUsage(){
@@ -2046,7 +2204,7 @@
     chatMediaRecorder = mr;
     mr.ondataavailable = e => { if(e.data.size > 0) chunks.push(e.data); };
     mr.start();
-    micBtn.textContent = '⏹️';
+    micBtn.innerHTML = '<span class="spin-inline">🔴</span>';
     micBtn.classList.add('recording');
     showMentorToast('Đang ghi âm... bấm lại nút mic khi nói xong nhé.');
 
@@ -2057,7 +2215,8 @@
       clearTimeout(autoStopTimer);
       stream.getTracks().forEach(t => t.stop());
       micBtn.classList.remove('recording');
-      micBtn.textContent = '⏳';
+      micBtn.classList.add('processing');
+      micBtn.innerHTML = '<span class="spin-inline">⏳</span>';
       const blob = new Blob(chunks, {type: mr.mimeType || 'audio/webm'});
       const audioURL = URL.createObjectURL(blob);
       try{
@@ -2068,12 +2227,14 @@
           body: JSON.stringify({ audioBase64: base64, mimeType: blob.type })
         });
         const data = await resp.json();
+        micBtn.classList.remove('processing');
         micBtn.textContent = '🎤';
         if(data.error){ showMentorToast('Lỗi nhận diện: ' + data.error); return; }
         const transcript = (data.text || '').trim();
         if(transcript){ sendChat(transcript, audioURL); }
         else { showMentorToast('Không nghe rõ, thử nói lại nhé.'); }
       }catch(err){
+        micBtn.classList.remove('processing');
         micBtn.textContent = '🎤';
         showMentorToast('Lỗi nhận diện giọng nói: ' + err.message);
       }
@@ -2112,7 +2273,13 @@
 
     const learnedList = progress.learnedWords.map(x => x.w).filter(Boolean).join(', ') || 'chưa có';
     const memoryNote = "Ghi nhớ về học viên: streak hiện tại " + (progress.streak||0) + " ngày, cấp độ hiện tại: " + currentLevelInfo().name + " (" + currentLevelInfo().desc + "), từ vựng đã học: " + learnedList + ". Điều chỉnh độ khó câu trả lời tiếng Anh cho khớp cấp độ này.";
-    const sys = activeChar.persona + " You act like a real friend/mentor who has been chatting with this Vietnamese learner for a while and genuinely remembers them — refer back naturally to earlier parts of the conversation when it fits. Never mock mistakes; make corrections feel like a caring tip, not a red pen. CRITICAL FORMAT RULE: every reply MUST be bilingual — write the English sentence(s) first, then immediately the full Vietnamese translation in parentheses, e.g. 'That sounds fun! (Nghe vui đấy!)'. Never send English-only text. Keep the English part short: 1-3 simple sentences (A2-B1 level). " + memoryNote + " Respond ONLY with raw JSON, no markdown fences, no preamble, in this exact shape: {\"reply\": \"your bilingual English (Vietnamese) reply\", \"correction\": \"if the learner's message had a grammar or word-choice mistake, a short one-sentence explanation IN VIETNAMESE of the fix, caring tone, otherwise null\"}";
+    const lvIndexForLength = LEVELS.findIndex(l => l.key === currentLevelInfo().key);
+    const lengthGuide = lvIndexForLength <= 1
+      ? "1-2 short simple sentences (A1-A2 level) — keep it easy since the learner is still early."
+      : lvIndexForLength <= 3
+      ? "2-4 sentences (A2-B1 level), a bit more descriptive and engaging, feel free to add a little detail or a follow-up question."
+      : "3-5 sentences (B1-B2 level), vivid and engaging like a real conversation — add color, personality, maybe a follow-up question, don't just give a flat short reply.";
+    const sys = activeChar.persona + " You act like a real friend/mentor who has been chatting with this Vietnamese learner for a while and genuinely remembers them — refer back naturally to earlier parts of the conversation when it fits. Never mock mistakes; make corrections feel like a caring tip, not a red pen. CRITICAL FORMAT RULE: every reply MUST be bilingual — write the English sentence(s) first, then immediately the full Vietnamese translation in parentheses, e.g. 'That sounds fun! (Nghe vui đấy!)'. Never send English-only text. Length of the English part: " + lengthGuide + " " + memoryNote + " Respond ONLY with raw JSON, no markdown fences, no preamble, in this exact shape: {\"reply\": \"your bilingual English (Vietnamese) reply\", \"correction\": \"if the learner's message had a grammar or word-choice mistake, a short one-sentence explanation IN VIETNAMESE of the fix, caring tone, otherwise null\"}";
 
     try{
       const raw = await callClaude(sys, chatMessages.slice(-20), 500);
@@ -2312,6 +2479,10 @@
     box.innerHTML = '<iframe width="100%" height="220" style="border-radius:8px;border:none;" src="https://www.youtube.com/embed/'+id+'" allowfullscreen></iframe>';
     return true;
   }
+  document.getElementById('video-howto-toggle').addEventListener('click', ()=>{
+    const box = document.getElementById('video-howto-box');
+    box.style.display = box.style.display === 'none' ? 'block' : 'none';
+  });
   document.getElementById('video-load').addEventListener('click', async ()=>{
     const url = document.getElementById('video-url').value.trim();
     const topic = document.getElementById('video-topic').value.trim();
