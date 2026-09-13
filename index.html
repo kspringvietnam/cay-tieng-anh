@@ -330,9 +330,30 @@
     padding-top:12px;
   }
 </style>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
 <div class="wrap">
+
+  <div class="modal-overlay" id="auth-modal" style="display:none;">
+    <div class="modal-box">
+      <h3 id="auth-modal-title">Đăng nhập</h3>
+      <p class="hint">Lưu tiến trình, lịch sử chat theo tài khoản — dùng được trên mọi thiết bị.</p>
+      <div class="subtoggle" style="margin-bottom:14px;">
+        <button class="lvl active" id="auth-tab-login" type="button">Đăng nhập</button>
+        <button class="lvl" id="auth-tab-register" type="button">Đăng ký</button>
+      </div>
+      <div id="auth-register-fields" style="display:none;">
+        <input type="text" id="auth-name" placeholder="Họ và tên" style="width:100%;padding:10px;margin-bottom:8px;border-radius:8px;border:1px solid var(--paper-line);">
+      </div>
+      <input type="tel" id="auth-phone" placeholder="Số điện thoại" style="width:100%;padding:10px;margin-bottom:8px;border-radius:8px;border:1px solid var(--paper-line);">
+      <input type="password" id="auth-password" placeholder="Mật khẩu" style="width:100%;padding:10px;margin-bottom:8px;border-radius:8px;border:1px solid var(--paper-line);">
+      <p id="auth-error" style="color:#c0392b;font-size:13px;min-height:18px;margin:4px 0;"></p>
+      <button class="btn" id="auth-submit-btn" style="width:100%;">Đăng nhập</button>
+      <button class="btn ghost small" id="auth-close-btn" style="margin-top:10px;">Đóng</button>
+    </div>
+  </div>
 
   <div class="modal-overlay" id="vip-modal" style="display:none;">
     <div class="modal-box">
@@ -371,6 +392,7 @@
     <div class="row" style="gap:8px;">
       <div class="streak">🔥 <span id="streakText">Ngày cày thứ 1</span></div>
       <button class="streak" id="vip-open-btn" style="border-color:var(--amber);color:var(--amber);cursor:pointer;">👑 Nâng cấp VIP</button>
+      <button class="streak" id="auth-open-btn" style="cursor:pointer;">👤 <span id="auth-btn-label">Đăng nhập</span></button>
     </div>
 
     <div class="quicktools">
@@ -717,7 +739,7 @@
       <div id="reminders-area"></div>
     </section>
 
-    <p class="progress-note">Tiến trình học, ghi chú và lịch sử chat được lưu ngay trên trình duyệt này — thoát app rồi vào lại vẫn còn. Đổi sang điện thoại/máy khác thì cần đăng nhập để đồng bộ (sắp có).</p>
+    <p class="progress-note">Tiến trình học, ghi chú và lịch sử chat được lưu ngay trên trình duyệt này. Bấm "👤 Đăng nhập" ở trên để tạo tài khoản — dữ liệu sẽ đồng bộ, dùng được trên mọi thiết bị.</p>
   </div>
 
   <div class="mentor-toast" id="mentor-toast">
@@ -742,9 +764,151 @@
     },
     async set(key, value){
       localStorage.setItem('cay_' + key, value);
+      // Nếu đã đăng nhập, đẩy luôn lên Firestore ở nền (không chặn UI, lỗi mạng thì bỏ qua êm,
+      // lần lưu tiếp theo sẽ tự đồng bộ lại).
+      const phone = localStorage.getItem('cay_current_user');
+      if(phone && window.__db){
+        window.__db.collection('users').doc(phone).collection('data').doc(key)
+          .set({ value: value, updatedAt: Date.now() }).catch(()=>{});
+      }
       return { key, value };
     }
   };
+
+  // ---- TAI KHOAN (Firebase Firestore) ----
+  const firebaseConfig = {
+    apiKey: "AIzaSyCGJxQX_neG0r1JnQnFb_GMuxs33qdC048",
+    authDomain: "cay-tieng-anh.firebaseapp.com",
+    projectId: "cay-tieng-anh",
+    storageBucket: "cay-tieng-anh.firebasestorage.app",
+    messagingSenderId: "266149763663",
+    appId: "1:266149763663:web:09cd7ab34f9f2cb944a83a"
+  };
+  try{
+    firebase.initializeApp(firebaseConfig);
+    window.__db = firebase.firestore();
+  }catch(e){ console.error('Firebase init lỗi:', e); }
+
+  // Băm mật khẩu bằng SHA-256 có sẵn trong trình duyệt — không lưu mật khẩu gốc lên server.
+  async function hashPassword(pw){
+    const enc = new TextEncoder().encode(pw);
+    const buf = await crypto.subtle.digest('SHA-256', enc);
+    return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+  }
+
+  function normalizePhone(p){ return p.replace(/[^0-9]/g,''); }
+
+  async function registerAccount(name, phone, password){
+    const ref = window.__db.collection('users').doc(phone);
+    const doc = await ref.get();
+    if(doc.exists) throw new Error('Số điện thoại này đã đăng ký rồi, chọn "Đăng nhập" nhé.');
+    const hash = await hashPassword(password);
+    await ref.set({ name, passwordHash: hash, createdAt: Date.now() });
+    // Đẩy toàn bộ dữ liệu đang có trên máy này (nếu đang học thử trước khi đăng ký) lên tài khoản mới.
+    await pushAllLocalDataToCloud(phone);
+    setSession(phone, name);
+  }
+
+  async function loginAccount(phone, password){
+    const ref = window.__db.collection('users').doc(phone);
+    const doc = await ref.get();
+    if(!doc.exists) throw new Error('Số điện thoại chưa đăng ký. Chọn "Đăng ký" để tạo tài khoản mới.');
+    const hash = await hashPassword(password);
+    if(doc.data().passwordHash !== hash) throw new Error('Sai mật khẩu, thử lại nhé.');
+    await pullAllCloudDataToLocal(phone);
+    setSession(phone, doc.data().name);
+  }
+
+  function setSession(phone, name){
+    localStorage.setItem('cay_current_user', phone);
+    localStorage.setItem('cay_current_name', name);
+    updateAuthButton();
+  }
+  function logoutAccount(){
+    localStorage.removeItem('cay_current_user');
+    localStorage.removeItem('cay_current_name');
+    updateAuthButton();
+  }
+  function updateAuthButton(){
+    const name = localStorage.getItem('cay_current_name');
+    document.getElementById('auth-btn-label').textContent = name ? name : 'Đăng nhập';
+  }
+  async function pushAllLocalDataToCloud(phone){
+    const keys = Object.keys(localStorage).filter(k=>k.startsWith('cay_') && !['cay_current_user','cay_current_name'].includes(k));
+    const batch = window.__db.batch();
+    keys.forEach(k=>{
+      const shortKey = k.replace(/^cay_/,'');
+      const docRef = window.__db.collection('users').doc(phone).collection('data').doc(shortKey);
+      batch.set(docRef, { value: localStorage.getItem(k), updatedAt: Date.now() });
+    });
+    if(keys.length) await batch.commit();
+  }
+  async function pullAllCloudDataToLocal(phone){
+    const snap = await window.__db.collection('users').doc(phone).collection('data').get();
+    snap.forEach(doc=>{
+      localStorage.setItem('cay_' + doc.id, doc.data().value);
+    });
+  }
+
+  // Tự đăng nhập lại nếu trình duyệt này đã từng đăng nhập trước đó
+  updateAuthButton();
+
+  document.getElementById('auth-open-btn').addEventListener('click', ()=>{
+    const name = localStorage.getItem('cay_current_name');
+    if(name){
+      if(confirm('Đăng xuất khỏi tài khoản "'+name+'"? (Dữ liệu trên máy này vẫn còn, chỉ ngừng đồng bộ)')){
+        logoutAccount();
+      }
+      return;
+    }
+    document.getElementById('auth-modal').style.display = 'flex';
+  });
+  document.getElementById('auth-close-btn').addEventListener('click', ()=>{
+    document.getElementById('auth-modal').style.display = 'none';
+    document.getElementById('auth-error').textContent = '';
+  });
+  let authMode = 'login';
+  document.getElementById('auth-tab-login').addEventListener('click', ()=>{
+    authMode = 'login';
+    document.getElementById('auth-tab-login').classList.add('active');
+    document.getElementById('auth-tab-register').classList.remove('active');
+    document.getElementById('auth-register-fields').style.display = 'none';
+    document.getElementById('auth-modal-title').textContent = 'Đăng nhập';
+    document.getElementById('auth-submit-btn').textContent = 'Đăng nhập';
+    document.getElementById('auth-error').textContent = '';
+  });
+  document.getElementById('auth-tab-register').addEventListener('click', ()=>{
+    authMode = 'register';
+    document.getElementById('auth-tab-register').classList.add('active');
+    document.getElementById('auth-tab-login').classList.remove('active');
+    document.getElementById('auth-register-fields').style.display = 'block';
+    document.getElementById('auth-modal-title').textContent = 'Đăng ký';
+    document.getElementById('auth-submit-btn').textContent = 'Đăng ký';
+    document.getElementById('auth-error').textContent = '';
+  });
+  document.getElementById('auth-submit-btn').addEventListener('click', async ()=>{
+    const errEl = document.getElementById('auth-error');
+    errEl.textContent = '';
+    const phone = normalizePhone(document.getElementById('auth-phone').value.trim());
+    const password = document.getElementById('auth-password').value;
+    const name = document.getElementById('auth-name').value.trim();
+    if(phone.length < 9){ errEl.textContent = 'Số điện thoại không hợp lệ.'; return; }
+    if(password.length < 4){ errEl.textContent = 'Mật khẩu cần ít nhất 4 ký tự.'; return; }
+    if(authMode === 'register' && !name){ errEl.textContent = 'Nhập họ tên nhé.'; return; }
+    const btn = document.getElementById('auth-submit-btn');
+    btn.disabled = true;
+    btn.textContent = 'Đang xử lý...';
+    try{
+      if(authMode === 'register') await registerAccount(name, phone, password);
+      else await loginAccount(phone, password);
+      document.getElementById('auth-modal').style.display = 'none';
+      location.reload(); // tải lại để mọi phần của app đọc đúng dữ liệu vừa đồng bộ
+    }catch(err){
+      errEl.textContent = err.message;
+    }
+    btn.disabled = false;
+    btn.textContent = authMode === 'register' ? 'Đăng ký' : 'Đăng nhập';
+  });
 
   // ---- tab switching ----
   document.querySelectorAll('.tabs > .tab').forEach(t=>{
