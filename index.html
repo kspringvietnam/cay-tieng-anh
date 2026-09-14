@@ -343,6 +343,17 @@
 <body>
 <div class="wrap">
 
+  <div class="modal-overlay" id="onboard-modal" style="display:none;">
+    <div class="modal-box">
+      <div id="onboard-slide-content"></div>
+      <div class="row between" style="margin-top:16px;align-items:center;">
+        <button class="btn ghost small" id="onboard-skip">Bỏ qua</button>
+        <p id="onboard-dots" style="font-size:12px;color:var(--muted);margin:0;"></p>
+        <button class="btn small" id="onboard-next">Tiếp →</button>
+      </div>
+    </div>
+  </div>
+
   <div class="modal-overlay" id="auth-modal" style="display:none;">
     <div class="modal-box">
       <h3 id="auth-modal-title">Đăng nhập</h3>
@@ -404,6 +415,7 @@
       <div class="streak">🔥 <span id="streakText">Ngày cày thứ 1</span></div>
       <button class="streak" id="vip-open-btn" style="border-color:var(--amber);color:var(--amber);cursor:pointer;">👑 Nâng cấp VIP</button>
       <button class="streak" id="auth-open-btn" style="cursor:pointer;">👤 <span id="auth-btn-label">Đăng nhập</span></button>
+      <button class="streak" id="help-open-btn" style="cursor:pointer;">❓ Hướng dẫn</button>
     </div>
 
     <div class="quicktools">
@@ -458,13 +470,13 @@
 
   <div class="tabs">
     <div class="tab active" data-tab="troly">🗣️ BẠN ẢO</div>
+    <div class="tab" data-tab="video">VIDEO</div>
     <div class="tab" data-tab="nghe">NGHE</div>
     <div class="tab" data-tab="noi">NÓI</div>
     <div class="tab" data-tab="doc">ĐỌC</div>
     <div class="tab" data-tab="phap">NGỮ PHÁP</div>
     <div class="tab" data-tab="on">ÔN TẬP</div>
     <div class="tab" data-tab="viet">VIẾT</div>
-    <div class="tab" data-tab="video">VIDEO</div>
     <div class="tab" data-tab="capdo">CẤP ĐỘ</div>
     <div class="tab" data-tab="ghichu">GHI CHÚ</div>
     <div class="tab" data-tab="bikip">✨ BÍ KÍP</div>
@@ -985,6 +997,48 @@
     btn.textContent = authMode === 'register' ? 'Đăng ký' : 'Đăng nhập';
   });
 
+  // ---- HUONG DAN NHANH (ONBOARDING) ----
+  const ONBOARD_SLIDES = [
+    { emoji:'👋', title:'Chào mừng đến với CÀY!', body:'App học tiếng Anh "kiểu cày cuốc" — luyện đủ Nghe, Nói, Đọc, Viết, Ngữ pháp, có cả trợ lý AI trò chuyện cùng. Lướt qua vài slide này để biết chỗ nào dùng để làm gì nhé!' },
+    { emoji:'🗣️', title:'BẠN ẢO — nói chuyện với AI', body:'Chọn 1 trong 6 nhân vật, gõ chữ hoặc bấm mic 🎤 để NÓI trực tiếp — AI trả lời bằng cả giọng nói lẫn chữ, sửa lỗi nhẹ nhàng. Chat thoải mái, nói gì cũng được kể cả tiếng Việt!' },
+    { emoji:'🎧', title:'NGHE / NÓI / ĐỌC / NGỮ PHÁP', body:'4 tab luyện từng kỹ năng riêng. Chán bài đang có thì bấm nút "🔄 Câu khác" / "Bài tiếp theo" — đổi liên tục không giới hạn, hoặc để AI soạn bài mới theo đúng trình độ của bạn.' },
+    { emoji:'🌱', title:'CẤP ĐỘ — càng cày càng lên trình', body:'Học đều mỗi ngày để mở khóa cấp cao hơn (Học Viên → Cao Thủ → Bậc Thầy...). Cấp càng cao, câu AI soạn ra càng dài, càng khó, giống hội thoại thật hơn.' },
+    { emoji:'🎬', title:'VIDEO & ✨ BÍ KÍP', body:'Dán link YouTube bất kỳ để luyện nghe song ngữ theo đúng nội dung video. Mục Bí kíp có mẹo học hay từ cộng đồng — bạn cũng góp mẹo của mình vào được!' },
+    { emoji:'⚙️', title:'2 nút luôn cần nhớ ở đầu trang', body:'"🔍 Tra từ nhanh" — tra bất kỳ từ nào ngay lập tức. "⚙ Giọng đọc" — đổi giọng đọc, tốc độ, âm lượng cho hợp tai bạn nhất. Giờ thì cứ thế mà cày thôi! 💪' }
+  ];
+  let onboardIdx = 0;
+  function renderOnboardSlide(){
+    const s = ONBOARD_SLIDES[onboardIdx];
+    document.getElementById('onboard-slide-content').innerHTML =
+      '<div style="text-align:center;font-size:44px;margin-bottom:8px;">'+s.emoji+'</div>'+
+      '<h3 style="text-align:center;margin:0 0 10px;">'+s.title+'</h3>'+
+      '<p style="font-size:13.5px;line-height:1.7;color:var(--ink);margin:0;">'+s.body+'</p>';
+    document.getElementById('onboard-dots').textContent = (onboardIdx+1) + '/' + ONBOARD_SLIDES.length;
+    document.getElementById('onboard-next').textContent = onboardIdx === ONBOARD_SLIDES.length-1 ? 'Bắt đầu học! 🚀' : 'Tiếp →';
+  }
+  function openOnboarding(){
+    onboardIdx = 0;
+    renderOnboardSlide();
+    document.getElementById('onboard-modal').style.display = 'flex';
+  }
+  document.getElementById('onboard-next').addEventListener('click', ()=>{
+    if(onboardIdx === ONBOARD_SLIDES.length-1){
+      document.getElementById('onboard-modal').style.display = 'none';
+      localStorage.setItem('cay_onboarding_seen', '1');
+      return;
+    }
+    onboardIdx++;
+    renderOnboardSlide();
+  });
+  document.getElementById('onboard-skip').addEventListener('click', ()=>{
+    document.getElementById('onboard-modal').style.display = 'none';
+    localStorage.setItem('cay_onboarding_seen', '1');
+  });
+  document.getElementById('help-open-btn').addEventListener('click', openOnboarding);
+  if(!localStorage.getItem('cay_onboarding_seen')){
+    setTimeout(openOnboarding, 500);
+  }
+
   // ---- tab switching ----
   document.querySelectorAll('.tabs > .tab').forEach(t=>{
     t.addEventListener('click', ()=>{
@@ -1045,7 +1099,9 @@
     });
     return genderGuess[0] || basePool[0];
   }
-  function speak(text, onEnd){
+  let activeVoiceBtn = null;
+  let activeVoiceAudio = null;
+  function speak(text, onEnd, onStart){
     if(!('speechSynthesis' in window)) return null;
     const u = new SpeechSynthesisUtterance(text);
     u.lang = voiceSettings.accent;
@@ -1054,6 +1110,7 @@
     const v = pickVoice();
     if(v) u.voice = v;
     if(onEnd) u.onend = onEnd;
+    if(onStart) u.onstart = onStart;
     speechSynthesis.cancel();
     speechSynthesis.speak(u);
     return u;
@@ -2093,17 +2150,35 @@
     wrap.appendChild(textDiv);
 
     let audioEl = audioURL ? new Audio(audioURL) : null;
-    if(audioEl) audioEl.onended = () => { playBtn.textContent = '▶'; };
+    if(audioEl) audioEl.onended = () => { playBtn.textContent = '▶'; if(activeVoiceBtn===playBtn) activeVoiceBtn=null; };
 
     playBtn.addEventListener('click', ()=>{
+      // Nếu đang có 1 bong bóng khác chạy dở, tắt nó trước để không bị kẹt 2 cái cùng lúc
+      if(activeVoiceBtn && activeVoiceBtn !== playBtn){
+        activeVoiceBtn.textContent = '▶';
+        if(activeVoiceAudio){ activeVoiceAudio.pause(); activeVoiceAudio.currentTime = 0; }
+        speechSynthesis.cancel();
+      }
       if(audioEl){
-        if(audioEl.paused){ audioEl.play(); playBtn.textContent = '⏸'; }
-        else { audioEl.pause(); playBtn.textContent = '▶'; }
+        if(audioEl.paused){
+          audioEl.play();
+          playBtn.textContent = '⏸';
+          activeVoiceBtn = playBtn; activeVoiceAudio = audioEl;
+        } else {
+          audioEl.pause(); playBtn.textContent = '▶'; activeVoiceBtn = null;
+        }
       } else {
-        if(speechSynthesis.speaking){ speechSynthesis.cancel(); playBtn.textContent = '▶'; return; }
+        if(activeVoiceBtn === playBtn){
+          speechSynthesis.cancel(); playBtn.textContent = '▶'; activeVoiceBtn = null; return;
+        }
         const enPart = text.split('(')[0].trim() || text;
-        playBtn.textContent = '⏸';
-        speak(enPart, () => { playBtn.textContent = '▶'; });
+        playBtn.textContent = '⏳';
+        // Chỉ đổi icon thành "đang phát" khi TTS thật sự bắt đầu chạy (onStart) — tránh
+        // kẹt icon nếu trình duyệt âm thầm chặn không phát được.
+        let started = false;
+        speak(enPart, () => { playBtn.textContent = '▶'; activeVoiceBtn = null; },
+          () => { started = true; playBtn.textContent = '⏸'; activeVoiceBtn = playBtn; activeVoiceAudio = null; });
+        setTimeout(()=>{ if(!started && playBtn.textContent === '⏳'){ playBtn.textContent = '▶'; showMentorToast('Không phát được giọng đọc, thử bấm lại nhé.'); } }, 1500);
       }
     });
     toggleBtn.addEventListener('click', ()=>{
@@ -2298,14 +2373,10 @@
       const replyText = parsed.reply || '...';
       const botDiv = buildVoiceBubble(false, replyText, null);
       box.appendChild(botDiv);
-      // Tự động đọc to câu trả lời ngay khi vừa nhận, giống nghe tin nhắn thoại tự phát
-      const enPart = replyText.split('(')[0].trim() || replyText;
-      speak(enPart, () => {
-        const playBtn = botDiv.querySelector('.voice-play-btn');
-        if(playBtn) playBtn.textContent = '▶';
-      });
-      const playBtnNow = botDiv.querySelector('.voice-play-btn');
-      if(playBtnNow) playBtnNow.textContent = '⏸';
+      // KHÔNG tự động phát giọng nói ở đây nữa — điện thoại thường ÂM THẦM CHẶN việc tự
+      // phát âm thanh khi không xuất phát trực tiếp từ 1 cú bấm thật của người dùng, khiến
+      // nút bị kẹt mãi ở trạng thái "⏸" dù không phát được gì. Để học viên tự bấm ▶ nghe,
+      // đảm bảo chạy đúng 100% vì đó luôn là 1 cú bấm thật.
 
       chatMessages.push({role:'assistant', content: replyText});
       await saveChatHistory();
