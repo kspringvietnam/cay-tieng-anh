@@ -114,11 +114,17 @@
     font-weight:600;
     font-size:20px;
     margin:0 0 4px;
+    background:var(--paper);
+    position:relative;
+    z-index:1;
   }
   p.shint{
     font-size:13px;
     color:var(--muted);
     margin:0 0 18px;
+    background:var(--paper);
+    position:relative;
+    z-index:1;
   }
 
   .card{
@@ -346,6 +352,17 @@
 <body>
 <div class="wrap">
 
+  <div class="modal-overlay" id="audience-modal" style="display:none;">
+    <div class="modal-box" style="text-align:center;">
+      <h3>Bạn học tiếng Anh để...?</h3>
+      <p style="font-size:13px;color:var(--muted);margin:6px 0 18px;">Chọn để CÀY soạn nội dung, chủ đề phù hợp hơn với bạn.</p>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <button class="btn" data-audience="hocsinh" style="padding:14px;">🎒 Tôi là học sinh</button>
+        <button class="btn" data-audience="dilam" style="padding:14px;">💼 Tôi đi làm</button>
+      </div>
+    </div>
+  </div>
+
   <div class="modal-overlay" id="onboard-modal" style="display:none;">
     <div class="modal-box">
       <div id="onboard-slide-content"></div>
@@ -411,7 +428,7 @@
 
 
   <header>
-    <p class="brand">CÀY</p>
+    <p class="brand">CÀY <span style="font-size:11px;color:var(--muted);font-weight:400;vertical-align:middle;">v26</span></p>
     <p class="tagline">caytienganh.kspring.com.vn — Học tiếng Anh kiểu cày cuốc, có trợ lý AI đồng hành</p>
     <p id="motivation-quote" style="font-size:12px;color:var(--amber);font-style:italic;margin:2px 0 10px;"></p>
     <div class="row" style="gap:8px;">
@@ -419,6 +436,7 @@
       <button class="streak" id="vip-open-btn" style="border-color:var(--amber);color:var(--amber);cursor:pointer;">👑 Nâng cấp VIP</button>
       <button class="streak" id="auth-open-btn" style="cursor:pointer;">👤 <span id="auth-btn-label">Đăng nhập</span></button>
       <button class="streak" id="help-open-btn" style="cursor:pointer;">❓ Hướng dẫn</button>
+      <button class="streak" id="audience-open-btn" style="cursor:pointer;">🎯 <span id="audience-btn-label">Đối tượng</span></button>
     </div>
 
     <div class="quicktools">
@@ -479,6 +497,7 @@
     <div class="tab" data-tab="doc">ĐỌC</div>
     <div class="tab" data-tab="phap">NGỮ PHÁP</div>
     <div class="tab" data-tab="on">ÔN TẬP</div>
+    <div class="tab" data-tab="flashcard">📇 FLASHCARD</div>
     <div class="tab" data-tab="viet">VIẾT</div>
     <div class="tab" data-tab="capdo">CẤP ĐỘ</div>
     <div class="tab" data-tab="ghichu">GHI CHÚ</div>
@@ -691,6 +710,11 @@
       <p class="shint">Chat thoải mái mỗi ngày để luyện đủ 4 kỹ năng Nghe – Nói – Đọc – Viết cùng lúc — nói gì cũng được, kể cả tiếng Việt, cứ thả ga tám chuyện với các nhân vật dưới đây nhé!</p>
       <p style="font-size:12px;color:var(--muted);margin:-8px 0 12px;" id="chat-usage-badge">0/20 lượt hôm nay</p>
 
+      <label style="display:flex;align-items:center;gap:6px;font-size:13px;margin:0 0 12px;cursor:pointer;">
+        <input type="checkbox" id="child-mode-toggle" style="width:16px;height:16px;">
+        🧒 Chế độ Trẻ em (câu ngắn, từ đơn giản, nói chậm hơn)
+      </label>
+
       <div class="char-grid" id="char-grid"></div>
 
       <div class="subtoggle">
@@ -821,6 +845,19 @@
       <h2 class="stitle" style="margin-top:22px;font-size:17px;">💡 Điều cần nhớ</h2>
       <p class="shint">Tự động gom lại từ ngữ pháp và mẹo bạn ảo đã sửa cho bạn.</p>
       <div id="reminders-area"></div>
+    </section>
+
+    <!-- FLASHCARD -->
+    <section class="section" id="sec-flashcard">
+      <h2 class="stitle">📇 Flashcard từ vựng</h2>
+      <p class="shint">Tự tạo bộ thẻ từ vựng theo chủ đề bạn muốn, lật thẻ để ôn — nói/viết ra là nhớ nhanh nhất.</p>
+      <div class="card" style="margin-bottom:14px;">
+        <div class="row" style="gap:8px;">
+          <input type="text" id="fc-topic-input" placeholder="Nhập chủ đề (vd: đồ ăn, du lịch, công sở...)" style="flex:1;padding:10px;border-radius:8px;border:1px solid #C9BE9F;font-size:13px;">
+          <button class="btn small" id="fc-generate-btn">🔄 Tạo bộ thẻ</button>
+        </div>
+      </div>
+      <div id="fc-deck-area"></div>
     </section>
 
     <p class="progress-note">Tiến trình học, ghi chú và lịch sử chat được lưu ngay trên trình duyệt này. Bấm "👤 Đăng nhập" ở trên để tạo tài khoản — dữ liệu sẽ đồng bộ, dùng được trên mọi thiết bị.</p>
@@ -1042,15 +1079,117 @@
     setTimeout(openOnboarding, 500);
   }
 
+  // ---- feature tips (note theo từng phần) ----
+  const FEATURE_TIPS = {
+    'sec-nghe': '💡 Bấm nút "▶ Nghe" rồi gõ từ còn thiếu vào ô trống bên dưới câu.',
+    'sec-noi': '💡 Bấm nghe mẫu, rồi bấm mic để đọc theo — app sẽ chấm điểm phát âm cho bạn.',
+    'sec-doc': '💡 Bấm 1 chủ đề bên trên để có bài đọc mới. Bấm vào từ nào chưa biết để dịch ngay tại chỗ.',
+    'sec-viet': '💡 Viết tự do bằng tiếng Anh, đừng lo sai — bạn ảo AI sẽ chữa và giải thích lỗi cho bạn.',
+    'sec-video': '💡 Xem video rồi bấm "Soạn hội thoại mẫu" để lấy từ vựng & câu hay liên quan.',
+    'sec-troly': '💡 Chọn 1 nhân vật bên dưới rồi nhắn tin/nói chuyện thoải mái — kể cả bằng tiếng Việt cũng được.',
+    'sec-capdo': '💡 Học đều mỗi ngày để lên cấp — cấp càng cao, bài học càng khó dần.',
+    'sec-ghichu': '💡 Đây là nơi lưu lại các câu/từ bạn đã bấm 💾 trong lúc học.',
+    'sec-bikip': '💡 Mẹo học hay do chính học viên CÀY chia sẻ — đọc lướt qua để có thêm động lực.',
+    'sec-gia': '💡 Xem các gói nâng cấp — không cam kết dài hạn, dùng thấy hiệu quả thì tiếp tục.',
+    'sec-phap': '💡 Mỗi lần chỉ học 1 điểm ngữ pháp nhỏ, dễ nhớ, không lý thuyết dài dòng.',
+    'sec-on': '💡 Ôn lại từ đã học để nhớ lâu hơn — đừng chỉ học từ mới rồi quên.'
+  };
+  function showFeatureTip(sectionId){
+    const sec = document.getElementById(sectionId);
+    if(!sec || !FEATURE_TIPS[sectionId]) return;
+    if(localStorage.getItem('cay_tip_seen_'+sectionId)) return;
+    if(sec.querySelector('.feature-tip')) return;
+    const tip = document.createElement('div');
+    tip.className = 'feature-tip';
+    tip.style.cssText = 'background:#FFF3D6;border:1px solid var(--amber);border-radius:10px;padding:10px 34px 10px 12px;margin:0 0 14px;font-size:13px;position:relative;line-height:1.4;';
+    tip.innerHTML = FEATURE_TIPS[sectionId] +
+      '<button aria-label="Đóng mẹo" style="position:absolute;top:6px;right:8px;background:none;border:none;font-size:15px;cursor:pointer;color:var(--muted);">✕</button>';
+    tip.querySelector('button').addEventListener('click', ()=>{
+      localStorage.setItem('cay_tip_seen_'+sectionId, '1');
+      tip.remove();
+    });
+    const hint = sec.querySelector('.shint');
+    if(hint) hint.insertAdjacentElement('afterend', tip); else sec.prepend(tip);
+  }
+  document.getElementById('help-open-btn').insertAdjacentHTML('afterend',
+    '<button class="streak" id="tips-reset-btn" style="cursor:pointer;" title="Hiện lại tất cả mẹo hướng dẫn theo từng phần">💡 Bật lại mẹo</button>');
+  document.getElementById('tips-reset-btn').addEventListener('click', ()=>{
+    Object.keys(FEATURE_TIPS).forEach(id=>localStorage.removeItem('cay_tip_seen_'+id));
+    document.querySelectorAll('.feature-tip').forEach(el=>el.remove());
+    const activeSec = document.querySelector('.page > .section.active');
+    if(activeSec) showFeatureTip(activeSec.id);
+  });
+
   // ---- tab switching ----
   document.querySelectorAll('.tabs > .tab').forEach(t=>{
     t.addEventListener('click', ()=>{
       document.querySelectorAll('.tabs > .tab').forEach(x=>x.classList.remove('active'));
       document.querySelectorAll('.page > .section').forEach(x=>x.classList.remove('active'));
       t.classList.add('active');
-      document.getElementById('sec-'+t.dataset.tab).classList.add('active');
+      const secId = 'sec-'+t.dataset.tab;
+      document.getElementById(secId).classList.add('active');
+      showFeatureTip(secId);
     });
   });
+  showFeatureTip('sec-troly');
+
+  // ---- Đối tượng học (Học sinh / Người đi làm) ----
+  function openAudienceModal(){ document.getElementById('audience-modal').style.display = 'flex'; }
+  function closeAudienceModal(){ document.getElementById('audience-modal').style.display = 'none'; }
+  function updateAudienceLabel(){
+    const lbl = document.getElementById('audience-btn-label');
+    lbl.textContent = progress.audience === 'hocsinh' ? 'Học sinh' : progress.audience === 'dilam' ? 'Người đi làm' : 'Đối tượng';
+  }
+  document.querySelectorAll('#audience-modal [data-audience]').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      progress.audience = b.dataset.audience;
+      saveProgress(progress);
+      updateAudienceLabel();
+      closeAudienceModal();
+    });
+  });
+  document.getElementById('audience-open-btn').addEventListener('click', openAudienceModal);
+  updateAudienceLabel();
+  if(!progress.audience){ setTimeout(openAudienceModal, 800); }
+
+  // ---- Flashcard ----
+  async function generateFlashcardDeck(){
+    const topicInput = document.getElementById('fc-topic-input');
+    const topic = (topicInput.value || '').trim() || 'từ vựng thông dụng';
+    const area = document.getElementById('fc-deck-area');
+    area.innerHTML = '<p style="font-size:13px;color:var(--muted);">⏳ Đang soạn bộ thẻ...</p>';
+    const audience = (progress.audience === 'hocsinh') ? 'học sinh phổ thông, ví dụ đơn giản gần gũi trường lớp' : 'người đi làm, ví dụ gần với công việc/đời sống hàng ngày';
+    const sys = "Bạn là trợ lý soạn flashcard từ vựng tiếng Anh cho " + audience + ". Chủ đề: \"" + topic + "\". Trả về ĐÚNG 8 từ/cụm từ tiếng Anh thông dụng liên quan chủ đề này. Respond ONLY with raw JSON, no markdown fences: {\"cards\":[{\"en\":\"word\",\"vi\":\"nghĩa tiếng Việt\",\"example\":\"1 câu ví dụ tiếng Anh ngắn\"}]}";
+    try{
+      const raw = await callClaude(sys, [{role:'user', content: 'Soạn bộ flashcard chủ đề: ' + topic}], 700);
+      const data = safeParseJSON(raw);
+      renderFlashcardDeck(data.cards || []);
+    }catch(e){
+      area.innerHTML = '<p style="font-size:13px;color:#B33;">Có lỗi khi soạn thẻ, thử lại nhé.</p>';
+    }
+  }
+  function renderFlashcardDeck(cards){
+    const area = document.getElementById('fc-deck-area');
+    if(!cards.length){ area.innerHTML = '<p style="font-size:13px;color:var(--muted);">Không tạo được thẻ, thử chủ đề khác nhé.</p>'; return; }
+    area.innerHTML = '';
+    cards.forEach((c, i) => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.style.cssText = 'margin-bottom:10px;cursor:pointer;text-align:center;padding:20px 16px;';
+      card.dataset.flipped = '0';
+      card.innerHTML = '<div class="fc-front" style="font-family:\'Fraunces\',serif;font-size:19px;font-weight:600;">' + c.en + '</div>' +
+        '<div class="fc-back" style="display:none;"><div style="font-size:15px;color:var(--amber);margin-bottom:6px;">' + c.vi + '</div><div style="font-size:12px;color:var(--muted);font-style:italic;">' + (c.example||'') + '</div></div>' +
+        '<div style="font-size:11px;color:var(--muted);margin-top:8px;">(bấm để lật thẻ 🔄)</div>';
+      card.addEventListener('click', () => {
+        const flipped = card.dataset.flipped === '1';
+        card.querySelector('.fc-front').style.display = flipped ? 'block' : 'none';
+        card.querySelector('.fc-back').style.display = flipped ? 'none' : 'block';
+        card.dataset.flipped = flipped ? '0' : '1';
+      });
+      area.appendChild(card);
+    });
+  }
+  document.getElementById('fc-generate-btn').addEventListener('click', generateFlashcardDeck);
 
   // ---- VIP (chi UI, chua khoa tinh nang / chua tich hop thanh toan) ----
   document.getElementById('vip-open-btn').addEventListener('click', ()=>{
@@ -1543,7 +1682,7 @@
     return d.toISOString().slice(0,10);
   }
 
-  let progress = {streak:0, lastActive:null, learnedWords:[], placementDone:false};
+  let progress = {streak:0, lastActive:null, learnedWords:[], placementDone:false, audience:null};
 
   async function initApp(){
     progress = await loadProgress();
@@ -1991,7 +2130,10 @@
     }
     contentEl.innerHTML = '<p class="doc-loading">Đang soạn bài về '+topicLabels[currentTopic]+'...</p>';
     const lv = currentLevelInfo();
-    const sys = "You write short, upbeat reading passages for a Vietnamese adult learning English. Learner's current level tier: " + lv.name + " (" + lv.desc + "). Adjust sentence length, grammar complexity and vocabulary rarity to match this tier — lower tiers get very short simple sentences and only the most common words; higher tiers can use longer sentences and a bit more varied vocabulary, but NEVER academic or highly technical words at any tier. Topic: " + topicLabels[currentTopic] + ". Write 5 sentences forming a mini positive/uplifting article, no real named public figures or brands, keep it fictional/generic. For EACH sentence give the Vietnamese translation too. Respond ONLY with raw JSON, no markdown: {\"lines\":[{\"en\":\"...\",\"vi\":\"...\"}, ...]} with exactly 5 items.";
+    const audienceGuide = progress.audience === 'hocsinh'
+      ? "The reader is a Vietnamese student (school-age). Use topics and settings relatable to school life, friends, family, hobbies — never workplace/office topics."
+      : "The reader is a Vietnamese working adult. Topics can relate to work, career, daily adult life.";
+    const sys = "You write short, upbeat reading passages for a Vietnamese learner of English. Learner's current level tier: " + lv.name + " (" + lv.desc + "). Adjust sentence length, grammar complexity and vocabulary rarity to match this tier — lower tiers get very short simple sentences and only the most common words; higher tiers can use longer sentences and a bit more varied vocabulary, but NEVER academic or highly technical words at any tier. " + audienceGuide + " Topic: " + topicLabels[currentTopic] + ". Write 5 sentences forming a mini positive/uplifting article, no real named public figures or brands, keep it fictional/generic. For EACH sentence give the Vietnamese translation too. Respond ONLY with raw JSON, no markdown: {\"lines\":[{\"en\":\"...\",\"vi\":\"...\"}, ...]} with exactly 5 items.";
     try{
       const raw = await callClaude(sys, [{role:'user', content:'Soạn bài đọc mới.'}], 1200);
       const data = safeParseJSON(raw);
@@ -2350,9 +2492,12 @@
     box.scrollTop = box.scrollHeight;
 
     const learnedList = progress.learnedWords.map(x => x.w).filter(Boolean).join(', ') || 'chưa có';
-    const memoryNote = "Ghi nhớ về học viên: streak hiện tại " + (progress.streak||0) + " ngày, cấp độ hiện tại: " + currentLevelInfo().name + " (" + currentLevelInfo().desc + "), từ vựng đã học: " + learnedList + ". Điều chỉnh độ khó câu trả lời tiếng Anh cho khớp cấp độ này.";
+    const childMode = document.getElementById('child-mode-toggle') && document.getElementById('child-mode-toggle').checked;
+    const memoryNote = "Ghi nhớ về học viên: streak hiện tại " + (progress.streak||0) + " ngày, cấp độ hiện tại: " + currentLevelInfo().name + " (" + currentLevelInfo().desc + "), từ vựng đã học: " + learnedList + ". Điều chỉnh độ khó câu trả lời tiếng Anh cho khớp cấp độ này." + (childMode ? " QUAN TRỌNG: học viên là TRẺ EM — chỉ dùng từ vựng cực kỳ đơn giản, chủ đề gần gũi (gia đình, trường lớp, đồ chơi, con vật), giọng điệu vui vẻ, nhẹ nhàng, không dùng từ trừu tượng hay chủ đề người lớn." : "");
     const lvIndexForLength = LEVELS.findIndex(l => l.key === currentLevelInfo().key);
-    const lengthGuide = lvIndexForLength <= 1
+    const lengthGuide = childMode
+      ? "1 short, very simple sentence (pre-A1 level, like talking to a young child) — easy words only, cheerful tone."
+      : lvIndexForLength <= 1
       ? "1-2 short simple sentences (A1-A2 level) — keep it easy since the learner is still early."
       : lvIndexForLength <= 3
       ? "2-4 sentences (A2-B1 level), a bit more descriptive and engaging, feel free to add a little detail or a follow-up question."
