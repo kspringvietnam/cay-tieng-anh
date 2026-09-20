@@ -193,6 +193,9 @@
   }
   .quiz-opt.correct{border-color:var(--green);background:#EAF6EF;}
   .quiz-opt.wrong{border-color:var(--red);background:#FBEAEA;}
+  .quiz-opt.selected{border-color:var(--navy);background:#EDEFF6;}
+  .quiz-opt.chip{display:inline-block;width:auto;margin:0 6px 8px 0;}
+  #pz-next:disabled{opacity:.45;cursor:not-allowed;}
 
   .checklist label{
     display:flex;
@@ -219,6 +222,14 @@
   @keyframes pulseText{0%,100%{opacity:0.4;}50%{opacity:1;}}
 
   .translate-result{margin-top:10px;background:#fff;border:1px solid var(--paper-line);border-radius:8px;padding:12px;font-size:14px;min-height:20px;line-height:1.5;}
+
+  .room-members{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 14px;}
+  .room-member{display:flex;align-items:center;gap:5px;background:#fff;border:1px solid var(--paper-line);border-radius:999px;padding:4px 10px 4px 4px;font-size:12px;color:var(--muted);}
+  .room-member .rm-avatar{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;background:var(--paper);}
+  .msg.system{align-self:center;background:#FDEBEA;border:1px solid var(--red);color:#B3261E;font-size:12px;text-align:center;max-width:100%;}
+  .msg .msg-who{font-size:10.5px;color:var(--muted);margin:0 0 2px;}
+  .msg .msg-report{background:none;border:none;color:var(--muted);font-size:11px;cursor:pointer;margin-left:6px;opacity:.6;}
+  .msg .msg-report:hover{opacity:1;}
 
   .modal-overlay{position:fixed;inset:0;background:rgba(13,23,48,0.78);display:flex;align-items:center;justify-content:center;padding:20px;z-index:50;}
   .modal-box{background:var(--paper);border-radius:10px;padding:20px;max-width:440px;width:100%;max-height:82vh;overflow-y:auto;color:var(--ink);}
@@ -277,6 +288,14 @@
   .pron-result.good{background:#EAF6EF;color:var(--green);}
   .pron-result.ok{background:#FFF3E0;color:#B36B00;}
   .pron-result.bad{background:#FBEAEA;color:var(--red);}
+  .azure-score-badge{display:inline-block;font-size:22px;font-weight:700;font-family:'Fraunces',serif;padding:4px 12px;border-radius:10px;}
+  .azure-score-badge.good{background:#EAF6EF;color:var(--green);}
+  .azure-score-badge.ok{background:#FFF3E0;color:#B36B00;}
+  .azure-score-badge.bad{background:#FBEAEA;color:var(--red);}
+  .phoneme-chip{display:inline-block;padding:3px 8px;margin:2px 3px 2px 0;border-radius:6px;font-size:12px;font-family:monospace;}
+  .phoneme-chip.good{background:#EAF6EF;color:var(--green);}
+  .phoneme-chip.ok{background:#FFF3E0;color:#B36B00;}
+  .phoneme-chip.bad{background:#FBEAEA;color:var(--red);font-weight:700;}
 
   .level-card{
     display:flex;align-items:center;justify-content:space-between;gap:10px;
@@ -359,6 +378,17 @@
       <div style="display:flex;flex-direction:column;gap:10px;">
         <button class="btn" data-audience="hocsinh" style="padding:14px;">🎒 Tôi là học sinh</button>
         <button class="btn" data-audience="dilam" style="padding:14px;">💼 Tôi đi làm</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="personalize-modal" style="display:none;">
+    <div class="modal-box">
+      <p class="modal-progress" id="pz-progress">Bước 1/5</p>
+      <div id="pz-step-content"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px;">
+        <button class="modal-skip" id="pz-back" style="display:none;">← Quay lại</button>
+        <button class="btn small" id="pz-next" style="margin-left:auto;" disabled>Tiếp →</button>
       </div>
     </div>
   </div>
@@ -497,6 +527,7 @@
     <div class="tab" data-tab="doc">ĐỌC</div>
     <div class="tab" data-tab="phap">NGỮ PHÁP</div>
     <div class="tab" data-tab="on">ÔN TẬP</div>
+    <div class="tab" data-tab="phongnoi">🗣️ PHÒNG NÓI</div>
     <div class="tab" data-tab="flashcard">📇 FLASHCARD</div>
     <div class="tab" data-tab="viet">VIẾT</div>
     <div class="tab" data-tab="capdo">CẤP ĐỘ</div>
@@ -550,8 +581,10 @@
         </div>
         <div class="row" style="margin-top:10px;">
           <button class="record-btn" id="noi-record">🎤 Thu âm & chấm điểm</button>
+          <button class="record-btn" id="noi-azure-record" style="background:var(--navy);">🎯 Chấm chuẩn xác hơn (AI)</button>
         </div>
         <div id="pron-result-box"></div>
+        <div id="azure-result-box"></div>
       </div>
       <div class="row">
         <button class="btn ghost small" id="noi-next">Từ tiếp theo →</button>
@@ -860,6 +893,27 @@
       <div id="fc-deck-area"></div>
     </section>
 
+    <!-- PHONG LUYEN NOI -->
+    <section class="section" id="sec-phongnoi">
+      <h2 class="stitle">Phòng luyện nói nhóm</h2>
+      <p class="shint">Ghép ngẫu nhiên với vài học viên khác, trả lời theo chủ đề AI đưa ra — không phải khung chat tự do. Số điện thoại, link, tên mạng xã hội sẽ tự động bị chặn.</p>
+
+      <div class="room-members" id="pn-members"></div>
+
+      <div class="card" style="margin-bottom:12px;">
+        <p style="font-size:11px;color:var(--amber);margin:0 0 4px;font-weight:600;">AI HƯỚNG DẪN GỢI Ý</p>
+        <p id="pn-topic-title" style="font-family:'Fraunces',serif;font-weight:600;font-size:16px;margin:0 0 4px;">Đang ghép phòng…</p>
+        <p id="pn-topic-text" style="font-size:13px;color:var(--ink);margin:0;">—</p>
+      </div>
+
+      <div class="chatbox" id="pn-chatbox"></div>
+      <div class="chat-input-row">
+        <input type="text" id="pn-input" placeholder="Nhập câu trả lời của bạn..." maxlength="300">
+        <button class="btn small" id="pn-send">Gửi</button>
+      </div>
+      <p style="font-size:11px;color:var(--muted);margin:8px 0 0;">Thấy nội dung không phù hợp? Bấm 🚩 cạnh tin nhắn để báo cáo cho quản trị viên.</p>
+    </section>
+
     <p class="progress-note">Tiến trình học, ghi chú và lịch sử chat được lưu ngay trên trình duyệt này. Bấm "👤 Đăng nhập" ở trên để tạo tài khoản — dữ liệu sẽ đồng bộ, dùng được trên mọi thiết bị.</p>
   </div>
 
@@ -1092,7 +1146,8 @@
     'sec-bikip': '💡 Mẹo học hay do chính học viên CÀY chia sẻ — đọc lướt qua để có thêm động lực.',
     'sec-gia': '💡 Xem các gói nâng cấp — không cam kết dài hạn, dùng thấy hiệu quả thì tiếp tục.',
     'sec-phap': '💡 Mỗi lần chỉ học 1 điểm ngữ pháp nhỏ, dễ nhớ, không lý thuyết dài dòng.',
-    'sec-on': '💡 Ôn lại từ đã học để nhớ lâu hơn — đừng chỉ học từ mới rồi quên.'
+    'sec-on': '💡 Ôn lại từ đã học để nhớ lâu hơn — đừng chỉ học từ mới rồi quên.',
+    'sec-phongnoi': '💡 Trả lời theo đúng chủ đề gợi ý — phòng sẽ tự chặn nếu bạn cố gửi số điện thoại hay link.'
   };
   function showFeatureTip(sectionId){
     const sec = document.getElementById(sectionId);
@@ -1140,7 +1195,8 @@
     const area = document.getElementById('fc-deck-area');
     area.innerHTML = '<p style="font-size:13px;color:var(--muted);">⏳ Đang soạn bộ thẻ...</p>';
     const audience = (progress.audience === 'hocsinh') ? 'học sinh phổ thông, ví dụ đơn giản gần gũi trường lớp' : 'người đi làm, ví dụ gần với công việc/đời sống hàng ngày';
-    const sys = "Bạn là trợ lý soạn flashcard từ vựng tiếng Anh cho " + audience + ". Chủ đề: \"" + topic + "\". Trả về ĐÚNG 8 từ/cụm từ tiếng Anh thông dụng liên quan chủ đề này. Respond ONLY with raw JSON, no markdown fences: {\"cards\":[{\"en\":\"word\",\"vi\":\"nghĩa tiếng Việt\",\"example\":\"1 câu ví dụ tiếng Anh ngắn\"}]}";
+    const interestsText = (progress.interests && progress.interests.length) ? (' Học viên thích: ' + progress.interests.map(v=>INTEREST_VI[v]||v).join(', ') + ' — ưu tiên ví dụ liên quan các sở thích này nếu hợp chủ đề.') : '';
+    const sys = "Bạn là trợ lý soạn flashcard từ vựng tiếng Anh cho " + audience + "." + interestsText + " Chủ đề: \"" + topic + "\". Trả về ĐÚNG 8 từ/cụm từ tiếng Anh thông dụng liên quan chủ đề này. Respond ONLY with raw JSON, no markdown fences: {\"cards\":[{\"en\":\"word\",\"vi\":\"nghĩa tiếng Việt\",\"example\":\"1 câu ví dụ tiếng Anh ngắn\"}]}";
     try{
       const raw = await callClaude(sys, [{role:'user', content: 'Soạn bộ flashcard chủ đề: ' + topic}], 700);
       const data = safeParseJSON(raw);
@@ -1330,6 +1386,113 @@
       noiRecordBtn.classList.remove('recording');
     };
     recognizer.start();
+  });
+
+  // ---- CHAM PHAT AM CHUAN XAC HON (Azure Pronunciation Assessment) ----
+  // Azure cần audio đúng định dạng WAV PCM 16-bit, 16kHz, mono — MediaRecorder
+  // của trình duyệt mặc định ghi ra webm/opus nên KHÔNG dùng lại được, phải
+  // tự ghi âm bằng Web Audio API rồi tự đóng gói thành file WAV trong JS.
+  function recordWav16k(maxMs){
+    return new Promise(async (resolve, reject) => {
+      let stream;
+      try{ stream = await navigator.mediaDevices.getUserMedia({audio:true}); }
+      catch(e){ reject(new Error('Trình duyệt đang chặn quyền micro — cho phép Micrô rồi thử lại.')); return; }
+
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      const ctx = new AudioCtx();
+      const source = ctx.createMediaStreamSource(stream);
+      const processor = ctx.createScriptProcessor(4096, 1, 1);
+      const samples = [];
+
+      processor.onaudioprocess = (e) => {
+        samples.push(new Float32Array(e.inputBuffer.getChannelData(0)));
+      };
+      source.connect(processor);
+      processor.connect(ctx.destination);
+
+      const stop = () => {
+        processor.disconnect(); source.disconnect();
+        stream.getTracks().forEach(t => t.stop());
+        ctx.close();
+
+        // Gộp toàn bộ đoạn ghi lại thành 1 mảng liền
+        let total = 0; samples.forEach(s => total += s.length);
+        const merged = new Float32Array(total);
+        let off = 0; samples.forEach(s => { merged.set(s, off); off += s.length; });
+
+        // Hạ sample rate xuống 16000Hz (Azure yêu cầu đúng mức này)
+        const ratio = ctx.sampleRate / 16000;
+        const downLen = Math.floor(merged.length / ratio);
+        const down = new Float32Array(downLen);
+        for(let i = 0; i < downLen; i++) down[i] = merged[Math.floor(i * ratio)];
+
+        // Chuyển Float32 (-1..1) sang Int16 PCM
+        const pcm = new Int16Array(down.length);
+        for(let i = 0; i < down.length; i++){
+          const s = Math.max(-1, Math.min(1, down[i]));
+          pcm[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+        }
+
+        // Đóng gói header WAV chuẩn 44 byte
+        const buf = new ArrayBuffer(44 + pcm.length * 2);
+        const view = new DataView(buf);
+        const writeStr = (o, s) => { for(let i=0;i<s.length;i++) view.setUint8(o+i, s.charCodeAt(i)); };
+        writeStr(0, 'RIFF'); view.setUint32(4, 36 + pcm.length*2, true);
+        writeStr(8, 'WAVE'); writeStr(12, 'fmt ');
+        view.setUint32(16, 16, true); view.setUint16(20, 1, true);
+        view.setUint16(22, 1, true); view.setUint32(24, 16000, true);
+        view.setUint32(28, 16000*2, true); view.setUint16(32, 2, true); view.setUint16(34, 16, true);
+        writeStr(36, 'data'); view.setUint32(40, pcm.length*2, true);
+        let p = 44; for(let i=0;i<pcm.length;i++){ view.setInt16(p, pcm[i], true); p += 2; }
+
+        resolve(new Blob([buf], { type: 'audio/wav' }));
+      };
+      setTimeout(stop, maxMs || 4000);
+    });
+  }
+
+  function scoreClass(score){ return score >= 80 ? 'good' : score >= 60 ? 'ok' : 'bad'; }
+
+  const azureBtn = document.getElementById('noi-azure-record');
+  azureBtn.addEventListener('click', async () => {
+    const box = document.getElementById('azure-result-box');
+    box.innerHTML = '';
+    azureBtn.textContent = '🎙️ Đang ghi âm (3 giây)...';
+    azureBtn.classList.add('recording');
+    azureBtn.disabled = true;
+    try{
+      const wavBlob = await recordWav16k(3000);
+      azureBtn.textContent = '⏳ Đang chấm điểm...';
+      azureBtn.classList.remove('recording'); azureBtn.classList.add('processing');
+      const base64 = await blobToBase64(wavBlob);
+      const resp = await fetch('/api/pronounce', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ audioBase64: base64, referenceText: noi_current.w })
+      });
+      const data = await resp.json();
+      if(data.error){ box.innerHTML = '<div class="pron-result bad">'+data.error+'</div>'; }
+      else {
+        const cls = scoreClass(data.overallScore);
+        let html = '<div style="margin-top:10px;">' +
+          '<span class="azure-score-badge '+cls+'">'+Math.round(data.overallScore)+'</span> ' +
+          '<span style="font-size:12px;color:var(--muted);">Độ chính xác '+Math.round(data.accuracyScore)+'% · Trôi chảy '+Math.round(data.fluencyScore)+'%</span></div>';
+        (data.words||[]).forEach(w=>{
+          html += '<div style="margin-top:8px;font-size:12px;color:var(--muted);">'+w.word+':</div><div>';
+          (w.phonemes||[]).forEach(p=>{
+            html += '<span class="phoneme-chip '+scoreClass(p.accuracyScore)+'">'+p.phoneme+'</span>';
+          });
+          html += '</div>';
+        });
+        box.innerHTML = html;
+      }
+    }catch(e){
+      box.innerHTML = '<div class="pron-result bad">Lỗi: '+e.message+'</div>';
+    }finally{
+      azureBtn.textContent = '🎯 Chấm chuẩn xác hơn (AI)';
+      azureBtn.classList.remove('recording','processing');
+      azureBtn.disabled = false;
+    }
   });
 
   // ---- NGHE (listening fill-in-blank) ----
@@ -1680,6 +1843,13 @@
     if(!progress.learnedWords) progress.learnedWords = [];
     if(!progress.contentIndex) progress.contentIndex = {};
     if(!progress.remindersToReview) progress.remindersToReview = [];
+    if(!progress.interests) progress.interests = [];
+    if(!progress.focus) progress.focus = 'ai';
+    if(progress.onboardDone === undefined){
+      // Tương thích ngược: user cũ đã từng chọn "Đối tượng" thì coi như đã
+      // hoàn tất onboarding, không bắt họ làm lại quiz cá nhân hoá mới.
+      progress.onboardDone = !!progress.audience;
+    }
     // tuong thich nguoc: ban cu luu index so, ban moi luu object {w,p,vi}
     noi_learned = progress.learnedWords.map(item =>
       typeof item === 'number' ? noi_data[item % noi_data.length] : item
@@ -1765,6 +1935,7 @@
     progress.placementDone = true;
     await saveProgress(progress);
     document.getElementById('placement-modal').style.display = 'none';
+    if(!progress.onboardDone) window.openPersonalizeModal();
   });
   async function finishPlacement(){
     document.getElementById('placement-quiz').style.display = 'none';
@@ -1787,6 +1958,7 @@
   }
   document.getElementById('pm-start').addEventListener('click', ()=>{
     document.getElementById('placement-modal').style.display = 'none';
+    if(!progress.onboardDone) window.openPersonalizeModal();
   });
 
   // ---- ON TAP (flashcard tu da hoc) ----
@@ -2208,7 +2380,13 @@
     { id:'sophia', name:'Sophia', role:'Cô giáo tận tâm', gender:'nu', color:'#3B8A8C', avatar:'👩‍🏫', avatarSeed:'Sophia-caring-teacher',
       persona:"You are Sophia, a warm, nurturing, patient female English teacher. Explain gently and clearly, praise effort generously, correct mistakes softly like a caring mentor, never rushed." },
     { id:'lisa', name:'Lisa', role:'Đồng nghiệp lầy lội', gender:'nu', color:'#C1721E', avatar:'💁‍♀️', avatarSeed:'Lisa-witty-coworker',
-      persona:"You are Lisa, a witty, sassy, a bit cheeky female coworker. Talk casually about everyday office life and gossip with humor and playful sarcasm (always friendly, never mean), relaxed and fun tone. Sound like a real person chatting or a character in a movie — natural contractions and casual phrasing over stiff textbook grammar." }
+      persona:"You are Lisa, a witty, sassy, a bit cheeky female coworker. Talk casually about everyday office life and gossip with humor and playful sarcasm (always friendly, never mean), relaxed and fun tone. Sound like a real person chatting or a character in a movie — natural contractions and casual phrasing over stiff textbook grammar." },
+    { id:'interview', name:'Cô Hà', role:'Gia sư phỏng vấn', gender:'nu', color:'#5B4B8A', avatar:'💼', avatarSeed:'Ha-interview-coach',
+      persona:"You are Ha, a professional HR interviewer running a mock English job interview with the learner. Ask ONE realistic interview question at a time (background, strengths/weaknesses, why this job, salary expectation, handling conflict, etc.), wait for their answer, then briefly comment on how strong the answer was and gently suggest a better phrasing if needed before asking the next question. Keep a warm but professional interviewer tone throughout." },
+    { id:'presenter', name:'Thầy Minh', role:'Gia sư thuyết trình', gender:'nam', color:'#1F7A6C', avatar:'🎤', avatarSeed:'Minh-presentation-coach',
+      persona:"You are Minh, an English presentation-skills coach. Ask the learner to explain or pitch something briefly in English (a product, an idea, their day, a topic they choose), then give short, specific feedback on clarity, structure (opening-body-closing), and filler words — like a supportive speaking coach preparing them for a real presentation. Keep pushing them to practice one short segment at a time rather than long monologues." },
+    { id:'office', name:'Chị Lan', role:'Gia sư công sở', gender:'nu', color:'#8A3B47', avatar:'📧', avatarSeed:'Lan-office-coach',
+      persona:"You are Lan, a workplace-communication coach. Roleplay realistic English office situations with the learner one at a time — writing a polite email request, small talk before a meeting, asking for a day off, giving a status update, pushing back on a deadline — and coach them toward professional, natural business phrasing. Correct overly stiff or overly casual phrasing toward appropriate workplace tone." }
   ];
   let activeChar = CHARACTERS[0];
   let chatMessages = []; // {role:'user'|'assistant', content:string}
@@ -2830,8 +3008,314 @@
   document.getElementById('audience-open-btn').addEventListener('click', openAudienceModal);
   setTimeout(()=>{
     updateAudienceLabel();
-    if(!progress.audience){ openAudienceModal(); }
   }, 1200);
+
+  // ==========================================================
+  // ONBOARDING CÁ NHÂN HOÁ — quiz 5 bước, chạy 1 lần cho user mới
+  // (đối tượng, mục tiêu học, sở thích, tập trung kỹ năng, xác nhận)
+  // ==========================================================
+  const INTEREST_VI = {
+    shopping:'Mua sắm', travel:'Du lịch', games:'Trò chơi điện tử', art:'Nghệ thuật',
+    movies:'Phim & giải trí', cooking:'Nấu ăn', photo:'Nhiếp ảnh', sports:'Thể thao',
+    tech:'Công nghệ', garden:'Làm vườn', finance:'Tài chính'
+  };
+  (function(){
+    const GOALS = [
+      {v:'career', label:'💼 Thúc đẩy sự nghiệp của tôi'},
+      {v:'education', label:'📖 Hỗ trợ giáo dục của tôi'},
+      {v:'move', label:'✈️ Chuyển đến một quốc gia khác'},
+      {v:'connect', label:'🤝 Kết nối với mọi người'},
+      {v:'travel', label:'🏝️ Chuẩn bị đi du lịch'},
+    ];
+    const INTEREST_OPTS = Object.keys(INTEREST_VI).map(v=>({v, label:INTEREST_VI[v]}));
+    const FOCUS_OPTS = [
+      {v:'grammar', label:'Ngữ pháp — dùng câu đúng và rõ ràng'},
+      {v:'vocab', label:'Từ vựng — học từ mới'},
+      {v:'pronun', label:'Phát âm — nói từ tốt hơn'},
+      {v:'convo', label:'Hội thoại — thoải mái khi nói chuyện'},
+    ];
+    const TOTAL = 5;
+    const pz = { audience:null, goal:null, interests:[], focus:'ai' };
+    let pzStep = 0;
+
+    function optBtn(cls, selected, dataAttr, dataVal, label){
+      return '<button class="quiz-opt '+cls+(selected?' selected':'')+'" data-'+dataAttr+'="'+dataVal+'">'+label+'</button>';
+    }
+
+    function pzRender(){
+      document.getElementById('pz-progress').textContent = 'Bước '+(pzStep+1)+'/'+TOTAL;
+      const c = document.getElementById('pz-step-content');
+      const back = document.getElementById('pz-back');
+      const next = document.getElementById('pz-next');
+      back.style.display = pzStep === 0 ? 'none' : 'inline-block';
+      next.textContent = pzStep === TOTAL-1 ? 'Xác nhận và bắt đầu học' : 'Tiếp →';
+
+      if(pzStep === 0){
+        c.innerHTML = '<h3>Bạn học tiếng Anh để...?</h3><p class="hint">CÀY sẽ soạn nội dung, chủ đề phù hợp hơn với bạn.</p>' +
+          optBtn('', pz.audience==='hocsinh', 'v', 'hocsinh', '🎒 Tôi là học sinh') +
+          optBtn('', pz.audience==='dilam', 'v', 'dilam', '💼 Tôi đi làm');
+        c.querySelectorAll('[data-v]').forEach(b=>b.addEventListener('click', ()=>{ pz.audience=b.dataset.v; pzRender(); }));
+        next.disabled = !pz.audience;
+      } else if(pzStep === 1){
+        c.innerHTML = '<h3>Mục tiêu học tập của bạn?</h3><p class="hint">Bài học sẽ được tạo phù hợp với mục tiêu này.</p>' +
+          GOALS.map(g=>optBtn('', pz.goal===g.v, 'v', g.v, g.label)).join('');
+        c.querySelectorAll('[data-v]').forEach(b=>b.addEventListener('click', ()=>{ pz.goal=b.dataset.v; pzRender(); }));
+        next.disabled = !pz.goal;
+      } else if(pzStep === 2){
+        c.innerHTML = '<h3>Sở thích của bạn là gì?</h3><p class="hint">Chọn 2-3 mục để AI chọn chủ đề bạn thích cho bài học.</p>' +
+          INTEREST_OPTS.map(i=>optBtn('chip', pz.interests.includes(i.v), 'v', i.v, i.label)).join('');
+        c.querySelectorAll('[data-v]').forEach(b=>b.addEventListener('click', ()=>{
+          const v = b.dataset.v, idx = pz.interests.indexOf(v);
+          if(idx>=0) pz.interests.splice(idx,1);
+          else if(pz.interests.length<3) pz.interests.push(v);
+          pzRender();
+        }));
+        next.disabled = pz.interests.length < 2;
+      } else if(pzStep === 3){
+        c.innerHTML = '<h3>Bạn muốn tập trung vào điều gì?</h3>' +
+          optBtn('', pz.focus==='ai', 'focus-ai', '1', '✨ Để AI quyết định') +
+          '<p style="font-size:12px;color:var(--muted);margin:10px 0 6px;">Hoặc chọn ít nhất hai</p>' +
+          FOCUS_OPTS.map(f=>optBtn('chip', Array.isArray(pz.focus)&&pz.focus.includes(f.v), 'focus-item', f.v, f.label)).join('');
+        c.querySelector('[data-focus-ai]').addEventListener('click', ()=>{ pz.focus='ai'; pzRender(); });
+        c.querySelectorAll('[data-focus-item]').forEach(b=>b.addEventListener('click', ()=>{
+          if(!Array.isArray(pz.focus)) pz.focus = [];
+          const v = b.dataset.focusItem, idx = pz.focus.indexOf(v);
+          if(idx>=0) pz.focus.splice(idx,1); else pz.focus.push(v);
+          pzRender();
+        }));
+        next.disabled = !(pz.focus === 'ai' || (Array.isArray(pz.focus) && pz.focus.length>=2));
+      } else if(pzStep === 4){
+        const goalLabel = (GOALS.find(g=>g.v===pz.goal)||{}).label || '—';
+        const interestLabels = pz.interests.map(v=>INTEREST_VI[v]).join(', ') || '—';
+        const focusLabel = pz.focus==='ai' ? '✨ Để AI quyết định' : pz.focus.map(v=>(FOCUS_OPTS.find(f=>f.v===v)||{}).label).join(', ');
+        const levelLabel = progress.placementLevel || 'Chưa xác định';
+        c.innerHTML = '<h3>Lộ trình học của bạn đã sẵn sàng!</h3>' +
+          '<div class="card" style="text-align:left;padding:12px;"><b>Trình độ:</b> '+levelLabel+'</div>' +
+          '<div class="card" style="text-align:left;padding:12px;"><b>Đối tượng:</b> '+(pz.audience==='hocsinh'?'🎒 Học sinh':'💼 Người đi làm')+'</div>' +
+          '<div class="card" style="text-align:left;padding:12px;"><b>Mục tiêu:</b> '+goalLabel+'</div>' +
+          '<div class="card" style="text-align:left;padding:12px;"><b>Sở thích:</b> '+interestLabels+'</div>' +
+          '<div class="card" style="text-align:left;padding:12px;"><b>Tập trung:</b> '+focusLabel+'</div>';
+        next.disabled = false;
+      }
+    }
+
+    document.getElementById('pz-next').addEventListener('click', async ()=>{
+      if(pzStep < TOTAL-1){ pzStep++; pzRender(); return; }
+      progress.audience = pz.audience;
+      progress.goal = pz.goal;
+      progress.interests = pz.interests;
+      progress.focus = pz.focus;
+      progress.onboardDone = true;
+      await saveProgress(progress);
+      updateAudienceLabel();
+      document.getElementById('personalize-modal').style.display = 'none';
+      showMentorToast('Đã lưu lộ trình cá nhân hoá của bạn! 🎉');
+    });
+    document.getElementById('pz-back').addEventListener('click', ()=>{ if(pzStep>0){ pzStep--; pzRender(); } });
+
+    window.openPersonalizeModal = function(){
+      pzStep = 0;
+      document.getElementById('personalize-modal').style.display = 'flex';
+      pzRender();
+    };
+  })();
+
+  // ==========================================================
+  // PHÒNG LUYỆN NÓI NHÓM — ghép ngẫu nhiên, chủ đề gợi ý sẵn,
+  // chặn thông tin liên hệ 2 lớp (client + Firestore Rules).
+  // ==========================================================
+  (function(){
+    const TOPICS_CHUNG = [
+      { title: 'Sở thích cuối tuần', prompt: 'Cuối tuần này bạn định làm gì? Kể một hoạt động bạn thích nhé.' },
+      { title: 'Món ăn yêu thích', prompt: 'Món ăn nào bạn hay ăn nhất tuần này? Vì sao bạn thích nó?' },
+      { title: 'Du lịch', prompt: 'Nếu được đi du lịch tuần sau, bạn muốn đi đâu?' },
+      { title: 'Phim / sách yêu thích', prompt: 'Bạn vừa xem phim hoặc đọc sách nào hay? Kể sơ qua nhé.' },
+    ];
+    const TOPICS_HOCSINH = [
+      { title: 'Môn học yêu thích', prompt: 'Môn học nào ở trường bạn thấy thú vị nhất? Vì sao?' },
+      { title: 'Bạn bè ở lớp', prompt: 'Kể về một người bạn thân ở lớp của bạn nhé.' },
+    ];
+    const TOPICS_DILAM = [
+      { title: 'Công việc hôm nay', prompt: 'Hôm nay công việc của bạn thế nào? Có gì đáng nhớ không?' },
+      { title: 'Kỹ năng muốn học', prompt: 'Bạn đang muốn học thêm kỹ năng gì cho công việc?' },
+    ];
+    const GUIDE_TIPS = [
+      'Thử dùng thì hiện tại đơn để nói thói quen: "I usually..."',
+      'Bạn có thể hỏi lại một bạn trong phòng xem họ nghĩ gì.',
+      'Thêm một tính từ cảm xúc — ví dụ: relaxing, exciting, tiring.',
+    ];
+    const EMOJIS = ['🐼','🦊','🐨','🐸','🐧','🦁','🐯','🐰'];
+    function emojiFor(id){
+      let h = 0; for(const c of String(id)) h = (h*31 + c.charCodeAt(0)) >>> 0;
+      return EMOJIS[h % EMOJIS.length];
+    }
+
+    // Bộ lọc client (chặn ngay lúc gõ). PHẢI khớp với regex trong
+    // firestore.rules — nếu sửa 1 bên nhớ sửa bên kia.
+    const phoneRe = /(\+?84|0)[\s.\-]?(3|5|7|8|9)([\s.\-]?\d){8}/;
+    const urlRe = /https?:\/\/|www\.|\.(com|vn|net|io)\b/i;
+    const handleRe = /@[a-zA-Z0-9._]{3,}/;
+    const socialWordRe = /zalo|facebook|fb\.com|instagram|tiktok|telegram|messenger|whatsapp|line id|sdt|s\u0111t|s\u1ed1\s?\u0111i\u1ec7n\s?tho\u1ea1i/i;
+    function isBlockedClient(text){
+      return phoneRe.test(text) || urlRe.test(text) || handleRe.test(text) || socialWordRe.test(text);
+    }
+
+    function pnCurrentUser(){
+      const phone = localStorage.getItem('cay_current_user');
+      const name = localStorage.getItem('cay_current_name');
+      if(phone && name) return { id: phone, name: name };
+      let id = localStorage.getItem('cay_sr_anon_id');
+      if(!id){ id = 'anon_' + Math.random().toString(36).slice(2,10); localStorage.setItem('cay_sr_anon_id', id); }
+      let nick = localStorage.getItem('cay_sr_nick');
+      if(!nick){ nick = 'Learner_' + Math.floor(1000 + Math.random()*9000); localStorage.setItem('cay_sr_nick', nick); }
+      return { id, name: nick };
+    }
+
+    let pnRoomId = null;
+    let pnUnsubMsgs = null;
+    let pnUnsubRoom = null;
+    let pnStarted = false;
+    const pnUser = pnCurrentUser();
+
+    const pnEl = {
+      members: document.getElementById('pn-members'),
+      topicTitle: document.getElementById('pn-topic-title'),
+      topicText: document.getElementById('pn-topic-text'),
+      chatbox: document.getElementById('pn-chatbox'),
+      input: document.getElementById('pn-input'),
+      send: document.getElementById('pn-send'),
+    };
+
+    function pnAddMsg({ who, text, kind, msgId, senderId }){
+      // kind: 'peer' | 'me' | 'guide' | 'system'
+      const row = document.createElement('div');
+      row.className = 'msg ' + (kind === 'me' ? 'user' : kind === 'system' ? 'system' : kind === 'guide' ? 'note' : 'bot');
+      let inner = '';
+      if(who && kind !== 'me' && kind !== 'system'){
+        inner += '<div class="msg-who">'+ emojiFor(senderId||who) +' '+ who +'</div>';
+      }
+      inner += '<span>'+ text.replace(/</g,'&lt;') +'</span>';
+      if(kind === 'peer' && msgId){
+        inner += '<button class="msg-report" title="Báo cáo tin nhắn này" data-msgid="'+msgId+'" data-text="'+text.replace(/"/g,'&quot;')+'">🚩</button>';
+      }
+      row.innerHTML = inner;
+      pnEl.chatbox.appendChild(row);
+      pnEl.chatbox.scrollTop = pnEl.chatbox.scrollHeight;
+    }
+
+    function pnRenderMembers(members){
+      pnEl.members.innerHTML = (members||[]).map(m =>
+        '<div class="room-member"><span class="rm-avatar">'+emojiFor(m.id)+'</span>'+(m.id===pnUser.id?'Bạn':m.name)+'</div>'
+      ).join('');
+    }
+
+    async function pnJoinOrCreateRoom(){
+      const roomsRef = window.__db.collection('speakingRooms');
+      const snap = await roomsRef.where('status','==','open').orderBy('createdAt','desc').limit(5).get();
+      for(const d of snap.docs){
+        const room = d.data();
+        const members = room.members || [];
+        if(members.length < 4 && !members.some(m=>m.id===pnUser.id)){
+          const ref = roomsRef.doc(d.id);
+          const joined = await window.__db.runTransaction(async (tx)=>{
+            const fresh = await tx.get(ref);
+            const fm = fresh.data().members || [];
+            if(fm.length >= 4) return false;
+            if(fm.some(m=>m.id===pnUser.id)) return true;
+            tx.update(ref, { members: fm.concat([{id:pnUser.id, name:pnUser.name}]) });
+            return true;
+          });
+          if(joined) return d.id;
+        }
+      }
+      const pool = TOPICS_CHUNG.concat(progress.audience === 'hocsinh' ? TOPICS_HOCSINH : progress.audience === 'dilam' ? TOPICS_DILAM : []);
+      const topic = pool[Math.floor(Math.random()*pool.length)];
+      const newRoom = await roomsRef.add({
+        status: 'open',
+        topicTitle: topic.title,
+        topicPrompt: topic.prompt,
+        members: [{id:pnUser.id, name:pnUser.name}],
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      });
+      return newRoom.id;
+    }
+
+    function pnSubscribeRoom(roomId){
+      const roomRef = window.__db.collection('speakingRooms').doc(roomId);
+      if(pnUnsubRoom) pnUnsubRoom();
+      pnUnsubRoom = roomRef.onSnapshot(snap=>{
+        const room = snap.data();
+        if(!room) return;
+        pnEl.topicTitle.textContent = room.topicTitle || 'Phòng luyện nói';
+        pnEl.topicText.textContent = room.topicPrompt || '';
+        pnRenderMembers(room.members || []);
+      });
+
+      const msgsRef = roomRef.collection('messages').orderBy('createdAt','asc').limit(100);
+      pnEl.chatbox.innerHTML = '';
+      if(pnUnsubMsgs) pnUnsubMsgs();
+      pnUnsubMsgs = msgsRef.onSnapshot(snap=>{
+        snap.docChanges().forEach(change=>{
+          if(change.type !== 'added') return;
+          const m = change.doc.data();
+          if(m.kind === 'system') pnAddMsg({ text: m.text, kind: 'system' });
+          else if(m.kind === 'guide') pnAddMsg({ who: 'AI Hướng dẫn', text: m.text, kind: 'guide' });
+          else pnAddMsg({ who: m.senderId===pnUser.id ? null : m.senderName, text: m.text, kind: m.senderId===pnUser.id ? 'me' : 'peer', msgId: change.doc.id, senderId: m.senderId });
+        });
+      });
+    }
+
+    let pnTurn = 0;
+    async function pnSendMessage(text){
+      if(!text.trim()) return;
+      if(isBlockedClient(text)){
+        pnAddMsg({ text: '🚫 Tin nhắn chứa thông tin liên hệ (SĐT / link / mạng xã hội) nên không thể gửi. Hãy tiếp tục trò chuyện trong chủ đề nhé!', kind: 'system' });
+        return;
+      }
+      const msgsRef = window.__db.collection('speakingRooms').doc(pnRoomId).collection('messages');
+      try{
+        await msgsRef.add({
+          senderId: pnUser.id, senderName: pnUser.name, text, kind: 'text',
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        });
+      }catch(e){
+        pnAddMsg({ text: '🚫 Tin nhắn này không được phép gửi trong phòng luyện nói.', kind: 'system' });
+        console.warn('[phong-noi] Bị chặn bởi Firestore rules:', e.message);
+        return;
+      }
+      pnTurn++;
+      if(pnTurn % 3 === 0){
+        const tip = GUIDE_TIPS[Math.floor(pnTurn/3 - 1) % GUIDE_TIPS.length];
+        setTimeout(()=> msgsRef.add({ kind:'guide', text: tip, createdAt: firebase.firestore.FieldValue.serverTimestamp() }), 1200);
+      }
+    }
+
+    async function pnReportMessage(msgId, text){
+      try{
+        await window.__db.collection('reports').add({
+          roomId: pnRoomId, messageId: msgId, text,
+          reporterId: pnUser.id, createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        });
+        showMentorToast('Đã gửi báo cáo cho quản trị viên, cảm ơn bạn đã báo! 🙏');
+      }catch(e){ console.warn('[phong-noi] Không gửi được báo cáo:', e.message); }
+    }
+
+    async function initSpeakingRoom(){
+      if(pnStarted) return;
+      pnStarted = true;
+      if(!window.__db){ pnAddMsg({ text:'Chưa kết nối được máy chủ phòng luyện nói, thử tải lại trang nhé.', kind:'system' }); return; }
+      pnRoomId = await pnJoinOrCreateRoom();
+      pnSubscribeRoom(pnRoomId);
+    }
+
+    pnEl.send.addEventListener('click', ()=>{ const t = pnEl.input.value; pnEl.input.value=''; pnSendMessage(t); });
+    pnEl.input.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ const t = pnEl.input.value; pnEl.input.value=''; pnSendMessage(t); } });
+    pnEl.chatbox.addEventListener('click', (e)=>{
+      const btn = e.target.closest('.msg-report');
+      if(btn) pnReportMessage(btn.dataset.msgid, btn.dataset.text);
+    });
+    document.querySelector('.tab[data-tab="phongnoi"]').addEventListener('click', initSpeakingRoom);
+  })();
 </script>
 </body>
 </html>
