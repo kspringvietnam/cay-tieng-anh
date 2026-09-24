@@ -1,0 +1,3404 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CÀY — Học tiếng Anh kiểu cày cuốc</title>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#14213D">
+<link rel="icon" href="/icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,600;0,700;1,600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#14213D;
+    --navy-dark:#0D1730;
+    --paper:#F6F1E4;
+    --paper-line:#E2D9C2;
+    --ink:#1F2A44;
+    --red:#E63946;
+    --green:#2F8F5B;
+    --amber:#F0A94E;
+    --muted:#7C8394;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--navy);
+    font-family:'IBM Plex Sans', sans-serif;
+    color:var(--paper);
+    min-height:100vh;
+  }
+  .wrap{max-width:640px;margin:0 auto;padding:20px 16px 60px;}
+
+  @media (min-width:860px){
+    .wrap{max-width:760px;padding-top:32px;}
+    .page{padding:28px 32px;}
+    .tabs{flex-wrap:wrap;overflow-x:visible;}
+    .tab{padding:10px 18px;font-size:13px;}
+    .card{padding:20px;}
+    button, .btn, .qt-btn{cursor:pointer;}
+    input[type=text], textarea{font-size:15px;}
+    .char-grid{grid-template-columns:repeat(6,1fr);}
+  }
+
+  header{padding:6px 0 18px;}
+  .brand{
+    font-family:'Fraunces', serif;
+    font-weight:700;
+    font-style:italic;
+    font-size:34px;
+    letter-spacing:0.5px;
+    color:var(--paper);
+    margin:0;
+  }
+  .tagline{
+    font-size:14px;
+    color:#B9C0D4;
+    margin:4px 0 0;
+  }
+  .streak{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    margin-top:14px;
+    background:var(--navy-dark);
+    border:1px solid #2A3A63;
+    padding:6px 12px;
+    border-radius:20px;
+    font-size:13px;
+    color:var(--amber);
+  }
+
+  .tabs{
+    display:flex;
+    gap:6px;
+    margin:22px 0 0;
+    overflow-x:auto;
+    padding-bottom:2px;
+  }
+  .tab{
+    flex:0 0 auto;
+    padding:9px 16px;
+    border-radius:10px 10px 0 0;
+    background:var(--navy-dark);
+    border:1px solid #2A3A63;
+    border-bottom:none;
+    color:#9AA3BC;
+    font-size:13px;
+    font-weight:600;
+    letter-spacing:0.3px;
+    cursor:pointer;
+  }
+  .tab.active{
+    background:var(--paper);
+    color:var(--ink);
+    border-color:var(--paper);
+  }
+
+  .page{
+    background:var(--paper);
+    color:var(--ink);
+    border-radius:0 10px 10px 10px;
+    padding:22px 18px;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='4' height='32'><rect width='4' height='31' fill='%23F6F1E4'/><rect y='31' width='4' height='1' fill='%23E2D9C2'/></svg>");
+    background-repeat:repeat;
+    background-size:4px 32px;
+    background-position:0 0;
+  }
+  .section{display:none;}
+  .section.active{display:block;}
+
+  h2.stitle{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:20px;
+    margin:0 0 4px;
+    background:var(--paper);
+    position:relative;
+    z-index:1;
+  }
+  p.shint{
+    font-size:13px;
+    color:var(--muted);
+    margin:0 0 18px;
+    background:var(--paper);
+    position:relative;
+    z-index:1;
+  }
+
+  .card{
+    background:#fff;
+    border:1px solid var(--paper-line);
+    border-radius:8px;
+    padding:16px;
+    margin-bottom:14px;
+  }
+
+  button{
+    font-family:'IBM Plex Sans', sans-serif;
+    cursor:pointer;
+    border:none;
+  }
+  .btn{
+    background:var(--navy);
+    color:var(--paper);
+    padding:9px 16px;
+    border-radius:7px;
+    font-size:13px;
+    font-weight:600;
+  }
+  .btn:active{opacity:0.85;}
+  .btn.ghost{
+    background:transparent;
+    border:1px solid var(--navy);
+    color:var(--navy);
+  }
+  .btn.small{padding:6px 12px;font-size:12px;}
+
+  input[type=text], textarea{
+    width:100%;
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:14px;
+    border:1px solid #C9BE9F;
+    border-radius:6px;
+    padding:9px 10px;
+    background:#fff;
+    color:var(--ink);
+  }
+  textarea{resize:vertical;min-height:90px;}
+
+  .word{font-size:22px;font-weight:600;}
+  .phon{color:var(--muted);font-size:14px;margin-left:8px;}
+  .vi{color:var(--muted);font-size:13px;margin-top:4px;}
+
+  .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+  .between{display:flex;justify-content:space-between;align-items:center;}
+
+  .feedback{font-size:13px;margin-top:8px;font-weight:600;}
+  .feedback.ok{color:var(--green);}
+  .feedback.bad{color:var(--red);}
+
+  .quiz-opt{
+    display:block;
+    width:100%;
+    text-align:left;
+    background:#fff;
+    border:1px solid #C9BE9F;
+    border-radius:6px;
+    padding:9px 12px;
+    font-size:13px;
+    margin-bottom:8px;
+    color:var(--ink);
+  }
+  .quiz-opt.correct{border-color:var(--green);background:#EAF6EF;}
+  .quiz-opt.wrong{border-color:var(--red);background:#FBEAEA;}
+  .quiz-opt.selected{border-color:var(--navy);background:#EDEFF6;}
+  .quiz-opt.chip{display:inline-block;width:auto;margin:0 6px 8px 0;}
+  #pz-next:disabled{opacity:.45;cursor:not-allowed;}
+
+  .checklist label{
+    display:flex;
+    gap:8px;
+    align-items:flex-start;
+    font-size:13px;
+    margin-bottom:8px;
+    color:var(--ink);
+  }
+  .counter{font-size:12px;color:var(--muted);margin-top:6px;}
+
+  .subtoggle{display:flex;gap:6px;margin-bottom:14px;}
+  .subtoggle button{padding:7px 14px;border-radius:7px;font-size:12px;font-weight:600;background:#fff;border:1px solid #C9BE9F;color:var(--ink);}
+  .subtoggle button.active{background:var(--navy);color:var(--paper);border-color:var(--navy);}
+
+  .chatbox{display:flex;flex-direction:column;gap:8px;max-height:320px;overflow-y:auto;padding:4px 2px;margin-bottom:10px;}
+  .msg{max-width:82%;padding:9px 12px;border-radius:10px;font-size:13px;line-height:1.45;}
+  .msg.user{align-self:flex-end;background:var(--navy);color:var(--paper);border-bottom-right-radius:2px;}
+  .msg.bot{align-self:flex-start;background:#fff;border:1px solid var(--paper-line);color:var(--ink);border-bottom-left-radius:2px;}
+  .msg.note{align-self:flex-start;background:none;border:none;color:var(--amber);font-size:12px;padding:0 4px;max-width:100%;}
+  .chat-input-row{display:flex;gap:8px;}
+  .chat-input-row input{flex:1;}
+  .typing{align-self:flex-start;font-size:12px;color:var(--muted);font-style:italic;padding:0 4px;animation:pulseText 1.2s infinite;}
+  @keyframes pulseText{0%,100%{opacity:0.4;}50%{opacity:1;}}
+
+  .translate-result{margin-top:10px;background:#fff;border:1px solid var(--paper-line);border-radius:8px;padding:12px;font-size:14px;min-height:20px;line-height:1.5;}
+
+  .room-members{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 14px;}
+  .room-member{display:flex;align-items:center;gap:5px;background:#fff;border:1px solid var(--paper-line);border-radius:999px;padding:4px 10px 4px 4px;font-size:12px;color:var(--muted);}
+  .room-member .rm-avatar{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;background:var(--paper);}
+  .msg.system{align-self:center;background:#FDEBEA;border:1px solid var(--red);color:#B3261E;font-size:12px;text-align:center;max-width:100%;}
+  .msg .msg-who{font-size:10.5px;color:var(--muted);margin:0 0 2px;}
+  .msg .msg-report{background:none;border:none;color:var(--muted);font-size:11px;cursor:pointer;margin-left:6px;opacity:.6;}
+  .msg .msg-report:hover{opacity:1;}
+
+  .modal-overlay{position:fixed;inset:0;background:rgba(13,23,48,0.78);display:flex;align-items:center;justify-content:center;padding:20px;z-index:50;}
+  .modal-box{background:var(--paper);border-radius:10px;padding:20px;max-width:440px;width:100%;max-height:82vh;overflow-y:auto;color:var(--ink);}
+  .modal-box h3{font-family:'Fraunces',serif;font-size:19px;margin:0 0 6px;}
+  .modal-box p.hint{font-size:13px;color:var(--muted);margin:0 0 16px;}
+  .modal-progress{font-size:12px;color:var(--muted);margin-bottom:10px;}
+  .modal-skip{background:none;border:none;color:var(--muted);font-size:12px;text-decoration:underline;margin-top:14px;}
+
+  .flashcard{background:#fff;border:1px solid var(--paper-line);border-radius:8px;padding:24px 18px;text-align:center;min-height:120px;display:flex;flex-direction:column;justify-content:center;gap:8px;}
+  .flashcard .fw{font-size:22px;font-weight:600;}
+  .flashcard .fv{font-size:15px;color:var(--muted);}
+  .review-empty{font-size:13px;color:var(--muted);}
+
+  .mentor-toast{
+    position:fixed;left:16px;right:16px;bottom:16px;max-width:600px;margin:0 auto;
+    background:var(--navy);color:var(--paper);border:1px solid #2A3A63;border-radius:10px;
+    padding:14px 36px 14px 14px;font-size:13px;line-height:1.5;box-shadow:0 8px 24px rgba(0,0,0,0.35);
+    z-index:60;opacity:0;transform:translateY(10px);
+    transition:opacity 0.3s ease, transform 0.3s ease;pointer-events:none;
+  }
+  .mentor-toast.show{opacity:1;transform:translateY(0);pointer-events:auto;}
+  .mentor-toast .mt-label{font-weight:600;color:var(--amber);display:block;font-size:11px;letter-spacing:0.4px;margin-bottom:3px;}
+  .mentor-close{
+    position:absolute;top:8px;right:8px;background:none;border:none;color:var(--paper);
+    opacity:0.6;font-size:14px;padding:4px 6px;line-height:1;
+  }
+  .mentor-close:active{opacity:1;}
+
+  .quicktools{
+    display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;
+  }
+  .qt-btn{
+    background:var(--navy-dark);border:1px solid #2A3A63;color:var(--paper);
+    padding:7px 12px;border-radius:8px;font-size:12px;font-weight:600;
+  }
+  .qt-panel{
+    display:none;background:var(--paper);border-radius:10px;padding:16px;margin-top:10px;position:relative;
+  }
+  .qt-panel.open{display:block;}
+  .lookup-result{margin-top:10px;background:#fff;border:1px solid var(--paper-line);border-radius:8px;padding:12px;font-size:14px;min-height:20px;color:var(--ink);}
+
+  .voice-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
+  .voice-row select{padding:8px;border-radius:6px;border:1px solid #C9BE9F;font-size:13px;background:#fff;color:var(--ink);}
+  .speed-row{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+  .speed-row input[type=range]{flex:1;}
+  .speed-row span{font-size:12px;color:var(--muted);min-width:36px;}
+
+  .record-btn{background:var(--red);color:#fff;padding:9px 16px;border-radius:7px;font-size:13px;font-weight:600;}
+  .record-btn.recording{background:#a11f28;animation:pulseRec 1s infinite;}
+  .record-btn.processing{background:#8a7a4f;animation:spinRec 0.9s linear infinite;}
+  @keyframes pulseRec{0%,100%{box-shadow:0 0 0 0 rgba(161,31,40,0.55);}50%{box-shadow:0 0 0 8px rgba(161,31,40,0);}}
+  @keyframes spinRec{from{filter:hue-rotate(0deg);}to{filter:hue-rotate(0deg);}}
+  .spin-inline{display:inline-block;animation:spinIcon 0.8s linear infinite;}
+  @keyframes spinIcon{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+  .pron-result{margin-top:10px;font-size:13px;padding:10px;border-radius:8px;}
+  .pron-result.good{background:#EAF6EF;color:var(--green);}
+  .pron-result.ok{background:#FFF3E0;color:#B36B00;}
+  .pron-result.bad{background:#FBEAEA;color:var(--red);}
+  .azure-score-badge{display:inline-block;font-size:22px;font-weight:700;font-family:'Fraunces',serif;padding:4px 12px;border-radius:10px;}
+  .azure-score-badge.good{background:#EAF6EF;color:var(--green);}
+  .azure-score-badge.ok{background:#FFF3E0;color:#B36B00;}
+  .azure-score-badge.bad{background:#FBEAEA;color:var(--red);}
+  .phoneme-chip{display:inline-block;padding:3px 8px;margin:2px 3px 2px 0;border-radius:6px;font-size:12px;font-family:monospace;}
+  .phoneme-chip.good{background:#EAF6EF;color:var(--green);}
+  .phoneme-chip.ok{background:#FFF3E0;color:#B36B00;}
+  .phoneme-chip.bad{background:#FBEAEA;color:var(--red);font-weight:700;}
+
+  .level-card{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    background:#fff;border:2px solid var(--paper-line);border-radius:10px;
+    padding:14px 16px;margin-bottom:10px;
+  }
+  .level-card.unlocked{border-color:var(--navy);cursor:pointer;}
+  .level-card.current{background:var(--navy);border-color:var(--navy);}
+  .level-card.current .lv-name, .level-card.current .lv-desc{color:var(--paper);}
+  .level-card.locked{opacity:0.55;}
+  .lv-left{display:flex;align-items:center;gap:12px;}
+  .lv-badge{font-size:22px;width:36px;text-align:center;position:relative;}
+  .lv-badge.locked-badge{opacity:0.32;}
+  .lv-lock-pin{position:absolute;bottom:-3px;right:-6px;font-size:12px;}
+  .lv-name{font-family:'Fraunces',serif;font-weight:600;font-size:15px;color:var(--ink);}
+  .lv-desc{font-size:11px;color:var(--muted);margin-top:2px;}
+  .lv-current-tag{font-size:10px;background:var(--amber);color:var(--navy);padding:2px 8px;border-radius:10px;font-weight:700;}
+
+  .char-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
+  .char-card{background:#fff;border:2px solid var(--paper-line);border-radius:10px;padding:10px 6px;text-align:center;}
+  .char-card.active{border-color:var(--navy);background:#EFEAD9;}
+  .char-avatar{width:46px;height:46px;border-radius:50%;margin:0 auto 6px;display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;overflow:hidden;}
+  .char-avatar img{width:100%;height:100%;object-fit:cover;display:block;}
+  .mini-speak-btn{border:none;background:none;cursor:pointer;font-size:14px;padding:2px 4px;vertical-align:middle;}
+  .voice-row{display:flex;align-items:center;gap:8px;}
+  .voice-play-btn{width:32px;height:32px;min-width:32px;border-radius:50%;border:none;background:var(--navy);color:#fff;font-size:13px;cursor:pointer;flex-shrink:0;}
+  .msg.user .voice-play-btn{background:rgba(255,255,255,0.25);color:#fff;}
+  .voice-wave{flex:1;height:14px;background:repeating-linear-gradient(90deg, currentColor 0 3px, transparent 3px 6px);opacity:0.35;border-radius:3px;min-width:50px;max-width:120px;}
+  .voice-toggle-btn{width:26px;height:26px;min-width:26px;border-radius:50%;border:1px solid var(--amber);background:#fff8e6;color:#8a6415;font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0;opacity:1;line-height:1;}
+  .msg.user .voice-toggle-btn{background:#fff8e6;color:#8a6415;border-color:var(--amber);}
+  .voice-text{margin-top:6px;font-size:13px;display:none;}
+  .voice-text.show{display:block;}
+  .char-name{font-size:12px;font-weight:600;color:var(--ink);}
+  .char-role{font-size:10px;color:var(--muted);}
+
+  .topic-chips{display:flex;gap:6px;flex-wrap:wrap;}
+  .topic-chip{padding:7px 12px;border-radius:20px;font-size:12px;font-weight:600;background:#fff;border:1px solid #C9BE9F;color:var(--ink);}
+  .topic-chip.active{background:var(--navy);color:var(--paper);border-color:var(--navy);}
+
+  .doc-line{margin-bottom:10px;}
+  .doc-en{font-size:14px;line-height:1.6;margin:0 0 6px;}
+  .doc-en .w{cursor:pointer;border-bottom:1px dotted var(--muted);}
+  .doc-en .w:active{background:#FFF3D6;}
+  .doc-vi{font-size:12.5px;line-height:1.5;color:var(--muted);font-style:italic;margin:0;display:flex;align-items:flex-start;justify-content:space-between;gap:8px;}
+  .save-btn{background:none;border:none;font-size:14px;flex-shrink:0;opacity:0.6;}
+  .save-btn:active{opacity:1;}
+  .save-btn.saved{opacity:1;}
+
+  .word-popup{
+    position:fixed;background:var(--navy);color:var(--paper);padding:8px 12px;border-radius:8px;
+    font-size:13px;z-index:70;box-shadow:0 6px 18px rgba(0,0,0,0.3);max-width:240px;display:none;
+  }
+  .word-popup.show{display:block;}
+
+  .note-card{background:#fff;border:1px solid var(--paper-line);border-radius:8px;padding:12px;margin-bottom:10px;}
+  .note-card .ne{font-size:13px;margin:0 0 4px;}
+  .note-card .nv{font-size:12px;color:var(--muted);font-style:italic;margin:0;}
+  .note-del{float:right;background:none;border:none;color:var(--red);font-size:12px;}
+  .notes-empty{font-size:13px;color:var(--muted);}
+  .doc-loading{font-size:13px;color:var(--muted);font-style:italic;}
+
+  .progress-note{
+    font-size:12px;
+    color:var(--muted);
+    margin-top:16px;
+    border-top:1px dashed var(--paper-line);
+    padding-top:12px;
+  }
+</style>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="modal-overlay" id="audience-modal" style="display:none;">
+    <div class="modal-box" style="text-align:center;">
+      <h3>Bạn học tiếng Anh để...?</h3>
+      <p style="font-size:13px;color:var(--muted);margin:6px 0 18px;">Chọn để CÀY soạn nội dung, chủ đề phù hợp hơn với bạn.</p>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <button class="btn" data-audience="hocsinh" style="padding:14px;">🎒 Tôi là học sinh</button>
+        <button class="btn" data-audience="dilam" style="padding:14px;">💼 Tôi đi làm</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="personalize-modal" style="display:none;">
+    <div class="modal-box">
+      <p class="modal-progress" id="pz-progress">Bước 1/5</p>
+      <div id="pz-step-content"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px;">
+        <button class="modal-skip" id="pz-back" style="display:none;">← Quay lại</button>
+        <button class="btn small" id="pz-next" style="margin-left:auto;" disabled>Tiếp →</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="onboard-modal" style="display:none;">
+    <div class="modal-box">
+      <div id="onboard-slide-content"></div>
+      <div class="row between" style="margin-top:16px;align-items:center;">
+        <button class="btn ghost small" id="onboard-skip">Bỏ qua</button>
+        <p id="onboard-dots" style="font-size:12px;color:var(--muted);margin:0;"></p>
+        <button class="btn small" id="onboard-next">Tiếp →</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="auth-modal" style="display:none;">
+    <div class="modal-box">
+      <h3 id="auth-modal-title">Đăng nhập</h3>
+      <p class="hint">Lưu tiến trình, lịch sử chat theo tài khoản — dùng được trên mọi thiết bị.</p>
+      <div class="subtoggle" style="margin-bottom:14px;">
+        <button class="lvl active" id="auth-tab-login" type="button">Đăng nhập</button>
+        <button class="lvl" id="auth-tab-register" type="button">Đăng ký</button>
+      </div>
+      <div id="auth-register-fields" style="display:none;">
+        <input type="text" id="auth-name" placeholder="Họ và tên" style="width:100%;padding:10px;margin-bottom:8px;border-radius:8px;border:1px solid var(--paper-line);">
+      </div>
+      <input type="tel" id="auth-phone" placeholder="Số điện thoại" style="width:100%;padding:10px;margin-bottom:8px;border-radius:8px;border:1px solid var(--paper-line);">
+      <div style="position:relative;margin-bottom:8px;">
+        <input type="password" id="auth-password" placeholder="Mật khẩu" style="width:100%;padding:10px;padding-right:40px;border-radius:8px;border:1px solid var(--paper-line);box-sizing:border-box;">
+        <button type="button" id="auth-pw-toggle" style="position:absolute;right:6px;top:50%;transform:translateY(-50%);border:none;background:none;cursor:pointer;font-size:16px;">👁️</button>
+      </div>
+      <p id="auth-error" style="color:#c0392b;font-size:13px;min-height:18px;margin:4px 0;"></p>
+      <button class="btn" id="auth-submit-btn" style="width:100%;">Đăng nhập</button>
+      <button class="btn ghost small" id="auth-close-btn" style="margin-top:10px;">Đóng</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="vip-modal" style="display:none;">
+    <div class="modal-box">
+      <h3>👑 CÀY VIP</h3>
+      <p class="hint">Đang trong giai đoạn hoàn thiện — cảm ơn bạn đã quan tâm và ủng hộ CÀY!</p>
+      <div class="card" style="border-color:var(--amber);">
+        <p style="font-size:13px;line-height:1.6;margin:0;">Gói VIP sẽ mở khóa Trợ lý trò chuyện không giới hạn, bài đọc/bài luyện AI soạn không giới hạn số lần, và các tính năng nâng cao khác sắp ra mắt. Hiện tại mọi tính năng vẫn đang <b>miễn phí</b> để bạn trải nghiệm trọn vẹn.</p>
+      </div>
+      <p style="font-size:12px;color:var(--muted);margin:10px 0 0;">Xem chi tiết các gói dự kiến ở tab GIÁ.</p>
+      <button class="btn" id="vip-close-btn" style="margin-top:14px;">Đã hiểu</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="placement-modal" style="display:none;">
+    <div class="modal-box">
+      <div id="placement-quiz">
+        <p class="modal-progress" id="pm-progress">Câu 1/5</p>
+        <h3>Bài xếp loại nhanh</h3>
+        <p class="hint">2 phút thôi, để app biết nên bắt đầu từ đâu cho hợp với anh.</p>
+        <p style="font-size:14px;font-weight:600;margin:0 0 12px;" id="pm-question"></p>
+        <div id="pm-options"></div>
+        <button class="modal-skip" id="pm-skip">Bỏ qua, để mình tự chọn</button>
+      </div>
+      <div id="placement-result" style="display:none;">
+        <h3>Xong rồi!</h3>
+        <p class="hint" id="pm-result-text"></p>
+        <button class="btn" id="pm-start">Bắt đầu học</button>
+      </div>
+    </div>
+  </div>
+
+
+  <header>
+    <p class="brand">CÀY <span style="font-size:11px;color:var(--muted);font-weight:400;vertical-align:middle;">v27</span></p>
+    <p class="tagline">caytienganh.kspring.com.vn — Học tiếng Anh kiểu cày cuốc, có trợ lý AI đồng hành</p>
+    <p id="motivation-quote" style="font-size:12px;color:var(--amber);font-style:italic;margin:2px 0 10px;"></p>
+    <div class="row" style="gap:8px;">
+      <div class="streak">🔥 <span id="streakText">Ngày cày thứ 1</span></div>
+      <button class="streak" id="vip-open-btn" style="border-color:var(--amber);color:var(--amber);cursor:pointer;">👑 Nâng cấp VIP</button>
+      <button class="streak" id="auth-open-btn" style="cursor:pointer;">👤 <span id="auth-btn-label">Đăng nhập</span></button>
+      <button class="streak" id="help-open-btn" style="cursor:pointer;">❓ Hướng dẫn</button>
+      <button class="streak" id="audience-open-btn" style="cursor:pointer;">🎯 <span id="audience-btn-label">Đối tượng</span></button>
+    </div>
+
+    <div class="quicktools">
+      <button class="qt-btn" id="toggle-lookup">🔍 Tra từ nhanh</button>
+      <button class="qt-btn" id="toggle-voice">⚙ Giọng đọc</button>
+    </div>
+
+    <div class="qt-panel" id="lookup-panel">
+      <div class="row">
+        <input type="text" id="lookup-input" placeholder="Gõ từ tiếng Anh hoặc tiếng Việt...">
+        <button class="btn small" id="lookup-btn">Tra</button>
+      </div>
+      <div class="lookup-result" id="lookup-result">Kết quả sẽ hiện ở đây...</div>
+    </div>
+
+    <div class="qt-panel" id="voice-panel">
+      <button id="voice-panel-close" style="position:absolute;top:8px;right:10px;border:none;background:none;font-size:18px;cursor:pointer;color:var(--muted);">✕</button>
+      <div class="voice-row">
+        <select id="voice-accent">
+          <option value="en-US" selected>Giọng Anh - Mỹ (US)</option>
+          <option value="en-GB">Giọng Anh - Anh (UK)</option>
+          <option value="en-AU">Giọng Anh - Úc (AU)</option>
+          <option value="en-IN">Giọng Anh - Ấn (IN)</option>
+          <option value="en-CA">Giọng Anh - Canada (CA)</option>
+        </select>
+        <select id="voice-gender">
+          <option value="any">Không chọn giới tính</option>
+          <option value="female">Giọng nữ</option>
+          <option value="male">Giọng nam</option>
+        </select>
+      </div>
+      <div class="voice-row">
+        <select id="voice-specific" style="flex:1;min-width:180px;">
+          <option value="">Tự động chọn giọng hay nhất máy có</option>
+        </select>
+      </div>
+      <p style="font-size:12px;font-weight:600;margin:10px 0 2px;">🚀 Tốc độ đọc</p>
+      <div class="speed-row">
+        <span>Chậm</span>
+        <input type="range" id="voice-rate" min="0.6" max="1.3" step="0.1" value="0.9">
+        <span>Nhanh</span>
+      </div>
+      <p style="font-size:12px;font-weight:600;margin:10px 0 2px;">🔊 Âm lượng</p>
+      <div class="speed-row">
+        <span>Nhỏ</span>
+        <input type="range" id="voice-volume" min="0.4" max="1" step="0.1" value="1">
+        <span>To</span>
+      </div>
+      <p style="font-size:11px;color:var(--muted);margin:8px 0 0;">Cài đặt này áp dụng cho tất cả các nút "Nghe" trong app. Máy/trình duyệt càng có nhiều giọng cài sẵn thì danh sách "giọng cụ thể" càng phong phú và tự nhiên hơn — nếu vẫn nghe hơi máy móc, thử đổi sang giọng khác trong danh sách hoặc tăng âm lượng thiết bị.</p>
+    </div>
+  </header>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="troly">🗣️ BẠN ẢO</div>
+    <div class="tab" data-tab="video">VIDEO</div>
+    <div class="tab" data-tab="nghe">NGHE</div>
+    <div class="tab" data-tab="noi">NÓI</div>
+    <div class="tab" data-tab="doc">ĐỌC</div>
+    <div class="tab" data-tab="phap">NGỮ PHÁP</div>
+    <div class="tab" data-tab="on">ÔN TẬP</div>
+    <div class="tab" data-tab="phongnoi">🗣️ PHÒNG NÓI</div>
+    <div class="tab" data-tab="flashcard">📇 FLASHCARD</div>
+    <div class="tab" data-tab="viet">VIẾT</div>
+    <div class="tab" data-tab="capdo">CẤP ĐỘ</div>
+    <div class="tab" data-tab="ghichu">GHI CHÚ</div>
+    <div class="tab" data-tab="bikip">✨ BÍ KÍP</div>
+    <div class="tab" data-tab="gia">GIÁ</div>
+  </div>
+
+  <div class="page">
+
+    <!-- NGHE -->
+    <section class="section" id="sec-nghe">
+      <h2 class="stitle">Luyện nghe điền từ</h2>
+      <p class="shint">Bấm nghe, điền từ còn thiếu vào câu.</p>
+      <div class="card">
+        <div class="row between">
+          <span id="nghe-sentence" style="font-size:14px;">—</span>
+          <button class="btn small" id="nghe-play">▶ Nghe</button>
+        </div>
+        <div id="nghe-vi" style="font-size:12px;color:var(--muted);font-style:italic;margin-top:4px;">—</div>
+        <div style="margin-top:12px;" class="row">
+          <input type="text" id="nghe-input" placeholder="Gõ từ còn thiếu...">
+          <button class="btn small" id="nghe-check">Kiểm tra</button>
+        </div>
+        <div class="feedback" id="nghe-feedback"></div>
+      </div>
+      <div class="row">
+        <button class="btn ghost small" id="nghe-next">Câu tiếp theo →</button>
+        <button class="btn ghost small" id="nghe-ai-new">🔄 Câu khác</button>
+      </div>
+    </section>
+
+    <!-- NOI -->
+    <section class="section" id="sec-noi">
+      <h2 class="stitle">Luyện nói theo mẫu</h2>
+      <p class="shint">Bấm nghe, đọc to theo, rồi tự đánh giá.</p>
+      <div class="card">
+        <div class="row between">
+          <div>
+            <span id="noi-icon" style="font-size:26px;margin-right:6px;vertical-align:middle;"></span>
+            <span class="word" id="noi-word">—</span>
+            <span class="phon" id="noi-phon"></span>
+            <div class="vi" id="noi-vi"></div>
+          </div>
+          <button class="btn small" id="noi-play">▶ Nghe</button>
+        </div>
+        <div id="noi-tip-box" style="margin-top:10px;padding:10px 12px;background:rgba(240,180,60,0.12);border-radius:8px;font-size:12.5px;line-height:1.6;color:var(--ink);"></div>
+        <div class="row" style="margin-top:14px;">
+          <button class="btn small" id="noi-done">Tôi đã đọc theo ✓</button>
+          <span id="noi-count" style="font-size:12px;color:var(--muted);">0/6 từ</span>
+        </div>
+        <div class="row" style="margin-top:10px;">
+          <button class="record-btn" id="noi-record">🎤 Thu âm & chấm điểm</button>
+          <button class="record-btn" id="noi-azure-record" style="background:var(--navy);display:none;">🎯 Chấm chuẩn xác hơn (AI)</button>
+        </div>
+        <div id="pron-result-box"></div>
+        <div id="azure-result-box"></div>
+      </div>
+      <div class="row">
+        <button class="btn ghost small" id="noi-next">Từ tiếp theo →</button>
+        <button class="btn ghost small" id="noi-ai-new">🔄 Từ khác</button>
+      </div>
+    </section>
+
+    <!-- DOC -->
+    <section class="section" id="sec-doc">
+      <h2 class="stitle">Đọc hiểu theo chủ đề</h2>
+      <p class="shint">Chọn chủ đề mình thích, mỗi lần bấm là có bài mới. Bấm vào từ nào chưa biết để dịch ngay, bấm 💾 để lưu câu hay vào Ghi chú.</p>
+
+      <div class="topic-chips" id="topic-chips">
+        <button class="topic-chip active" data-topic="mau">Bài mẫu</button>
+        <button class="topic-chip" data-topic="the-thao">⚽ Thể thao</button>
+        <button class="topic-chip" data-topic="am-nhac">🎵 Âm nhạc</button>
+        <button class="topic-chip" data-topic="nguoi-noi-tieng">🌟 Người nổi tiếng</button>
+        <button class="topic-chip" data-topic="cong-nghe">💻 Công nghệ</button>
+        <button class="topic-chip" data-topic="doi-song">🌿 Đời sống</button>
+        <button class="topic-chip" data-topic="hoi-hoa">🎨 Hội họa</button>
+        <button class="topic-chip" data-topic="danh-ngon">✨ Danh ngôn</button>
+      </div>
+
+      <div class="row" style="margin:12px 0;">
+        <button class="btn small" id="doc-generate">🔄 Soạn bài mới theo chủ đề đang chọn</button>
+      </div>
+
+      <div id="doc-content">
+        <div class="card doc-line">
+          <p class="doc-en" data-savekey="doc-mau-1">Minh runs a small phone repair shop.</p>
+          <p class="doc-vi">Minh có một tiệm sửa điện thoại nhỏ. <button class="save-btn" data-en="Minh runs a small phone repair shop." data-vi="Minh có một tiệm sửa điện thoại nhỏ.">💾</button></p>
+        </div>
+        <div class="card doc-line">
+          <p class="doc-en">Every night, customers send messages asking about prices, but Minh is too tired to reply.</p>
+          <p class="doc-vi">Mỗi tối, khách nhắn tin hỏi giá, nhưng Minh mệt quá không trả lời nổi. <button class="save-btn" data-en="Every night, customers send messages asking about prices, but Minh is too tired to reply." data-vi="Mỗi tối, khách nhắn tin hỏi giá, nhưng Minh mệt quá không trả lời nổi.">💾</button></p>
+        </div>
+        <div class="card doc-line">
+          <p class="doc-en">He decides to use a chatbot to answer late-night questions.</p>
+          <p class="doc-vi">Anh quyết định dùng chatbot để trả lời các câu hỏi lúc khuya. <button class="save-btn" data-en="He decides to use a chatbot to answer late-night questions." data-vi="Anh quyết định dùng chatbot để trả lời các câu hỏi lúc khuya.">💾</button></p>
+        </div>
+        <div class="card doc-line">
+          <p class="doc-en">The next morning, he calls back the customers who left their phone numbers, and he closes three more deals than before.</p>
+          <p class="doc-vi">Sáng hôm sau, anh gọi lại cho những khách đã để lại số điện thoại, và chốt được thêm 3 đơn hàng so với trước. <button class="save-btn" data-en="The next morning, he calls back the customers who left their phone numbers, and he closes three more deals than before." data-vi="Sáng hôm sau, anh gọi lại cho những khách đã để lại số điện thoại, và chốt được thêm 3 đơn hàng so với trước.">💾</button></p>
+        </div>
+      </div>
+
+      <div class="card" id="doc-quiz-mau">
+        <p style="font-size:13px;font-weight:600;margin:0 0 4px;">1. Why does Minh use a chatbot?</p>
+        <p style="font-size:12px;color:var(--muted);margin:0 0 10px;">Vì sao Minh dùng chatbot?</p>
+        <button class="quiz-opt" data-q="1" data-correct="false">Because he wants to close his shop (Vì anh muốn đóng cửa tiệm)</button>
+        <button class="quiz-opt" data-q="1" data-correct="true">Because he is too tired to reply at night (Vì anh quá mệt để trả lời buổi tối)</button>
+        <button class="quiz-opt" data-q="1" data-correct="false">Because customers don't call him (Vì khách không gọi cho anh)</button>
+      </div>
+      <div class="card" id="doc-quiz-mau2">
+        <p style="font-size:13px;font-weight:600;margin:0 0 4px;">2. What happens the next morning?</p>
+        <p style="font-size:12px;color:var(--muted);margin:0 0 10px;">Chuyện gì xảy ra vào sáng hôm sau?</p>
+        <button class="quiz-opt" data-q="2" data-correct="false">Minh closes the shop (Minh đóng cửa tiệm)</button>
+        <button class="quiz-opt" data-q="2" data-correct="true">Minh calls customers back and closes more deals (Minh gọi lại cho khách và chốt thêm đơn)</button>
+        <button class="quiz-opt" data-q="2" data-correct="false">The chatbot stops working (Chatbot ngừng hoạt động)</button>
+      </div>
+    </section>
+
+    <!-- VIET -->
+    <section class="section" id="sec-viet">
+      <h2 class="stitle">Diễn đạt tự do</h2>
+      <p class="shint">Đừng lo sai ngữ pháp hay chính tả — cứ viết ra theo cách bạn nghĩ, càng nói nhiều càng tiến bộ nhanh.</p>
+      <div class="card">
+        <p style="font-size:13px;color:var(--muted);margin:0 0 4px;">Hãy diễn đạt câu sau bằng tiếng Anh, viết sao cũng được:</p>
+        <p id="viet-prompt" style="font-size:16px;font-weight:600;margin:0 0 12px;">—</p>
+        <textarea id="viet-text" placeholder="Gõ theo cách bạn nghĩ, không cần đúng 100%..."></textarea>
+        <div class="row" style="margin-top:10px;justify-content:space-between;">
+          <div class="counter"><span id="viet-count">0</span> từ</div>
+          <button class="btn small" id="viet-submit">Gửi cho trợ lý xem</button>
+        </div>
+      </div>
+      <div id="viet-feedback-box"></div>
+      <div class="row">
+        <button class="btn ghost small" id="viet-next">Câu tiếp theo →</button>
+        <button class="btn ghost small" id="viet-random">✨ Đề bài mới</button>
+      </div>
+    </section>
+
+    <!-- VIDEO -->
+    <section class="section" id="sec-video">
+      <h2 class="stitle">Video học tiếng Anh</h2>
+      <p class="shint">Xem video, tự dừng lại khi cần — bên dưới có từ vựng & câu hay song ngữ theo chủ đề để đọc thêm.</p>
+      <div class="card">
+        <button class="btn ghost small" id="video-howto-toggle" style="margin-bottom:10px;">❓ Cách lấy link & phụ đề trên YouTube</button>
+        <div id="video-howto-box" style="display:none;margin-bottom:14px;">
+          <p style="font-size:13px;line-height:1.7;margin:0 0 8px;"><b>1. Lấy link video:</b> mở video trên YouTube → bấm nút <b>Chia sẻ / Share</b> (biểu tượng mũi tên) bên dưới video → bấm <b>Copy</b> → quay lại đây dán vào ô link.</p>
+          <p style="font-size:13px;line-height:1.7;margin:0 0 10px;"><b>2. Lấy phụ đề (transcript):</b> dưới video bấm dấu <b>"..." (Xem thêm)</b> → chọn <b>"Hiện bản ghi" (Show transcript)</b> → bôi đen toàn bộ phần chữ hiện ra → Copy → dán vào ô phụ đề bên dưới.</p>
+          <div style="background:#fff;border:1px solid var(--paper-line);border-radius:8px;padding:8px;">
+            <svg viewBox="0 0 600 260" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">
+              <rect x="10" y="10" width="270" height="150" rx="8" fill="#1a1a2e"/>
+              <polygon points="130,65 130,105 160,85" fill="#fff"/>
+              <rect x="10" y="165" width="270" height="26" rx="4" fill="#f2f2f2" stroke="#ddd"/>
+              <circle cx="255" cy="178" r="9" fill="#555"/>
+              <path d="M251 178 l4 4 l6 -8" stroke="#fff" stroke-width="2" fill="none"/>
+              <text x="20" y="182" font-size="11" fill="#555">Chia sẻ (Share)</text>
+              <text x="230" y="205" font-size="10" fill="#888">👆 bấm rồi Copy link</text>
+
+              <rect x="320" y="10" width="270" height="150" rx="8" fill="#fff" stroke="#ddd"/>
+              <text x="332" y="30" font-size="11" fill="#333">Mô tả video...</text>
+              <circle cx="565" cy="24" r="10" fill="#eee" stroke="#bbb"/>
+              <text x="560" y="28" font-size="12" fill="#555">⋯</text>
+              <rect x="470" y="40" width="115" height="60" rx="4" fill="#fafafa" stroke="#ccc"/>
+              <text x="478" y="58" font-size="9" fill="#333">Hiện bản ghi</text>
+              <text x="478" y="72" font-size="9" fill="#333">(Show transcript)</text>
+              <rect x="332" y="110" width="245" height="12" rx="2" fill="#e8e8e8"/>
+              <rect x="332" y="128" width="200" height="12" rx="2" fill="#e8e8e8"/>
+              <text x="332" y="205" font-size="10" fill="#888">👆 bấm "⋯" rồi chọn Hiện bản ghi, sau đó bôi đen &amp; Copy toàn bộ chữ</text>
+            </svg>
+          </div>
+        </div>
+        <div class="row" style="margin-bottom:10px;">
+          <input type="text" id="video-url" placeholder="Dán link YouTube vào đây...">
+          <button class="btn small" id="video-load">Tải video</button>
+        </div>
+        <div id="video-embed-box" style="background:#000;border-radius:8px;min-height:180px;display:flex;align-items:center;justify-content:center;color:#888;font-size:13px;">Chưa có video nào được tải.</div>
+      </div>
+
+      <div class="card" id="video-history-card" style="display:none;">
+        <p style="font-size:12px;font-weight:600;margin:0 0 8px;color:var(--muted);">Video đã xem gần đây — bấm để mở lại, không cần dán link nữa</p>
+        <div id="video-history-list"></div>
+      </div>
+
+      <div class="card">
+        <p style="font-size:13px;font-weight:600;margin:0 0 4px;">Dịch đúng nội dung video (khuyên dùng)</p>
+        <p style="font-size:12px;color:var(--muted);margin:0 0 8px;">Trên YouTube: bấm "..." dưới video → "Hiện bản ghi" (Show transcript) → copy hết → dán vào đây.</p>
+        <textarea id="video-transcript" placeholder="Dán phụ đề/bản ghi tiếng Anh thật của video vào đây..." style="min-height:80px;"></textarea>
+        <div class="row" style="margin-top:8px;">
+          <button class="btn small" id="video-translate-btn">Dịch song ngữ theo đúng video</button>
+        </div>
+        <div id="video-transcript-result" style="margin-top:10px;"></div>
+        <div class="row" id="video-transcript-copy-row" style="display:none;margin-top:10px;">
+          <button class="btn ghost small" id="video-transcript-copy-btn">📋 Copy toàn bộ để gửi Zalo/Messenger</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <p style="font-size:12px;color:var(--muted);margin:0 0 8px;">Hoặc: chưa có phụ đề thật? AI soạn 1 đoạn hội thoại mẫu theo chủ đề để luyện tạm — LƯU Ý đây KHÔNG phải lời thoại thật trong video.</p>
+        <div class="row">
+          <input type="text" id="video-topic" placeholder="Chủ đề của video là gì? (VD: du lịch, ẩm thực...)">
+          <button class="btn small" id="video-vocab-btn">Soạn hội thoại mẫu</button>
+        </div>
+        <div id="video-vocab-result" style="margin-top:10px;"></div>
+        <div class="row" id="video-copy-row" style="display:none;margin-top:10px;">
+          <button class="btn ghost small" id="video-copy-btn">📋 Copy toàn bộ để gửi Zalo/Messenger</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- TRO LY -->
+    <section class="section active" id="sec-troly">
+      <h2 class="stitle">Nói chuyện với người bản ngữ</h2>
+      <p class="shint">Chat thoải mái mỗi ngày để luyện đủ 4 kỹ năng Nghe – Nói – Đọc – Viết cùng lúc — nói gì cũng được, kể cả tiếng Việt, cứ thả ga tám chuyện với các nhân vật dưới đây nhé!</p>
+      <p style="font-size:12px;color:var(--muted);margin:-8px 0 12px;" id="chat-usage-badge">0/20 lượt hôm nay</p>
+
+      <label style="display:flex;align-items:center;gap:6px;font-size:13px;margin:0 0 12px;cursor:pointer;">
+        <input type="checkbox" id="child-mode-toggle" style="width:16px;height:16px;">
+        🧒 Chế độ Trẻ em (câu ngắn, từ đơn giản, nói chậm hơn)
+      </label>
+
+      <div class="char-grid" id="char-grid"></div>
+
+      <div class="subtoggle">
+        <button class="stg active" data-mode="chat">Trò chuyện</button>
+        <button class="stg" data-mode="dich">Dịch</button>
+      </div>
+
+      <div id="mode-chat">
+        <p id="char-active-label" style="font-size:12px;color:var(--muted);margin:0 0 8px;"></p>
+        <div class="chatbox" id="chatbox">
+        </div>
+        <div class="chat-input-row">
+          <input type="text" id="chat-input" placeholder="Chat với trợ lý, nhắn bất cứ điều gì...">
+          <button class="record-btn" id="chat-mic" style="padding:9px 14px;">🎤</button>
+          <button class="btn small" id="chat-send">Gửi</button>
+        </div>
+      </div>
+
+      <div id="mode-dich" style="display:none;">
+        <div class="row" style="margin-bottom:10px;">
+          <select id="dich-dir" style="padding:8px;border-radius:6px;border:1px solid #C9BE9F;font-size:13px;">
+            <option value="en-vi">Anh → Việt</option>
+            <option value="vi-en">Việt → Anh</option>
+          </select>
+        </div>
+        <textarea id="dich-input" placeholder="Nhập văn bản cần dịch..."></textarea>
+        <div class="row" style="margin-top:10px;">
+          <button class="btn small" id="dich-btn">Dịch</button>
+        </div>
+        <div class="translate-result" id="dich-result">Kết quả dịch sẽ hiện ở đây...</div>
+      </div>
+    </section>
+
+    <!-- CAP DO -->
+    <section class="section" id="sec-capdo">
+      <h2 class="stitle">Cấp độ của bạn</h2>
+      <p class="shint">Học đều mỗi ngày để mở khóa cấp cao hơn — càng lên cao, bài học càng khó dần.</p>
+      <div id="level-list"></div>
+    </section>
+
+    <!-- GHI CHU -->
+    <section class="section" id="sec-ghichu">
+      <h2 class="stitle">Ghi chú của tôi</h2>
+      <p class="shint">Những câu/từ bạn đã lưu lại (bấm 💾 ở bất cứ đâu trong bài đọc) sẽ hiện ở đây để ôn lại.</p>
+      <div id="notes-list"></div>
+    </section>
+
+    <!-- BI KIP -->
+    <section class="section" id="sec-bikip">
+      <h2 class="stitle">✨ Bí kíp học tốt</h2>
+      <p class="shint">Mẹo hay từ cộng đồng học viên CÀY — góp nhặt kinh nghiệm thật để học nhanh hơn.</p>
+      <div class="subtoggle">
+        <button class="cat-btn active" data-cat="noi">Nói tốt</button>
+        <button class="cat-btn" data-cat="nghe">Nghe tốt</button>
+        <button class="cat-btn" data-cat="tuvung">Học từ vựng</button>
+      </div>
+      <div id="bikip-list"></div>
+
+      <div class="card" style="margin-top:16px;">
+        <p style="font-weight:600;font-size:14px;margin:0 0 8px;">💬 Góp bí kíp của bạn</p>
+        <select id="bikip-cat-select" style="width:100%;padding:8px;margin-bottom:8px;border-radius:8px;border:1px solid var(--paper-line);">
+          <option value="noi">Bí kíp Nói tốt</option>
+          <option value="nghe">Bí kíp Nghe tốt</option>
+          <option value="tuvung">Bí kíp học Từ vựng</option>
+        </select>
+        <textarea id="bikip-text" placeholder="Chia sẻ mẹo bạn thấy hiệu quả..." style="width:100%;min-height:70px;padding:10px;border-radius:8px;border:1px solid var(--paper-line);box-sizing:border-box;font-family:inherit;"></textarea>
+        <input type="text" id="bikip-author" placeholder="Tên bạn (không bắt buộc)" style="width:100%;padding:8px;margin-top:8px;border-radius:8px;border:1px solid var(--paper-line);box-sizing:border-box;">
+        <button class="btn small" id="bikip-submit" style="margin-top:10px;">Gửi bí kíp</button>
+        <p style="font-size:11px;color:var(--muted);margin:8px 0 0;">Bí kíp gửi lên sẽ được admin duyệt trước khi hiển thị công khai, không hiện ngay.</p>
+      </div>
+    </section>
+
+    <!-- GIA -->
+    <section class="section" id="sec-gia">
+      <h2 class="stitle">Bảng giá CÀY</h2>
+      <p class="shint">Không cam kết dài hạn — dùng thấy hiệu quả thì tiếp tục.</p>
+      <div class="card">
+        <div class="between"><span style="font-weight:600;">Cơ bản</span><span style="font-weight:600;">99.000đ / tháng</span></div>
+        <p style="font-size:13px;color:var(--muted);margin:6px 0 0;">4 kỹ năng Nghe – Nói – Đọc – Viết, luyện tập không giới hạn</p>
+      </div>
+      <div class="card" style="border-color:var(--amber);">
+        <div class="between"><span style="font-weight:600;">Nâng cao</span><span style="font-weight:600;">199.000đ / tháng</span></div>
+        <p style="font-size:13px;color:var(--muted);margin:6px 0 0;">Toàn bộ gói Cơ bản + Trợ lý AI trò chuyện & dịch không giới hạn</p>
+      </div>
+      <div class="card">
+        <div class="between"><span style="font-weight:600;">Trọn năm</span><span style="font-weight:600;">1.990.000đ</span></div>
+        <p style="font-size:13px;color:var(--muted);margin:6px 0 0;">Tương đương ~166.000đ/tháng, tiết kiệm 2 tháng so với gói Nâng cao</p>
+      </div>
+    </section>
+
+    <!-- NGU PHAP -->
+    <section class="section" id="sec-phap">
+      <h2 class="stitle">Ngữ pháp bỏ túi</h2>
+      <p class="shint">Mỗi lần chỉ 1 điểm nhỏ, dễ nhớ — không lý thuyết dài dòng.</p>
+
+      <div class="subtoggle">
+        <button class="lvl active" data-lvl="de">Dễ</button>
+        <button class="lvl" data-lvl="vua">Vừa</button>
+        <button class="lvl" data-lvl="kho">Khó</button>
+      </div>
+
+      <p class="counter" id="phap-progress" style="margin-bottom:10px;">Bài 1/5</p>
+
+      <div class="card">
+        <p style="font-weight:600;font-size:15px;margin:0 0 8px;" id="phap-title">—</p>
+        <p style="font-size:13px;color:var(--ink);line-height:1.6;margin:0 0 10px;" id="phap-explain"></p>
+        <p style="font-size:13px;color:var(--muted);font-style:italic;margin:0;" id="phap-example"></p>
+        <p style="font-size:12px;color:var(--muted);margin:4px 0 0;" id="phap-example-vi"></p>
+      </div>
+
+      <div class="card">
+        <p style="font-size:13px;font-weight:600;margin:0 0 10px;" id="phap-qtext"></p>
+        <div id="phap-options"></div>
+      </div>
+      <div class="row">
+        <button class="btn ghost small" id="phap-next">Bài tiếp theo →</button>
+      </div>
+    </section>
+
+    <!-- ON TAP -->
+    <section class="section" id="sec-on">
+      <h2 class="stitle">Ôn lại từ đã học</h2>
+      <p class="shint">Học từ mới quan trọng, nhưng nhớ lâu mới thật sự có ích.</p>
+      <div id="review-area"></div>
+      <div class="row" style="margin-top:12px;">
+        <button class="btn ghost small" id="review-next" style="display:none;">Từ tiếp theo →</button>
+      </div>
+
+      <h2 class="stitle" style="margin-top:22px;font-size:17px;">📝 Kiểm tra nhanh</h2>
+      <p class="shint">Đầu giờ ôn lại bài cũ, cuối giờ kiểm tra luôn bài mới vừa học — nhớ lâu hơn học xong bỏ đó.</p>
+      <div class="row" style="gap:8px;margin-bottom:12px;">
+        <button class="btn small" id="test-old-start">Kiểm tra bài cũ (đầu giờ)</button>
+        <button class="btn small ghost" id="test-new-start">Kiểm tra bài mới (cuối giờ)</button>
+      </div>
+      <div id="test-area"></div>
+
+      <h2 class="stitle" style="margin-top:22px;font-size:17px;">💡 Điều cần nhớ</h2>
+      <p class="shint">Tự động gom lại từ ngữ pháp và mẹo bạn ảo đã sửa cho bạn.</p>
+      <div id="reminders-area"></div>
+    </section>
+
+    <!-- FLASHCARD -->
+    <section class="section" id="sec-flashcard">
+      <h2 class="stitle">📇 Flashcard từ vựng</h2>
+      <p class="shint">Tự tạo bộ thẻ từ vựng theo chủ đề bạn muốn, lật thẻ để ôn — nói/viết ra là nhớ nhanh nhất.</p>
+      <div class="card" style="margin-bottom:14px;">
+        <div class="row" style="gap:8px;">
+          <input type="text" id="fc-topic-input" placeholder="Nhập chủ đề (vd: đồ ăn, du lịch, công sở...)" style="flex:1;padding:10px;border-radius:8px;border:1px solid #C9BE9F;font-size:13px;">
+          <button class="btn small" id="fc-generate-btn">🔄 Tạo bộ thẻ</button>
+        </div>
+      </div>
+      <div id="fc-deck-area"></div>
+    </section>
+
+    <!-- PHONG LUYEN NOI -->
+    <section class="section" id="sec-phongnoi">
+      <h2 class="stitle">Phòng luyện nói nhóm</h2>
+      <p class="shint">Ghép ngẫu nhiên với vài học viên khác, trả lời theo chủ đề AI đưa ra — không phải khung chat tự do. Số điện thoại, link, tên mạng xã hội sẽ tự động bị chặn.</p>
+
+      <div class="room-members" id="pn-members"></div>
+
+      <div class="card" style="margin-bottom:12px;">
+        <p style="font-size:11px;color:var(--amber);margin:0 0 4px;font-weight:600;">AI HƯỚNG DẪN GỢI Ý</p>
+        <p id="pn-topic-title" style="font-family:'Fraunces',serif;font-weight:600;font-size:16px;margin:0 0 4px;">Đang ghép phòng…</p>
+        <p id="pn-topic-text" style="font-size:13px;color:var(--ink);margin:0;">—</p>
+      </div>
+
+      <div class="chatbox" id="pn-chatbox"></div>
+      <div class="chat-input-row">
+        <input type="text" id="pn-input" placeholder="Nhập câu trả lời của bạn..." maxlength="300">
+        <button class="btn small" id="pn-send">Gửi</button>
+      </div>
+      <p style="font-size:11px;color:var(--muted);margin:8px 0 0;">Thấy nội dung không phù hợp? Bấm 🚩 cạnh tin nhắn để báo cáo cho quản trị viên.</p>
+    </section>
+
+    <p class="progress-note">Tiến trình học, ghi chú và lịch sử chat được lưu ngay trên trình duyệt này. Bấm "👤 Đăng nhập" ở trên để tạo tài khoản — dữ liệu sẽ đồng bộ, dùng được trên mọi thiết bị.</p>
+  </div>
+
+  <div class="mentor-toast" id="mentor-toast">
+    <button class="mentor-close" id="mentor-close">✕</button>
+    <span class="mt-label">CỐ VẤN</span>
+    <span id="mentor-toast-text"></span>
+  </div>
+</div>
+
+<script>
+  // ---- LUU TRU THAT (localStorage) ----
+  // Bản v11 dùng window.storage (chỉ tồn tại trong sandbox Claude Artifacts) nên khi
+  // deploy thật lên Vercel, MỌI lần lưu đều âm thầm lỗi và rơi vào catch{} — đây là
+  // nguyên nhân chính khiến tiến trình, ghi chú và lịch sử chat "biến mất" sau khi thoát app.
+  // Chuyển sang localStorage: dữ liệu lưu ngay trên trình duyệt/thiết bị này, thoát app
+  // vào lại vẫn còn. (Đồng bộ nhiều thiết bị bằng tài khoản sẽ là bước Firebase kế tiếp.)
+  const storage = {
+    async get(key){
+      const v = localStorage.getItem('cay_' + key);
+      if(v === null) throw new Error('empty');
+      return { key, value: v };
+    },
+    async set(key, value){
+      localStorage.setItem('cay_' + key, value);
+      // Nếu đã đăng nhập, đẩy luôn lên Firestore ở nền (không chặn UI, lỗi mạng thì bỏ qua êm,
+      // lần lưu tiếp theo sẽ tự đồng bộ lại).
+      const phone = localStorage.getItem('cay_current_user');
+      if(phone && window.__db){
+        window.__db.collection('users').doc(phone).collection('data').doc(key)
+          .set({ value: value, updatedAt: Date.now() }).catch(()=>{});
+      }
+      return { key, value };
+    }
+  };
+
+  // ---- TAI KHOAN (Firebase Firestore) ----
+  const firebaseConfig = {
+    apiKey: "AIzaSyCGJxQX_neG0r1JnQnFb_GMuxs33qdC048",
+    authDomain: "cay-tieng-anh.firebaseapp.com",
+    projectId: "cay-tieng-anh",
+    storageBucket: "cay-tieng-anh.firebasestorage.app",
+    messagingSenderId: "266149763663",
+    appId: "1:266149763663:web:09cd7ab34f9f2cb944a83a"
+  };
+  try{
+    firebase.initializeApp(firebaseConfig);
+    window.__db = firebase.firestore();
+  }catch(e){ console.error('Firebase init lỗi:', e); }
+
+  // Băm mật khẩu bằng SHA-256 có sẵn trong trình duyệt — không lưu mật khẩu gốc lên server.
+  async function hashPassword(pw){
+    const enc = new TextEncoder().encode(pw);
+    const buf = await crypto.subtle.digest('SHA-256', enc);
+    return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+  }
+
+  function normalizePhone(p){ return p.replace(/[^0-9]/g,''); }
+
+  async function registerAccount(name, phone, password){
+    const ref = window.__db.collection('users').doc(phone);
+    const doc = await ref.get();
+    if(doc.exists) throw new Error('Số điện thoại này đã đăng ký rồi, chọn "Đăng nhập" nhé.');
+    const hash = await hashPassword(password);
+    await ref.set({ name, passwordHash: hash, createdAt: Date.now() });
+    // Đẩy toàn bộ dữ liệu đang có trên máy này (nếu đang học thử trước khi đăng ký) lên tài khoản mới.
+    await pushAllLocalDataToCloud(phone);
+    setSession(phone, name);
+  }
+
+  async function loginAccount(phone, password){
+    const ref = window.__db.collection('users').doc(phone);
+    const doc = await ref.get();
+    if(!doc.exists) throw new Error('Số điện thoại chưa đăng ký. Chọn "Đăng ký" để tạo tài khoản mới.');
+    const hash = await hashPassword(password);
+    if(doc.data().passwordHash !== hash) throw new Error('Sai mật khẩu, thử lại nhé.');
+    await pullAllCloudDataToLocal(phone);
+    setSession(phone, doc.data().name);
+  }
+
+  function setSession(phone, name){
+    localStorage.setItem('cay_current_user', phone);
+    localStorage.setItem('cay_current_name', name);
+    updateAuthButton();
+  }
+  function logoutAccount(){
+    localStorage.removeItem('cay_current_user');
+    localStorage.removeItem('cay_current_name');
+    updateAuthButton();
+  }
+  function updateAuthButton(){
+    const name = localStorage.getItem('cay_current_name');
+    document.getElementById('auth-btn-label').textContent = name ? name : 'Đăng nhập';
+  }
+  async function pushAllLocalDataToCloud(phone){
+    const keys = Object.keys(localStorage).filter(k=>k.startsWith('cay_') && !['cay_current_user','cay_current_name'].includes(k));
+    const batch = window.__db.batch();
+    keys.forEach(k=>{
+      const shortKey = k.replace(/^cay_/,'');
+      const docRef = window.__db.collection('users').doc(phone).collection('data').doc(shortKey);
+      batch.set(docRef, { value: localStorage.getItem(k), updatedAt: Date.now() });
+    });
+    if(keys.length) await batch.commit();
+  }
+  async function pullAllCloudDataToLocal(phone){
+    const snap = await window.__db.collection('users').doc(phone).collection('data').get();
+    snap.forEach(doc=>{
+      localStorage.setItem('cay_' + doc.id, doc.data().value);
+    });
+  }
+
+  // Tự đăng nhập lại nếu trình duyệt này đã từng đăng nhập trước đó
+  updateAuthButton();
+
+  document.getElementById('auth-open-btn').addEventListener('click', ()=>{
+    const name = localStorage.getItem('cay_current_name');
+    if(name){
+      if(confirm('Đăng xuất khỏi tài khoản "'+name+'"? (Dữ liệu trên máy này vẫn còn, chỉ ngừng đồng bộ)')){
+        logoutAccount();
+      }
+      return;
+    }
+    document.getElementById('auth-modal').style.display = 'flex';
+  });
+  document.getElementById('auth-pw-toggle').addEventListener('click', ()=>{
+    const pw = document.getElementById('auth-password');
+    const btn = document.getElementById('auth-pw-toggle');
+    if(pw.type === 'password'){ pw.type = 'text'; btn.textContent = '🙈'; }
+    else { pw.type = 'password'; btn.textContent = '👁️'; }
+  });
+  document.getElementById('auth-close-btn').addEventListener('click', ()=>{
+    document.getElementById('auth-modal').style.display = 'none';
+    document.getElementById('auth-error').textContent = '';
+  });
+  let authMode = 'login';
+  document.getElementById('auth-tab-login').addEventListener('click', ()=>{
+    authMode = 'login';
+    document.getElementById('auth-tab-login').classList.add('active');
+    document.getElementById('auth-tab-register').classList.remove('active');
+    document.getElementById('auth-register-fields').style.display = 'none';
+    document.getElementById('auth-modal-title').textContent = 'Đăng nhập';
+    document.getElementById('auth-submit-btn').textContent = 'Đăng nhập';
+    document.getElementById('auth-error').textContent = '';
+  });
+  document.getElementById('auth-tab-register').addEventListener('click', ()=>{
+    authMode = 'register';
+    document.getElementById('auth-tab-register').classList.add('active');
+    document.getElementById('auth-tab-login').classList.remove('active');
+    document.getElementById('auth-register-fields').style.display = 'block';
+    document.getElementById('auth-modal-title').textContent = 'Đăng ký';
+    document.getElementById('auth-submit-btn').textContent = 'Đăng ký';
+    document.getElementById('auth-error').textContent = '';
+  });
+  document.getElementById('auth-submit-btn').addEventListener('click', async ()=>{
+    const errEl = document.getElementById('auth-error');
+    errEl.textContent = '';
+    const phone = normalizePhone(document.getElementById('auth-phone').value.trim());
+    const password = document.getElementById('auth-password').value;
+    const name = document.getElementById('auth-name').value.trim();
+    if(phone.length < 9){ errEl.textContent = 'Số điện thoại không hợp lệ.'; return; }
+    if(password.length < 4){ errEl.textContent = 'Mật khẩu cần ít nhất 4 ký tự.'; return; }
+    if(authMode === 'register' && !name){ errEl.textContent = 'Nhập họ tên nhé.'; return; }
+    const btn = document.getElementById('auth-submit-btn');
+    btn.disabled = true;
+    btn.textContent = 'Đang xử lý...';
+    try{
+      if(authMode === 'register') await registerAccount(name, phone, password);
+      else await loginAccount(phone, password);
+      document.getElementById('auth-modal').style.display = 'none';
+      location.reload(); // tải lại để mọi phần của app đọc đúng dữ liệu vừa đồng bộ
+    }catch(err){
+      errEl.textContent = err.message;
+    }
+    btn.disabled = false;
+    btn.textContent = authMode === 'register' ? 'Đăng ký' : 'Đăng nhập';
+  });
+
+  // ---- HUONG DAN NHANH (ONBOARDING) ----
+  const ONBOARD_SLIDES = [
+    { emoji:'👋', title:'Chào mừng đến với CÀY!', body:'App học tiếng Anh "kiểu cày cuốc" — luyện đủ Nghe, Nói, Đọc, Viết, Ngữ pháp, có cả trợ lý AI trò chuyện cùng. Lướt qua vài slide này để biết chỗ nào dùng để làm gì nhé!' },
+    { emoji:'🗣️', title:'BẠN ẢO — nói chuyện với AI', body:'Chọn 1 trong 6 nhân vật, gõ chữ hoặc bấm mic 🎤 để NÓI trực tiếp — AI trả lời bằng cả giọng nói lẫn chữ, sửa lỗi nhẹ nhàng. Chat thoải mái, nói gì cũng được kể cả tiếng Việt!' },
+    { emoji:'🎧', title:'NGHE / NÓI / ĐỌC / NGỮ PHÁP', body:'4 tab luyện từng kỹ năng riêng. Chán bài đang có thì bấm nút "🔄 Câu khác" / "Bài tiếp theo" — đổi liên tục không giới hạn, hoặc để AI soạn bài mới theo đúng trình độ của bạn.' },
+    { emoji:'🌱', title:'CẤP ĐỘ — càng cày càng lên trình', body:'Học đều mỗi ngày để mở khóa cấp cao hơn (Học Viên → Cao Thủ → Bậc Thầy...). Cấp càng cao, câu AI soạn ra càng dài, càng khó, giống hội thoại thật hơn.' },
+    { emoji:'🎬', title:'VIDEO & ✨ BÍ KÍP', body:'Dán link YouTube bất kỳ để luyện nghe song ngữ theo đúng nội dung video. Mục Bí kíp có mẹo học hay từ cộng đồng — bạn cũng góp mẹo của mình vào được!' },
+    { emoji:'⚙️', title:'2 nút luôn cần nhớ ở đầu trang', body:'"🔍 Tra từ nhanh" — tra bất kỳ từ nào ngay lập tức. "⚙ Giọng đọc" — đổi giọng đọc, tốc độ, âm lượng cho hợp tai bạn nhất. Giờ thì cứ thế mà cày thôi! 💪' }
+  ];
+  let onboardIdx = 0;
+  function renderOnboardSlide(){
+    const s = ONBOARD_SLIDES[onboardIdx];
+    document.getElementById('onboard-slide-content').innerHTML =
+      '<div style="text-align:center;font-size:44px;margin-bottom:8px;">'+s.emoji+'</div>'+
+      '<h3 style="text-align:center;margin:0 0 10px;">'+s.title+'</h3>'+
+      '<p style="font-size:13.5px;line-height:1.7;color:var(--ink);margin:0;">'+s.body+'</p>';
+    document.getElementById('onboard-dots').textContent = (onboardIdx+1) + '/' + ONBOARD_SLIDES.length;
+    document.getElementById('onboard-next').textContent = onboardIdx === ONBOARD_SLIDES.length-1 ? 'Bắt đầu học! 🚀' : 'Tiếp →';
+  }
+  function openOnboarding(){
+    onboardIdx = 0;
+    renderOnboardSlide();
+    document.getElementById('onboard-modal').style.display = 'flex';
+  }
+  document.getElementById('onboard-next').addEventListener('click', ()=>{
+    if(onboardIdx === ONBOARD_SLIDES.length-1){
+      document.getElementById('onboard-modal').style.display = 'none';
+      localStorage.setItem('cay_onboarding_seen', '1');
+      return;
+    }
+    onboardIdx++;
+    renderOnboardSlide();
+  });
+  document.getElementById('onboard-skip').addEventListener('click', ()=>{
+    document.getElementById('onboard-modal').style.display = 'none';
+    localStorage.setItem('cay_onboarding_seen', '1');
+  });
+  document.getElementById('help-open-btn').addEventListener('click', openOnboarding);
+  if(!localStorage.getItem('cay_onboarding_seen')){
+    setTimeout(openOnboarding, 500);
+  }
+
+  // ---- feature tips (note theo từng phần) ----
+  const FEATURE_TIPS = {
+    'sec-nghe': '💡 Bấm nút "▶ Nghe" rồi gõ từ còn thiếu vào ô trống bên dưới câu.',
+    'sec-noi': '💡 Bấm nghe mẫu, rồi bấm mic để đọc theo — app sẽ chấm điểm phát âm cho bạn.',
+    'sec-doc': '💡 Bấm 1 chủ đề bên trên để có bài đọc mới. Bấm vào từ nào chưa biết để dịch ngay tại chỗ.',
+    'sec-viet': '💡 Viết tự do bằng tiếng Anh, đừng lo sai — bạn ảo AI sẽ chữa và giải thích lỗi cho bạn.',
+    'sec-video': '💡 Xem video rồi bấm "Soạn hội thoại mẫu" để lấy từ vựng & câu hay liên quan.',
+    'sec-troly': '💡 Chọn 1 nhân vật bên dưới rồi nhắn tin/nói chuyện thoải mái — kể cả bằng tiếng Việt cũng được.',
+    'sec-capdo': '💡 Học đều mỗi ngày để lên cấp — cấp càng cao, bài học càng khó dần.',
+    'sec-ghichu': '💡 Đây là nơi lưu lại các câu/từ bạn đã bấm 💾 trong lúc học.',
+    'sec-bikip': '💡 Mẹo học hay do chính học viên CÀY chia sẻ — đọc lướt qua để có thêm động lực.',
+    'sec-gia': '💡 Xem các gói nâng cấp — không cam kết dài hạn, dùng thấy hiệu quả thì tiếp tục.',
+    'sec-phap': '💡 Mỗi lần chỉ học 1 điểm ngữ pháp nhỏ, dễ nhớ, không lý thuyết dài dòng.',
+    'sec-on': '💡 Ôn lại từ đã học để nhớ lâu hơn — đừng chỉ học từ mới rồi quên.',
+    'sec-phongnoi': '💡 Trả lời theo đúng chủ đề gợi ý — phòng sẽ tự chặn nếu bạn cố gửi số điện thoại hay link.'
+  };
+  function showFeatureTip(sectionId){
+    const sec = document.getElementById(sectionId);
+    if(!sec || !FEATURE_TIPS[sectionId]) return;
+    if(localStorage.getItem('cay_tip_seen_'+sectionId)) return;
+    if(sec.querySelector('.feature-tip')) return;
+    const tip = document.createElement('div');
+    tip.className = 'feature-tip';
+    tip.style.cssText = 'background:#FFF3D6;border:1px solid var(--amber);border-radius:10px;padding:10px 34px 10px 12px;margin:0 0 14px;font-size:13px;position:relative;line-height:1.4;';
+    tip.innerHTML = FEATURE_TIPS[sectionId] +
+      '<button aria-label="Đóng mẹo" style="position:absolute;top:6px;right:8px;background:none;border:none;font-size:15px;cursor:pointer;color:var(--muted);">✕</button>';
+    tip.querySelector('button').addEventListener('click', ()=>{
+      localStorage.setItem('cay_tip_seen_'+sectionId, '1');
+      tip.remove();
+    });
+    const hint = sec.querySelector('.shint');
+    if(hint) hint.insertAdjacentElement('afterend', tip); else sec.prepend(tip);
+  }
+  document.getElementById('help-open-btn').insertAdjacentHTML('afterend',
+    '<button class="streak" id="tips-reset-btn" style="cursor:pointer;" title="Hiện lại tất cả mẹo hướng dẫn theo từng phần">💡 Bật lại mẹo</button>');
+  document.getElementById('tips-reset-btn').addEventListener('click', ()=>{
+    Object.keys(FEATURE_TIPS).forEach(id=>localStorage.removeItem('cay_tip_seen_'+id));
+    document.querySelectorAll('.feature-tip').forEach(el=>el.remove());
+    const activeSec = document.querySelector('.page > .section.active');
+    if(activeSec) showFeatureTip(activeSec.id);
+  });
+
+  // ---- tab switching ----
+  document.querySelectorAll('.tabs > .tab').forEach(t=>{
+    t.addEventListener('click', ()=>{
+      document.querySelectorAll('.tabs > .tab').forEach(x=>x.classList.remove('active'));
+      document.querySelectorAll('.page > .section').forEach(x=>x.classList.remove('active'));
+      t.classList.add('active');
+      const secId = 'sec-'+t.dataset.tab;
+      document.getElementById(secId).classList.add('active');
+      showFeatureTip(secId);
+    });
+  });
+  showFeatureTip('sec-troly');
+
+  // ---- Flashcard ----
+  async function generateFlashcardDeck(){
+    const topicInput = document.getElementById('fc-topic-input');
+    const topic = (topicInput.value || '').trim() || 'từ vựng thông dụng';
+    const area = document.getElementById('fc-deck-area');
+    area.innerHTML = '<p style="font-size:13px;color:var(--muted);">⏳ Đang soạn bộ thẻ...</p>';
+    const audience = (progress.audience === 'hocsinh') ? 'học sinh phổ thông, ví dụ đơn giản gần gũi trường lớp' : 'người đi làm, ví dụ gần với công việc/đời sống hàng ngày';
+    const interestsText = (progress.interests && progress.interests.length) ? (' Học viên thích: ' + progress.interests.map(v=>INTEREST_VI[v]||v).join(', ') + ' — ưu tiên ví dụ liên quan các sở thích này nếu hợp chủ đề.') : '';
+    const sys = "Bạn là trợ lý soạn flashcard từ vựng tiếng Anh cho " + audience + "." + interestsText + " Chủ đề: \"" + topic + "\". Trả về ĐÚNG 8 từ/cụm từ tiếng Anh thông dụng liên quan chủ đề này. Respond ONLY with raw JSON, no markdown fences: {\"cards\":[{\"en\":\"word\",\"vi\":\"nghĩa tiếng Việt\",\"example\":\"1 câu ví dụ tiếng Anh ngắn\"}]}";
+    try{
+      const raw = await callClaude(sys, [{role:'user', content: 'Soạn bộ flashcard chủ đề: ' + topic}], 700);
+      const data = safeParseJSON(raw);
+      renderFlashcardDeck(data.cards || []);
+    }catch(e){
+      area.innerHTML = '<p style="font-size:13px;color:#B33;">Có lỗi khi soạn thẻ, thử lại nhé.</p>';
+    }
+  }
+  function renderFlashcardDeck(cards){
+    const area = document.getElementById('fc-deck-area');
+    if(!cards.length){ area.innerHTML = '<p style="font-size:13px;color:var(--muted);">Không tạo được thẻ, thử chủ đề khác nhé.</p>'; return; }
+    area.innerHTML = '';
+    cards.forEach((c, i) => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.style.cssText = 'margin-bottom:10px;cursor:pointer;text-align:center;padding:20px 16px;';
+      card.dataset.flipped = '0';
+      card.innerHTML = '<div class="fc-front" style="font-family:\'Fraunces\',serif;font-size:19px;font-weight:600;">' + c.en + '</div>' +
+        '<div class="fc-back" style="display:none;"><div style="font-size:15px;color:var(--amber);margin-bottom:6px;">' + c.vi + '</div><div style="font-size:12px;color:var(--muted);font-style:italic;">' + (c.example||'') + '</div></div>' +
+        '<div style="font-size:11px;color:var(--muted);margin-top:8px;">(bấm để lật thẻ 🔄)</div>';
+      card.addEventListener('click', () => {
+        const flipped = card.dataset.flipped === '1';
+        card.querySelector('.fc-front').style.display = flipped ? 'block' : 'none';
+        card.querySelector('.fc-back').style.display = flipped ? 'none' : 'block';
+        card.dataset.flipped = flipped ? '0' : '1';
+      });
+      area.appendChild(card);
+    });
+  }
+  document.getElementById('fc-generate-btn').addEventListener('click', generateFlashcardDeck);
+
+  // ---- VIP (chi UI, chua khoa tinh nang / chua tich hop thanh toan) ----
+  document.getElementById('vip-open-btn').addEventListener('click', ()=>{
+    document.getElementById('vip-modal').style.display = 'flex';
+  });
+  document.getElementById('vip-close-btn').addEventListener('click', ()=>{
+    document.getElementById('vip-modal').style.display = 'none';
+  });
+
+  // ---- CAI DAT GIONG DOC ----
+  let voiceSettings = { accent: 'en-US', gender: 'any', rate: 0.9, volume: 1, specificVoiceURI: '' };
+  let cachedVoices = [];
+  function loadVoices(){
+    cachedVoices = ('speechSynthesis' in window) ? speechSynthesis.getVoices() : [];
+    renderSpecificVoiceOptions();
+  }
+  if('speechSynthesis' in window){
+    loadVoices();
+    speechSynthesis.onvoiceschanged = loadVoices;
+  }
+  // Liệt kê ĐÚNG các giọng tiếng Anh có sẵn trên máy/trình duyệt của người dùng theo accent
+  // đang chọn, để họ tự chọn giọng nghe tự nhiên nhất thay vì app đoán hộ 1 giọng mặc định.
+  function renderSpecificVoiceOptions(){
+    const sel = document.getElementById('voice-specific');
+    if(!sel) return;
+    const keepVal = voiceSettings.specificVoiceURI;
+    const matching = cachedVoices.filter(v => v.lang === voiceSettings.accent);
+    const pool = matching.length ? matching : cachedVoices.filter(v => v.lang && v.lang.startsWith('en'));
+    sel.innerHTML = '<option value="">Tự động chọn giọng hay nhất máy có</option>' +
+      pool.map(v => '<option value="'+v.voiceURI+'">'+v.name+'</option>').join('');
+    if(keepVal && pool.some(v=>v.voiceURI===keepVal)) sel.value = keepVal;
+  }
+  function pickVoice(){
+    if(voiceSettings.specificVoiceURI){
+      const exact = cachedVoices.find(v => v.voiceURI === voiceSettings.specificVoiceURI);
+      if(exact) return exact;
+    }
+    const wanted = cachedVoices.filter(v => v.lang === voiceSettings.accent);
+    const pool = wanted.length ? wanted : cachedVoices.filter(v => v.lang && v.lang.startsWith('en'));
+    if(pool.length === 0) return null;
+    // Ưu tiên các giọng thường "tự nhiên" hơn trên Chrome/Android/Windows (Google, Natural, Online)
+    const naturalSounding = pool.filter(v => /google|natural|online|neural/i.test(v.name));
+    const basePool = naturalSounding.length ? naturalSounding : pool;
+    if(voiceSettings.gender === 'any') return basePool[0];
+    const genderGuess = basePool.filter(v => {
+      const n = v.name.toLowerCase();
+      if(voiceSettings.gender === 'female') return n.includes('female') || n.includes('woman') || n.includes('zira') || n.includes('samantha') || n.includes('victoria');
+      return n.includes('male') || n.includes('man') || n.includes('david') || n.includes('daniel') || n.includes('fred');
+    });
+    return genderGuess[0] || basePool[0];
+  }
+  let activeVoiceBtn = null;
+  let activeVoiceAudio = null;
+  function speak(text, onEnd, onStart){
+    if(!('speechSynthesis' in window)) return null;
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = voiceSettings.accent;
+    u.rate = voiceSettings.rate;
+    u.volume = voiceSettings.volume;
+    const v = pickVoice();
+    if(v) u.voice = v;
+    if(onEnd) u.onend = onEnd;
+    if(onStart) u.onstart = onStart;
+    speechSynthesis.cancel();
+    speechSynthesis.speak(u);
+    return u;
+  }
+
+  document.getElementById('voice-accent').addEventListener('change', e => { voiceSettings.accent = e.target.value; voiceSettings.specificVoiceURI=''; renderSpecificVoiceOptions(); });
+  document.getElementById('voice-gender').addEventListener('change', e => voiceSettings.gender = e.target.value);
+  document.getElementById('voice-rate').addEventListener('input', e => voiceSettings.rate = parseFloat(e.target.value));
+  document.getElementById('voice-volume').addEventListener('input', e => voiceSettings.volume = parseFloat(e.target.value));
+  document.getElementById('voice-specific').addEventListener('change', e => voiceSettings.specificVoiceURI = e.target.value);
+
+  // ---- BAT/TAT PANEL TRA TU & GIONG DOC ----
+  function togglePanel(panelId, otherId){
+    const panel = document.getElementById(panelId);
+    const other = document.getElementById(otherId);
+    other.classList.remove('open');
+    panel.classList.toggle('open');
+  }
+  document.getElementById('toggle-lookup').addEventListener('click', ()=> togglePanel('lookup-panel','voice-panel'));
+  document.getElementById('toggle-voice').addEventListener('click', ()=> togglePanel('voice-panel','lookup-panel'));
+  document.getElementById('voice-panel-close').addEventListener('click', ()=>{
+    document.getElementById('voice-panel').classList.remove('open');
+  });
+
+  // ---- TRA TU NHANH ----
+  document.getElementById('lookup-btn').addEventListener('click', lookupWord);
+  document.getElementById('lookup-input').addEventListener('keydown', e => { if(e.key==='Enter') lookupWord(); });
+  async function lookupWord(){
+    const text = document.getElementById('lookup-input').value.trim();
+    const resultEl = document.getElementById('lookup-result');
+    if(!text){ resultEl.textContent = 'Gõ 1 từ hoặc cụm từ trước đã.'; return; }
+    resultEl.textContent = 'Đang tra...';
+    const sys = "You are a compact Vietnamese-English dictionary. The user gives a word or phrase in English or Vietnamese. Respond ONLY with raw JSON, no markdown: {\"word\":\"<the term>\",\"translation\":\"<translation, EN->VI or VI->EN>\",\"phonetic\":\"<IPA phonetic if it's an English word, else empty string>\",\"example\":\"<one short example sentence in English>\"}";
+    try{
+      const raw = await callClaude(sys, [{role:'user', content:text}], 250);
+      const d = safeParseJSON(raw);
+      const englishText = d.phonetic ? d.word : d.translation;
+      resultEl.innerHTML = '<b>'+d.word+'</b>' + (d.phonetic ? ' <span style="color:var(--muted);">'+d.phonetic+'</span>' : '') +
+        ' <button class="mini-speak-btn" data-say="'+englishText.replace(/"/g,'&quot;')+'">🔊</button>' +
+        '<br>' + d.translation +
+        '<br><span style="color:var(--muted);font-style:italic;">'+d.example+'</span> <button class="mini-speak-btn" data-say="'+d.example.replace(/"/g,'&quot;')+'">🔊</button>';
+      resultEl.querySelectorAll('.mini-speak-btn').forEach(b=>{
+        b.addEventListener('click', ()=> speak(b.dataset.say));
+      });
+    }catch(e){
+      resultEl.textContent = 'Lỗi: ' + e.message;
+    }
+  }
+
+  // ---- CHAM PHAT AM (thu am + so sanh) ----
+  function normalizeForCompare(s){
+    return s.toLowerCase().replace(/[^a-z\s]/g,'').trim().split(/\s+/).join(' ');
+  }
+  function similarity(a, b){
+    a = normalizeForCompare(a); b = normalizeForCompare(b);
+    if(a === b) return 1;
+    const wa = a.split(' '), wb = b.split(' ');
+    let match = 0;
+    wa.forEach(w => { if(wb.includes(w)) match++; });
+    return match / Math.max(wa.length, wb.length, 1);
+  }
+  const noiRecordBtn = document.getElementById('noi-record');
+  let recognizer = null;
+  noiRecordBtn.addEventListener('click', () => {
+    const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const box = document.getElementById('pron-result-box');
+    if(!SpeechRec){
+      box.innerHTML = '<div class="pron-result bad">Trình duyệt này chưa hỗ trợ thu âm. Thử bằng Chrome trên điện thoại nhé.</div>';
+      return;
+    }
+    const target = noi_current.w;
+    recognizer = new SpeechRec();
+    recognizer.lang = voiceSettings.accent;
+    recognizer.interimResults = false;
+    noiRecordBtn.textContent = '🎙️ Đang nghe...';
+    noiRecordBtn.classList.add('recording');
+    box.innerHTML = '';
+    recognizer.onresult = (event) => {
+      const said = event.results[0][0].transcript;
+      const score = similarity(said, target);
+      let cls = 'bad', msg = 'Chưa khớp lắm — nghe mẫu lại rồi thử tiếp nhé 💪';
+      if(score >= 0.8){ cls='good'; msg = 'Phát âm tốt! 🎯'; }
+      else if(score >= 0.4){ cls='ok'; msg = 'Gần đúng rồi, luyện thêm chút nữa 👍'; }
+      box.innerHTML = '<div class="pron-result '+cls+'">Bạn nói: "'+said+'" — '+msg+'</div>';
+    };
+    recognizer.onerror = (ev) => {
+      const msg = ev.error === 'not-allowed'
+        ? 'Trình duyệt đang chặn quyền micro — bấm vào biểu tượng 🔒/ⓘ trên thanh địa chỉ, chọn cho phép Micrô rồi thử lại.'
+        : 'Không nghe rõ, thử lại nhé (kiểm tra quyền micro).';
+      box.innerHTML = '<div class="pron-result bad">'+msg+'</div>';
+    };
+    recognizer.onend = () => {
+      noiRecordBtn.textContent = '🎤 Thu âm & chấm điểm';
+      noiRecordBtn.classList.remove('recording');
+    };
+    recognizer.start();
+  });
+
+  // ---- CHAM PHAT AM CHUAN XAC HON (Azure Pronunciation Assessment) ----
+  // Azure cần audio đúng định dạng WAV PCM 16-bit, 16kHz, mono — MediaRecorder
+  // của trình duyệt mặc định ghi ra webm/opus nên KHÔNG dùng lại được, phải
+  // tự ghi âm bằng Web Audio API rồi tự đóng gói thành file WAV trong JS.
+  function recordWav16k(maxMs){
+    return new Promise(async (resolve, reject) => {
+      let stream;
+      try{ stream = await navigator.mediaDevices.getUserMedia({audio:true}); }
+      catch(e){ reject(new Error('Trình duyệt đang chặn quyền micro — cho phép Micrô rồi thử lại.')); return; }
+
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      const ctx = new AudioCtx();
+      const source = ctx.createMediaStreamSource(stream);
+      const processor = ctx.createScriptProcessor(4096, 1, 1);
+      const samples = [];
+
+      processor.onaudioprocess = (e) => {
+        samples.push(new Float32Array(e.inputBuffer.getChannelData(0)));
+      };
+      source.connect(processor);
+      processor.connect(ctx.destination);
+
+      const stop = () => {
+        processor.disconnect(); source.disconnect();
+        stream.getTracks().forEach(t => t.stop());
+        ctx.close();
+
+        // Gộp toàn bộ đoạn ghi lại thành 1 mảng liền
+        let total = 0; samples.forEach(s => total += s.length);
+        const merged = new Float32Array(total);
+        let off = 0; samples.forEach(s => { merged.set(s, off); off += s.length; });
+
+        // Hạ sample rate xuống 16000Hz (Azure yêu cầu đúng mức này)
+        const ratio = ctx.sampleRate / 16000;
+        const downLen = Math.floor(merged.length / ratio);
+        const down = new Float32Array(downLen);
+        for(let i = 0; i < downLen; i++) down[i] = merged[Math.floor(i * ratio)];
+
+        // Chuyển Float32 (-1..1) sang Int16 PCM
+        const pcm = new Int16Array(down.length);
+        for(let i = 0; i < down.length; i++){
+          const s = Math.max(-1, Math.min(1, down[i]));
+          pcm[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+        }
+
+        // Đóng gói header WAV chuẩn 44 byte
+        const buf = new ArrayBuffer(44 + pcm.length * 2);
+        const view = new DataView(buf);
+        const writeStr = (o, s) => { for(let i=0;i<s.length;i++) view.setUint8(o+i, s.charCodeAt(i)); };
+        writeStr(0, 'RIFF'); view.setUint32(4, 36 + pcm.length*2, true);
+        writeStr(8, 'WAVE'); writeStr(12, 'fmt ');
+        view.setUint32(16, 16, true); view.setUint16(20, 1, true);
+        view.setUint16(22, 1, true); view.setUint32(24, 16000, true);
+        view.setUint32(28, 16000*2, true); view.setUint16(32, 2, true); view.setUint16(34, 16, true);
+        writeStr(36, 'data'); view.setUint32(40, pcm.length*2, true);
+        let p = 44; for(let i=0;i<pcm.length;i++){ view.setInt16(p, pcm[i], true); p += 2; }
+
+        resolve(new Blob([buf], { type: 'audio/wav' }));
+      };
+      setTimeout(stop, maxMs || 4000);
+    });
+  }
+
+  function scoreClass(score){ return score >= 80 ? 'good' : score >= 60 ? 'ok' : 'bad'; }
+
+  const azureBtn = document.getElementById('noi-azure-record');
+  azureBtn.addEventListener('click', async () => {
+    const box = document.getElementById('azure-result-box');
+    box.innerHTML = '';
+    azureBtn.textContent = '🎙️ Đang ghi âm (3 giây)...';
+    azureBtn.classList.add('recording');
+    azureBtn.disabled = true;
+    try{
+      const wavBlob = await recordWav16k(3000);
+      azureBtn.textContent = '⏳ Đang chấm điểm...';
+      azureBtn.classList.remove('recording'); azureBtn.classList.add('processing');
+      const base64 = await blobToBase64(wavBlob);
+      const resp = await fetch('/api/pronounce', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ audioBase64: base64, referenceText: noi_current.w })
+      });
+      const data = await resp.json();
+      if(data.error){ box.innerHTML = '<div class="pron-result bad">'+data.error+'</div>'; }
+      else {
+        const cls = scoreClass(data.overallScore);
+        let html = '<div style="margin-top:10px;">' +
+          '<span class="azure-score-badge '+cls+'">'+Math.round(data.overallScore)+'</span> ' +
+          '<span style="font-size:12px;color:var(--muted);">Độ chính xác '+Math.round(data.accuracyScore)+'% · Trôi chảy '+Math.round(data.fluencyScore)+'%</span></div>';
+        (data.words||[]).forEach(w=>{
+          html += '<div style="margin-top:8px;font-size:12px;color:var(--muted);">'+w.word+':</div><div>';
+          (w.phonemes||[]).forEach(p=>{
+            html += '<span class="phoneme-chip '+scoreClass(p.accuracyScore)+'">'+p.phoneme+'</span>';
+          });
+          html += '</div>';
+        });
+        box.innerHTML = html;
+      }
+    }catch(e){
+      box.innerHTML = '<div class="pron-result bad">Lỗi: '+e.message+'</div>';
+    }finally{
+      azureBtn.textContent = '🎯 Chấm chuẩn xác hơn (AI)';
+      azureBtn.classList.remove('recording','processing');
+      azureBtn.disabled = false;
+    }
+  });
+
+  // ---- NGHE (listening fill-in-blank) ----
+  const nghe_data = [
+    {full:"Can you send me the receipt?", missing:"receipt", wordVi:"hóa đơn", sentence:"Can you send me the ___?", vi:"Bạn gửi cho tôi hóa đơn được không?"},
+    {full:"We offer a ten percent discount.", missing:"discount", wordVi:"giảm giá", sentence:"We offer a ten percent ___.", vi:"Chúng tôi giảm giá mười phần trăm."},
+    {full:"I need to check the deadline.", missing:"deadline", wordVi:"hạn chót", sentence:"I need to check the ___.", vi:"Tôi cần kiểm tra hạn chót."},
+    {full:"Please confirm the appointment.", missing:"appointment", wordVi:"cuộc hẹn", sentence:"Please confirm the ___.", vi:"Vui lòng xác nhận cuộc hẹn."},
+    {full:"Can I get a refund?", missing:"refund", wordVi:"hoàn tiền", sentence:"Can I get a ___?", vi:"Tôi có thể được hoàn tiền không?"},
+    {full:"The weather is really hot today.", missing:"hot", wordVi:"nóng", sentence:"The weather is really ___ today.", vi:"Hôm nay trời nóng thật đấy."},
+    {full:"My family is having dinner together.", missing:"dinner", wordVi:"bữa tối", sentence:"My family is having ___ together.", vi:"Gia đình tôi đang ăn tối cùng nhau."},
+    {full:"I usually travel by motorbike.", missing:"motorbike", wordVi:"xe máy", sentence:"I usually travel by ___.", vi:"Tôi thường đi lại bằng xe máy."},
+    {full:"She feels tired after work.", missing:"tired", wordVi:"mệt mỏi", sentence:"She feels ___ after work.", vi:"Cô ấy cảm thấy mệt sau giờ làm."},
+    {full:"We are planning a short trip.", missing:"trip", wordVi:"chuyến đi", sentence:"We are planning a short ___.", vi:"Chúng tôi đang lên kế hoạch cho một chuyến đi ngắn."},
+    {full:"This phone has a great camera.", missing:"camera", wordVi:"máy ảnh", sentence:"This phone has a great ___.", vi:"Chiếc điện thoại này có camera rất tốt."},
+    {full:"He always arrives early for meetings.", missing:"meetings", wordVi:"cuộc họp", sentence:"He always arrives early for ___.", vi:"Anh ấy luôn đến sớm các cuộc họp."},
+    {full:"I enjoy listening to music at night.", missing:"music", wordVi:"âm nhạc", sentence:"I enjoy listening to ___ at night.", vi:"Tôi thích nghe nhạc vào buổi tối."},
+    {full:"The traffic here is very heavy.", missing:"traffic", wordVi:"giao thông", sentence:"The traffic here is very ___.", vi:"Giao thông ở đây rất đông đúc."},
+    {full:"Please turn off the lights before you leave.", missing:"lights", wordVi:"đèn", sentence:"Please turn off the ___ before you leave.", vi:"Vui lòng tắt đèn trước khi ra về."}
+  ];
+  const nghe_topic_pool = ["gia đình","công việc","du lịch","sức khỏe","mua sắm","thời tiết","sở thích","công nghệ","ẩm thực","thể thao","bạn bè","tiền bạc","nhà cửa","giao thông"];
+  let nghe_used_words = [];
+  let nghe_i = 0;
+  let nghe_current = nghe_data[0];
+  function loadNghe(){
+    const d = nghe_current;
+    document.getElementById('nghe-sentence').textContent = d.sentence;
+    document.getElementById('nghe-vi').textContent = d.vi;
+    document.getElementById('nghe-input').value = '';
+    document.getElementById('nghe-feedback').textContent = '';
+  }
+  document.getElementById('nghe-play').addEventListener('click', ()=>{
+    speak(nghe_current.full);
+  });
+  document.getElementById('nghe-check').addEventListener('click', async ()=>{
+    const d = nghe_current;
+    const val = document.getElementById('nghe-input').value.trim().toLowerCase();
+    const fb = document.getElementById('nghe-feedback');
+    const wordViText = d.wordVi ? (' — "'+d.missing+'" nghĩa là "'+d.wordVi+'"') : '';
+    if(val === d.missing.toLowerCase()){
+      fb.innerHTML = 'Chính xác! 🎯' + wordViText + ' <button class="mini-speak-btn" id="nghe-fb-speak">🔊</button>';
+      fb.className = 'feedback ok';
+      showMentorToast('Chuẩn không cần chỉnh! 🎯 Mẹo nhỏ: nghe lại câu 2 lần liền sẽ nhớ lâu hơn đó.');
+    } else {
+      fb.innerHTML = 'Chưa đúng, đáp án là "'+d.missing+'"' + wordViText + ' <button class="mini-speak-btn" id="nghe-fb-speak">🔊</button>';
+      fb.className = 'feedback bad';
+      showMentorToast('Chưa đúng, không sao cả — nghe lại xem tai bắt được từ nào nhé 👂');
+    }
+    const speakBtn = document.getElementById('nghe-fb-speak');
+    if(speakBtn) speakBtn.addEventListener('click', ()=> speak(d.missing));
+    // Tự gom từ vừa gặp vào Ôn tập luôn (dù đúng hay sai), khỏi cần bấm thêm bước nào khác
+    if(d.wordVi && !noi_learned.some(x=>x.w===d.missing)){
+      noi_learned.push({w:d.missing, p:'', vi:d.wordVi});
+      progress.learnedWords = noi_learned;
+      await saveProgress(progress);
+      renderReview();
+    }
+    bumpActionCount();
+  });
+  document.getElementById('nghe-next').addEventListener('click', ()=>{
+    nghe_i++;
+    nghe_current = nghe_data[nghe_i % nghe_data.length];
+    loadNghe();
+  });
+  document.getElementById('nghe-ai-new').addEventListener('click', async ()=>{
+    const btn = document.getElementById('nghe-ai-new');
+    btn.disabled = true;
+    document.getElementById('nghe-sentence').textContent = 'Đang soạn câu mới...';
+    const lv = currentLevelInfo();
+    const topic = nghe_topic_pool[Math.floor(Math.random()*nghe_topic_pool.length)];
+    const avoidList = nghe_used_words.slice(-12).join(', ') || 'không có';
+    const sys = "Write ONE short everyday English sentence for a Vietnamese learner at level " + lv.name + " (" + lv.desc + "), on the topic of " + topic + ". Feel free to occasionally use natural, casual spoken-style phrasing (contractions like I'm/that's/gonna, natural expressions) like real conversation or movie dialogue — it doesn't always need to be textbook-perfect grammar. Pick one common word in the sentence to blank out. IMPORTANT: do NOT reuse or closely resemble these already-used blanked words/themes: " + avoidList + " — pick a genuinely different word this time. Respond ONLY with raw JSON: {\"full\":\"<full sentence>\",\"missing\":\"<the blanked word, exactly as in full, lowercase>\",\"word_vi\":\"<short Vietnamese meaning of just the blanked word>\",\"vi\":\"<Vietnamese translation of the full sentence>\"}.";
+    try{
+      const raw = await callClaude(sys, [{role:'user', content:'Cho câu mới.'}], 400);
+      const d = safeParseJSON(raw);
+      const sentence = d.full.replace(new RegExp('\\b'+d.missing+'\\b','i'), '___');
+      nghe_current = { full:d.full, missing:d.missing.toLowerCase(), wordVi:d.word_vi, sentence:sentence, vi:d.vi };
+      nghe_used_words.push(d.missing.toLowerCase());
+      loadNghe();
+    }catch(err){
+      document.getElementById('nghe-sentence').textContent = 'Lỗi tạo câu, thử lại nhé.';
+    }
+    btn.disabled = false;
+  });
+  loadNghe();
+
+  // ---- NOI (speaking) ----
+  const noi_data = [
+    {w:"delivery", p:"/dɪˈlɪvəri/", vi:"giao hàng", icon:"📦", tip:"Âm 'r' trong tiếng Anh KHÔNG đọc thành 'z' như người Việt hay quen — cong nhẹ đầu lưỡi lên, không chạm vòm miệng, rồi bật hơi ra. Trọng âm rơi vào 'li' (de-LI-ve-ry)."},
+    {w:"receipt", p:"/rɪˈsiːt/", vi:"hóa đơn", icon:"🧾", tip:"Chú ý chữ 'p' bị CÂM, không đọc âm /p/ nào cả. Âm cuối 't' bật nhẹ, đừng nuốt mất như thói quen tiếng Việt hay bỏ phụ âm cuối."},
+    {w:"discount", p:"/ˈdɪskaʊnt/", vi:"giảm giá", icon:"🏷️", tip:"Âm cuối 't' phải bật hơi rõ, không được nuốt âm cuối như khi nói tiếng Việt. Trọng âm rơi vào âm đầu 'DIS'."},
+    {w:"refund", p:"/ˈriːfʌnd/", vi:"hoàn tiền", icon:"💸", tip:"Âm 'f' cắn nhẹ môi dưới vào răng trên rồi đẩy hơi ra, không phát âm như 'ph' tiếng Việt bình thường. Âm cuối 'd' bật nhẹ, đừng bỏ qua."},
+    {w:"appointment", p:"/əˈpɔɪntmənt/", vi:"cuộc hẹn", icon:"📅", tip:"Âm cuối 't' phải bật hơi, không nuốt như tiếng Việt. Trọng âm rơi vào 'POINT' ở giữa từ."},
+    {w:"deadline", p:"/ˈdedlaɪn/", vi:"hạn chót", icon:"⏰", tip:"Âm cuối 'n' đưa lưỡi chạm nhẹ vòm miệng trên, giữ hơi mũi — khác hẳn cách bỏ lửng phụ âm cuối trong tiếng Việt."}
+  ];
+  let noi_current = noi_data[0];
+  let noi_i = 0;
+  let noi_learned = []; // array of {w,p,vi}
+  const noi_used_words = [];
+  function loadNoi(){
+    document.getElementById('noi-icon').textContent = noi_current.icon || '🔤';
+    document.getElementById('noi-word').textContent = noi_current.w;
+    document.getElementById('noi-phon').textContent = noi_current.p;
+    document.getElementById('noi-vi').textContent = noi_current.vi;
+    document.getElementById('noi-tip-box').textContent = noi_current.tip ? ('👄 ' + noi_current.tip) : '';
+    document.getElementById('noi-tip-box').style.display = noi_current.tip ? 'block' : 'none';
+  }
+  document.getElementById('noi-play').addEventListener('click', ()=>{
+    speak(noi_current.w);
+  });
+  document.getElementById('noi-done').addEventListener('click', async ()=>{
+    if(!noi_learned.some(x=>x.w===noi_current.w)){
+      noi_learned.push(noi_current);
+    }
+    document.getElementById('noi-count').textContent = noi_learned.length+' từ';
+    progress.learnedWords = noi_learned;
+    await saveProgress(progress);
+    renderReview();
+    showMentorToast('Đã luyện xong từ này! Mẹo: lặp lại to 3 lần liền để in vào phản xạ miệng 🗣️');
+    bumpActionCount();
+  });
+  document.getElementById('noi-next').addEventListener('click', ()=>{
+    noi_i++;
+    noi_current = noi_data[noi_i % noi_data.length];
+    loadNoi();
+  });
+  document.getElementById('noi-ai-new').addEventListener('click', async ()=>{
+    const btn = document.getElementById('noi-ai-new');
+    btn.disabled = true;
+    document.getElementById('noi-icon').textContent = '⏳';
+    document.getElementById('noi-word').textContent = '...';
+    document.getElementById('noi-phon').textContent = '';
+    document.getElementById('noi-vi').textContent = 'Đang soạn từ mới...';
+    const lv = currentLevelInfo();
+    const topic = nghe_topic_pool[Math.floor(Math.random()*nghe_topic_pool.length)];
+    const avoidList = noi_used_words.slice(-15).join(', ') || 'không có';
+    const sys = "Give ONE useful, common everyday English word or short phrase for a Vietnamese learner at level " + lv.name + " (" + lv.desc + "), themed around " + topic + ". IMPORTANT: do NOT repeat or resemble any of these already-given words: " + avoidList + " — must be genuinely different. Also give ONE short, practical pronunciation tip IN VIETNAMESE aimed specifically at common mistakes Vietnamese speakers make with this word (e.g. dropping final consonants, confusing 'r' with 'z', not distinguishing 'th', mixing up 'l'/'n', not aspirating certain sounds) — mention concrete mouth/tongue positioning (uốn lưỡi, mở họng, bật hơi...). Also give ONE single emoji that visually represents this word's meaning, to help the learner remember it (pick the closest sensible emoji, e.g. receipt -> 🧾). Respond ONLY with raw JSON: {\"w\":\"<the word/phrase>\",\"p\":\"<IPA phonetic>\",\"vi\":\"<Vietnamese meaning>\",\"tip\":\"<the Vietnamese pronunciation tip>\",\"icon\":\"<one emoji>\"}.";
+    try{
+      const raw = await callClaude(sys, [{role:'user', content:'Cho từ mới.'}], 350);
+      const d = safeParseJSON(raw);
+      noi_current = d;
+      noi_used_words.push(d.w.toLowerCase());
+      loadNoi();
+    }catch(err){
+      document.getElementById('noi-vi').textContent = 'Lỗi tạo từ, thử lại nhé.';
+    }
+    btn.disabled = false;
+  });
+  loadNoi();
+
+  // ---- DOC (reading quiz) ----
+  document.querySelectorAll('.quiz-opt').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const q = btn.dataset.q;
+      document.querySelectorAll('.quiz-opt[data-q="'+q+'"]').forEach(b=>{
+        b.classList.remove('correct','wrong');
+        b.disabled = true;
+        if(b.dataset.correct === 'true') b.classList.add('correct');
+        else if(b === btn) b.classList.add('wrong');
+      });
+    });
+  });
+
+  // ---- NGU PHAP (3 cap do, nhieu bai moi cap) ----
+  const phap_data = {
+    de: [
+      { title: "Nói chuyện hằng ngày: thì hiện tại đơn",
+        explain: "Dùng khi nói sự thật hoặc việc lặp lại mỗi ngày. Nhớ đúng 1 điều: chủ ngữ là he/she/it thì thêm 's' vào động từ.",
+        example: "I check the site every morning. → He checks the site every morning.",
+        exampleVi: "Tôi kiểm tra công trường mỗi sáng. → Anh ấy kiểm tra công trường mỗi sáng.",
+        qtext: "Câu nào đúng?",
+        options: ["She check the report. (Cô ấy kiểm tra báo cáo.)", "She checks the report. (Cô ấy kiểm tra báo cáo.)", "She checking the report. (Cô ấy kiểm tra báo cáo.)"], correct: 1 },
+      { title: "Số nhiều của danh từ",
+        explain: "Đa số danh từ thêm 's' để thành số nhiều. Một số từ đặc biệt đổi hẳn dạng, ví dụ: child → children, man → men.",
+        example: "I have two children and one car.",
+        exampleVi: "Tôi có hai đứa con và một chiếc xe.",
+        qtext: "Câu nào đúng?",
+        options: ["I have three childs. (Tôi có ba đứa con.)", "I have three children. (Tôi có ba đứa con.)", "I have three childrens. (Tôi có ba đứa con.)"], correct: 1 },
+      { title: "Giới từ chỉ thời gian: in / on / at",
+        explain: "'at' cho giờ cụ thể, 'on' cho ngày/thứ, 'in' cho tháng/năm/buổi. Mẹo nhớ: nhỏ dùng at, vừa dùng on, to dùng in.",
+        example: "The meeting is at 9 AM on Monday in July.",
+        exampleVi: "Cuộc họp lúc 9 giờ sáng thứ Hai trong tháng Bảy.",
+        qtext: "Câu nào đúng?",
+        options: ["See you in Monday. (Hẹn gặp bạn thứ Hai.)", "See you on Monday. (Hẹn gặp bạn thứ Hai.)", "See you at Monday. (Hẹn gặp bạn thứ Hai.)"], correct: 1 },
+      { title: "Tính từ sở hữu: my / your / his / her",
+        explain: "Đứng trước danh từ để chỉ 'của ai' — không chia số ít/nhiều theo danh từ đi sau.",
+        example: "This is my phone. Her phone is over there.",
+        exampleVi: "Đây là điện thoại của tôi. Điện thoại của cô ấy ở đằng kia.",
+        qtext: "Câu nào đúng?",
+        options: ["This is he phone. (Đây là điện thoại của anh ấy.)", "This is his phone. (Đây là điện thoại của anh ấy.)", "This is him phone. (Đây là điện thoại của anh ấy.)"], correct: 1 },
+      { title: "Câu hỏi Yes/No cơ bản",
+        explain: "Với động từ thường ở hiện tại: Do/Does + chủ ngữ + động từ nguyên mẫu?",
+        example: "Does she work on Sundays? — Yes, she does.",
+        exampleVi: "Cô ấy có làm việc vào Chủ nhật không? — Có.",
+        qtext: "Câu nào đúng?",
+        options: ["Does he works today? (Hôm nay anh ấy có làm việc không?)", "Does he work today? (Hôm nay anh ấy có làm việc không?)", "Do he work today? (Hôm nay anh ấy có làm việc không?)"], correct: 1 }
+    ],
+    vua: [
+      { title: "Đang làm gì: thì hiện tại tiếp diễn",
+        explain: "Dùng khi việc đang diễn ra ngay lúc nói. Công thức nhỏ gọn: am/is/are + Ving.",
+        example: "I am writing the report now.",
+        exampleVi: "Tôi đang viết báo cáo ngay bây giờ.",
+        qtext: "Câu nào đúng?",
+        options: ["He is work now. (Anh ấy đang làm việc.)", "He working now. (Anh ấy đang làm việc.)", "He is working now. (Anh ấy đang làm việc.)"], correct: 2 },
+      { title: "Chuyện đã xảy ra: thì quá khứ đơn",
+        explain: "Dùng khi việc đã xong trong quá khứ. Động từ có quy tắc thêm 'ed'; động từ bất quy tắc phải nhớ dạng riêng (go → went).",
+        example: "I went to the market yesterday.",
+        exampleVi: "Hôm qua tôi đã đi chợ.",
+        qtext: "Câu nào đúng?",
+        options: ["I goed to the market. (Tôi đã đi chợ.)", "I went to the market. (Tôi đã đi chợ.)", "I go to the market yesterday. (Tôi đã đi chợ.)"], correct: 1 },
+      { title: "So sánh hơn",
+        explain: "Tính từ ngắn: thêm '-er'. Tính từ dài: thêm 'more' phía trước. Nhớ thêm 'than' sau khi so sánh.",
+        example: "This phone is more expensive than that one.",
+        exampleVi: "Điện thoại này đắt hơn cái kia.",
+        qtext: "Câu nào đúng?",
+        options: ["This is more good than that. (Cái này tốt hơn cái kia.)", "This is gooder than that. (Cái này tốt hơn cái kia.)", "This is better than that. (Cái này tốt hơn cái kia.)"], correct: 2 },
+      { title: "Động từ khuyết thiếu: can / should",
+        explain: "'can' diễn tả khả năng/được phép, 'should' diễn tả lời khuyên. Theo sau luôn là động từ nguyên mẫu, không chia.",
+        example: "You should rest more. You can call me anytime.",
+        exampleVi: "Bạn nên nghỉ ngơi nhiều hơn. Bạn có thể gọi tôi bất cứ lúc nào.",
+        qtext: "Câu nào đúng?",
+        options: ["You should to rest. (Bạn nên nghỉ ngơi.)", "You should rest. (Bạn nên nghỉ ngơi.)", "You should resting. (Bạn nên nghỉ ngơi.)"], correct: 1 },
+      { title: "Sắp làm gì: tương lai gần 'going to'",
+        explain: "Dùng cho kế hoạch đã định trước. Công thức: am/is/are + going to + động từ nguyên mẫu.",
+        example: "We are going to open a new shop next month.",
+        exampleVi: "Tháng sau chúng tôi sắp mở một cửa hàng mới.",
+        qtext: "Câu nào đúng?",
+        options: ["She is going open a shop. (Cô ấy sắp mở một cửa hàng.)", "She is going to open a shop. (Cô ấy sắp mở một cửa hàng.)", "She going to open a shop. (Cô ấy sắp mở một cửa hàng.)"], correct: 1 }
+    ],
+    kho: [
+      { title: "Nếu... thì...: câu điều kiện loại 1",
+        explain: "Dùng khi nói về việc có thể xảy ra trong tương lai. Công thức: If + hiện tại đơn, ... will + động từ.",
+        example: "If it rains, we will stop the work.",
+        exampleVi: "Nếu trời mưa, chúng tôi sẽ dừng công việc.",
+        qtext: "Câu nào đúng?",
+        options: ["If it rain, we will stop. (Nếu trời mưa, chúng tôi sẽ dừng.)", "If it rains, we will stop. (Nếu trời mưa, chúng tôi sẽ dừng.)", "If it will rain, we stop. (Nếu trời mưa, chúng tôi dừng.)"], correct: 1 },
+      { title: "Câu bị động cơ bản",
+        explain: "Dùng khi muốn nhấn mạnh vào đối tượng bị tác động thay vì người làm. Công thức: is/are/was/were + Vpp (quá khứ phân từ).",
+        example: "The report was sent by Minh yesterday.",
+        exampleVi: "Báo cáo đã được Minh gửi hôm qua.",
+        qtext: "Câu nào đúng?",
+        options: ["The report was send yesterday. (Báo cáo đã được gửi hôm qua.)", "The report was sent yesterday. (Báo cáo đã được gửi hôm qua.)", "The report sent yesterday. (Báo cáo đã được gửi hôm qua.)"], correct: 1 },
+      { title: "Mệnh đề quan hệ: who / which",
+        explain: "'who' dùng cho người, 'which' dùng cho vật, để nối thêm thông tin mô tả cho danh từ đứng trước.",
+        example: "The man who called you is my colleague.",
+        exampleVi: "Người đàn ông đã gọi cho bạn là đồng nghiệp của tôi.",
+        qtext: "Câu nào đúng?",
+        options: ["The car which I bought is red. (Chiếc xe tôi mua màu đỏ.)", "The car who I bought is red. (Chiếc xe tôi mua màu đỏ.)", "The car whom I bought is red. (Chiếc xe tôi mua màu đỏ.)"], correct: 0 },
+      { title: "Nếu... (nhưng không có thật): câu điều kiện loại 2",
+        explain: "Dùng để nói về một điều KHÔNG có thật ở hiện tại, kiểu giả định. Công thức: If + quá khứ đơn, ... would + động từ.",
+        example: "If I had more time, I would learn English every day.",
+        exampleVi: "Nếu tôi có nhiều thời gian hơn, tôi sẽ học tiếng Anh mỗi ngày.",
+        qtext: "Câu nào đúng?",
+        options: ["If I have more money, I would travel. (Nếu tôi có nhiều tiền hơn, tôi sẽ đi du lịch.)", "If I had more money, I would travel. (Nếu tôi có nhiều tiền hơn, tôi sẽ đi du lịch.)", "If I had more money, I will travel. (Nếu tôi có nhiều tiền hơn, tôi sẽ đi du lịch.)"], correct: 1 },
+      { title: "Việc đã làm, còn ảnh hưởng đến hiện tại: hiện tại hoàn thành",
+        explain: "Dùng khi việc xảy ra trong quá khứ nhưng vẫn còn liên quan tới hiện tại. Công thức: have/has + Vpp.",
+        example: "I have already finished the report.",
+        exampleVi: "Tôi đã hoàn thành báo cáo rồi (và giờ đã xong).",
+        qtext: "Câu nào đúng?",
+        options: ["She has finish her work. (Cô ấy đã hoàn thành công việc.)", "She has finished her work. (Cô ấy đã hoàn thành công việc.)", "She have finished her work. (Cô ấy đã hoàn thành công việc.)"], correct: 1 }
+    ]
+  };
+  let phap_lvl = 'de';
+  let phap_i = 0;
+  function loadPhap(lvl, idx){
+    phap_lvl = lvl;
+    phap_i = idx || 0;
+    const list = phap_data[lvl];
+    if(phap_i >= list.length) phap_i = 0;
+    const d = list[phap_i];
+    document.getElementById('phap-progress').textContent = 'Bài ' + (phap_i+1) + '/' + list.length;
+    document.getElementById('phap-title').textContent = d.title;
+    document.getElementById('phap-explain').textContent = d.explain;
+    document.getElementById('phap-example').textContent = d.example;
+    document.getElementById('phap-example-vi').textContent = d.exampleVi;
+    document.getElementById('phap-qtext').textContent = d.qtext;
+    const optWrap = document.getElementById('phap-options');
+    optWrap.innerHTML = '';
+    d.options.forEach((opt, idx2)=>{
+      const btn = document.createElement('button');
+      btn.className = 'quiz-opt';
+      btn.textContent = opt;
+      btn.addEventListener('click', async ()=>{
+        optWrap.querySelectorAll('.quiz-opt').forEach((b,i)=>{
+          b.disabled = true;
+          if(i === d.correct) b.classList.add('correct');
+          else if(b === btn) b.classList.add('wrong');
+        });
+        if(idx2 === d.correct){
+          showMentorToast('Chuẩn! Công thức nhớ nhanh: ' + d.explain);
+          if(!progress.remindersToReview.some(r=>r.title===d.title)){
+            progress.remindersToReview.push({type:'grammar', title:d.title, note:d.explain});
+            await saveProgress(progress);
+            renderReview();
+          }
+        } else {
+          showMentorToast('Chưa đúng, đọc lại phần giải thích ở trên rồi thử lại nhé 💪');
+        }
+        bumpActionCount();
+      });
+      optWrap.appendChild(btn);
+    });
+  }
+  document.querySelectorAll('.lvl').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      document.querySelectorAll('.lvl').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      loadPhap(b.dataset.lvl, 0);
+    });
+  });
+  document.getElementById('phap-next').addEventListener('click', ()=>{
+    loadPhap(phap_lvl, phap_i + 1);
+  });
+  loadPhap('de', 0);
+
+  // ---- LUU TIEN TRINH (window.storage) ----
+  async function loadProgress(){
+    try{
+      const res = await storage.get('progress');
+      return JSON.parse(res.value);
+    }catch(e){
+      return {streak:0, lastActive:null, learnedWords:[], placementDone:false, contentIndex:{}, remindersToReview:[]};
+    }
+  }
+  async function saveProgress(p){
+    try{ await storage.set('progress', JSON.stringify(p)); }catch(e){}
+  }
+  function todayStr(){ return new Date().toISOString().slice(0,10); }
+  function yesterdayStr(){
+    const d = new Date(); d.setDate(d.getDate()-1);
+    return d.toISOString().slice(0,10);
+  }
+
+  let progress = {streak:0, lastActive:null, learnedWords:[], placementDone:false, audience:null};
+
+  async function initApp(){
+    progress = await loadProgress();
+    const today = todayStr();
+    const isNewDay = progress.lastActive !== today;
+    if(progress.lastActive === today){
+      // same day, keep streak
+    } else if(progress.lastActive === yesterdayStr()){
+      progress.streak += 1;
+    } else {
+      progress.streak = 1;
+    }
+    progress.lastActive = today;
+    if(!progress.learnedWords) progress.learnedWords = [];
+    if(!progress.contentIndex) progress.contentIndex = {};
+    if(!progress.remindersToReview) progress.remindersToReview = [];
+    if(!progress.interests) progress.interests = [];
+    if(!progress.focus) progress.focus = 'ai';
+    if(progress.onboardDone === undefined){
+      // Tương thích ngược: user cũ đã từng chọn "Đối tượng" thì coi như đã
+      // hoàn tất onboarding, không bắt họ làm lại quiz cá nhân hoá mới.
+      progress.onboardDone = !!progress.audience;
+    }
+    // tuong thich nguoc: ban cu luu index so, ban moi luu object {w,p,vi}
+    noi_learned = progress.learnedWords.map(item =>
+      typeof item === 'number' ? noi_data[item % noi_data.length] : item
+    ).filter(Boolean);
+    progress.learnedWords = noi_learned;
+    // Chụp lại danh sách từ đã có TRƯỚC khi mở app lần này — dùng để phân biệt
+    // "bài cũ" (đã học từ trước) và "bài mới" (học trong chính buổi đang mở) cho
+    // 2 nút Kiểm tra đầu giờ / cuối giờ ở tab ÔN TẬP.
+    sessionBaselineWords = noi_learned.map(w => w.w);
+
+    // Quay lại vào một ngày MỚI (không phải mở lại trong cùng ngày) → tự động nhảy sang
+    // câu/bài/từ khác thay vì luôn bắt đầu lại từ đầu, đỡ nhàm cho học viên.
+    if(isNewDay){
+      const ci = progress.contentIndex;
+      ci.nghe = ((ci.nghe||0) + 1 + Math.floor(Math.random()*2)) % nghe_data.length;
+      ci.noi = ((ci.noi||0) + 1 + Math.floor(Math.random()*2)) % noi_data.length;
+      ci.phap_de = ((ci.phap_de||0) + 1) % phap_data.de.length;
+      ci.phap_vua = ((ci.phap_vua||0) + 1) % phap_data.vua.length;
+      ci.phap_kho = ((ci.phap_kho||0) + 1) % phap_data.kho.length;
+    }
+    // Riêng phần Viết: đổi đề bài mỗi lần MỞ LẠI APP (không cần đợi qua ngày mới),
+    // vì đây là bài tập ngắn, đổi liên tục giúp đỡ nhàm hơn.
+    progress.contentIndex.viet = ((progress.contentIndex.viet||0) + 1) % viet_prompts.length;
+    nghe_i = progress.contentIndex.nghe || 0;
+    nghe_current = nghe_data[nghe_i];
+    loadNghe();
+    noi_i = progress.contentIndex.noi || 0;
+    noi_current = noi_data[noi_i];
+    loadNoi();
+    viet_i = progress.contentIndex.viet || 0;
+    loadVietPrompt();
+    loadPhap('de', progress.contentIndex.phap_de || 0);
+
+    await saveProgress(progress);
+    document.getElementById('streakText').textContent = 'Ngày cày thứ ' + progress.streak;
+    document.getElementById('noi-count').textContent = noi_learned.length+' từ';
+
+    renderReview();
+    wrapAllDocLines();
+    renderNotes();
+    renderLevels();
+
+    renderCharGrid();
+    updateChatUsageBadge();
+    chatMessages = await loadChatHistory();
+    renderChatHistory();
+
+    if(!progress.placementDone){
+      document.getElementById('placement-modal').style.display = 'flex';
+      loadPlacementQ();
+    }
+  }
+
+  // ---- BAI XEP LOAI ----
+  const pm_questions = [
+    {q:"Chọn câu đúng:", opts:["She go to work.", "She goes to work.", "She going to work."], correct:1},
+    {q:"Chọn câu đúng:", opts:["I am work now.", "I working now.", "I am working now."], correct:2},
+    {q:"'Deadline' nghĩa là gì?", opts:["Giảm giá", "Hạn chót", "Hóa đơn"], correct:1},
+    {q:"Chọn câu đúng:", opts:["If it rains, we will stop.", "If it rain, we stop.", "If it will rain, we stop."], correct:0},
+    {q:"Chọn câu dịch đúng cho 'Can I get a refund?'", opts:["Tôi có thể đặt hẹn không?", "Tôi có thể được hoàn tiền không?", "Tôi có thể giảm giá không?"], correct:1}
+  ];
+  let pm_i = 0;
+  let pm_score = 0;
+  function loadPlacementQ(){
+    const q = pm_questions[pm_i];
+    document.getElementById('pm-progress').textContent = 'Câu '+(pm_i+1)+'/5';
+    document.getElementById('pm-question').textContent = q.q;
+    const wrap = document.getElementById('pm-options');
+    wrap.innerHTML = '';
+    q.opts.forEach((opt, idx)=>{
+      const btn = document.createElement('button');
+      btn.className = 'quiz-opt';
+      btn.textContent = opt;
+      btn.addEventListener('click', ()=>{
+        if(idx === q.correct) pm_score++;
+        pm_i++;
+        if(pm_i < pm_questions.length){
+          loadPlacementQ();
+        }else{
+          finishPlacement();
+        }
+      });
+      wrap.appendChild(btn);
+    });
+  }
+  document.getElementById('pm-skip').addEventListener('click', async ()=>{
+    progress.placementDone = true;
+    await saveProgress(progress);
+    document.getElementById('placement-modal').style.display = 'none';
+    if(!progress.onboardDone) window.openPersonalizeModal();
+  });
+  async function finishPlacement(){
+    document.getElementById('placement-quiz').style.display = 'none';
+    document.getElementById('placement-result').style.display = 'block';
+    let level, text;
+    if(pm_score <= 1){
+      level = 'Mới bắt đầu';
+      text = 'Trình độ: Mới bắt đầu. Anh nên khởi động từ tab NGHE và NÓI trước, ngữ pháp để mức Dễ.';
+    } else if(pm_score <= 3){
+      level = 'Trung bình';
+      text = 'Trình độ: Trung bình. Anh có thể học đều cả 4 kỹ năng, thử ngữ pháp mức Vừa.';
+    } else {
+      level = 'Khá';
+      text = 'Trình độ: Khá. Anh có thể vào thẳng NGỮ PHÁP mức Khó và luyện TRỢ LÝ trò chuyện tự do.';
+    }
+    document.getElementById('pm-result-text').textContent = text;
+    progress.placementDone = true;
+    progress.placementLevel = level;
+    await saveProgress(progress);
+  }
+  document.getElementById('pm-start').addEventListener('click', ()=>{
+    document.getElementById('placement-modal').style.display = 'none';
+    if(!progress.onboardDone) window.openPersonalizeModal();
+  });
+
+  // ---- ON TAP (flashcard tu da hoc) ----
+  let review_i = 0;
+  function renderReview(){
+    const area = document.getElementById('review-area');
+    const nextBtn = document.getElementById('review-next');
+    if(noi_learned.length === 0){
+      area.innerHTML = '<p class="review-empty">Chưa có từ nào để ôn — sang tab NÓI học vài từ trước đã nhé.</p>';
+      nextBtn.style.display = 'none';
+    } else {
+      nextBtn.style.display = 'inline-block';
+      showReviewCard();
+    }
+    renderReminders();
+  }
+  function renderReminders(){
+    const box = document.getElementById('reminders-area');
+    if(!box) return;
+    const list = progress.remindersToReview || [];
+    if(list.length === 0){
+      box.innerHTML = '<p class="review-empty">Chưa có mẹo nào — cứ học tự nhiên, cái gì đáng nhớ sẽ tự xuất hiện ở đây.</p>';
+      return;
+    }
+    box.innerHTML = list.slice().reverse().map(r=>
+      '<div class="card" style="padding:12px 14px;margin-bottom:8px;"><p style="font-size:12px;color:var(--muted);margin:0 0 4px;">'+(r.type==='grammar'?'📘 '+r.title:'🗣️ '+r.title)+'</p><p style="font-size:13px;margin:0;">'+r.note+'</p></div>'
+    ).join('');
+  }
+  function showReviewCard(){
+    if(review_i >= noi_learned.length) review_i = 0;
+    const word = noi_learned[review_i];
+    const area = document.getElementById('review-area');
+    const tipHtml = word.tip ? '<div style="font-size:12px;color:var(--muted);margin-top:8px;line-height:1.5;">👄 '+word.tip+'</div>' : '';
+    area.innerHTML = '<div class="flashcard"><div class="fw">'+(word.icon ? word.icon+' ' : '')+word.w+'</div><div class="fv" style="display:none;" id="review-vi">'+word.vi+' — '+word.p+tipHtml+'</div><button class="btn small" id="review-flip" style="align-self:center;margin-top:6px;">Xem nghĩa</button></div>';
+    document.getElementById('review-flip').addEventListener('click', ()=>{
+      document.getElementById('review-vi').style.display = 'block';
+      speak(word.w);
+    });
+  }
+  document.getElementById('review-next').addEventListener('click', ()=>{
+    review_i++;
+    showReviewCard();
+  });
+
+  // ---- KIEM TRA DAU GIO / CUOI GIO ----
+  // Tự sinh trắc nghiệm từ chính kho từ đã học (không gọi AI, nhanh và miễn phí).
+  // "old" = từ đã học TRƯỚC buổi hôm nay (sessionBaselineWords).
+  // "new" = từ mới học TRONG buổi đang mở (có trong noi_learned nhưng không có trong baseline).
+  let sessionBaselineWords = [];
+  let test_current = null;
+
+  function shuffleArr(arr){ return arr.slice().sort(()=>Math.random()-0.5); }
+
+  function buildQuizList(pool){
+    return shuffleArr(pool).slice(0,5).map(item=>{
+      const distractors = shuffleArr(noi_learned.filter(x=>x.w!==item.w && x.vi)).slice(0,3).map(x=>x.vi);
+      const options = shuffleArr(distractors.concat([item.vi]));
+      return { word:item.w, phon:item.p, correctVi:item.vi, options, correctIdx: options.indexOf(item.vi) };
+    });
+  }
+
+  function renderTest(type){
+    const area = document.getElementById('test-area');
+    const pool = type === 'old'
+      ? noi_learned.filter(w => sessionBaselineWords.includes(w.w) && w.vi)
+      : noi_learned.filter(w => !sessionBaselineWords.includes(w.w) && w.vi);
+    if(pool.length < 4){
+      area.innerHTML = '<p class="review-empty">' + (type==='old'
+        ? 'Chưa đủ từ bài cũ để kiểm tra — học thêm vài buổi nữa rồi quay lại nhé.'
+        : 'Chưa học từ mới nào trong buổi này — sang tab NÓI hoặc NGHE học vài từ rồi quay lại kiểm tra cuối giờ nhé.') + '</p>';
+      return;
+    }
+    test_current = { type, list: buildQuizList(pool), i:0, correctCount:0 };
+    showTestQuestion();
+  }
+
+  function showTestQuestion(){
+    const area = document.getElementById('test-area');
+    const t = test_current;
+    if(t.i >= t.list.length){
+      const pct = Math.round(t.correctCount / t.list.length * 100);
+      const msg = pct>=80 ? 'Xuất sắc! Nhớ tốt lắm 🎯' : pct>=50 ? 'Khá ổn, ôn thêm vài từ nhé 💪' : 'Cần ôn lại kỹ hơn, đừng nản — luyện thêm sẽ nhớ 👍';
+      area.innerHTML = '<div class="card"><p style="font-weight:600;margin:0 0 6px;">Kết quả: '+t.correctCount+'/'+t.list.length+' câu đúng ('+pct+'%)</p><p style="font-size:13px;color:var(--muted);margin:0;">'+msg+'</p></div>';
+      showMentorToast(t.type==='old' ? 'Đã kiểm tra xong bài cũ, sẵn sàng học bài mới rồi 🚀' : 'Đã kiểm tra xong bài mới hôm nay, tốt lắm! 🎉');
+      bumpActionCount();
+      return;
+    }
+    const q = t.list[t.i];
+    let html = '<div class="card"><p class="counter" style="margin:0 0 8px;">Câu '+(t.i+1)+'/'+t.list.length+' — '+(t.type==='old'?'Bài cũ':'Bài mới')+'</p>';
+    html += '<p style="font-weight:600;font-size:17px;margin:0 0 4px;">'+q.word+'</p>';
+    if(q.phon) html += '<p style="color:var(--muted);font-size:13px;margin:0 0 10px;">'+q.phon+'</p>';
+    html += '<p style="font-size:13px;margin:0 0 10px;">Từ này nghĩa là gì?</p><div id="test-opts"></div></div>';
+    area.innerHTML = html;
+    const optWrap = document.getElementById('test-opts');
+    q.options.forEach((opt, idx)=>{
+      const btn = document.createElement('button');
+      btn.className = 'quiz-opt';
+      btn.textContent = opt;
+      btn.addEventListener('click', ()=>{
+        optWrap.querySelectorAll('.quiz-opt').forEach((b,i2)=>{
+          b.disabled = true;
+          if(i2===q.correctIdx) b.classList.add('correct');
+          else if(b===btn) b.classList.add('wrong');
+        });
+        if(idx===q.correctIdx){ t.correctCount++; speak(q.word); }
+        setTimeout(()=>{ t.i++; showTestQuestion(); }, 1100);
+      });
+      optWrap.appendChild(btn);
+    });
+  }
+
+  document.getElementById('test-old-start').addEventListener('click', ()=> renderTest('old'));
+  document.getElementById('test-new-start').addEventListener('click', ()=> renderTest('new'));
+
+  // ---- CO VAN THONG MINH ----
+  let mentorTimer = null;
+  function showMentorToast(text, duration){
+    const t = document.getElementById('mentor-toast');
+    document.getElementById('mentor-toast-text').textContent = text;
+    t.classList.add('show');
+    clearTimeout(mentorTimer);
+    mentorTimer = setTimeout(()=> t.classList.remove('show'), duration || 9000);
+  }
+  document.getElementById('mentor-close').addEventListener('click', ()=>{
+    document.getElementById('mentor-toast').classList.remove('show');
+    clearTimeout(mentorTimer);
+  });
+  async function bumpActionCount(){
+    const before = LEVELS.filter(l => (progress.actionCount||0) >= l.need).length;
+    progress.actionCount = (progress.actionCount||0) + 1;
+    await saveProgress(progress);
+    const after = LEVELS.filter(l => progress.actionCount >= l.need).length;
+    if(after > before){
+      const justUnlocked = LEVELS[after-1];
+      showMentorToast('🎉 Mở khóa cấp mới: "'+justUnlocked.name+'"! Vào tab CẤP ĐỘ để chuyển sang nhé.', 9000);
+    } else if(progress.actionCount % 5 === 0){
+      showMilestoneSummary();
+    }
+    renderLevels();
+  }
+  async function showMilestoneSummary(){
+    const learnedList = progress.learnedWords.map(x => x.w).filter(Boolean).join(', ') || 'chưa có từ nào';
+    const sys = "You are 'Cày', a warm English mentor for a Vietnamese adult learner. Write ONE short check-in in Vietnamese (a couple of simple English words woven in is fine), 2-3 sentences: (1) acknowledge their progress briefly, (2) give one useful tip or mini formula to remember, (3) end with genuine encouragement. Warm and human, no bullet points, no markdown. Progress: streak " + (progress.streak||0) + " ngày, trình độ " + (progress.placementLevel||'chưa xếp loại') + ", từ đã học: " + learnedList + ".";
+    try{
+      const raw = await callClaude(sys, [{role:'user', content:'Cho mình một lời tổng kết và động viên ngắn.'}], 300);
+      showMentorToast(raw.trim(), 13000);
+    }catch(e){
+      showMentorToast('Anh đang tiến bộ đều đấy, cố lên nhé! 💪', 8000);
+    }
+  }
+
+  // ---- BAM TU DE DICH ----
+  const wordPopup = document.createElement('div');
+  wordPopup.className = 'word-popup';
+  wordPopup.id = 'word-popup';
+  document.body.appendChild(wordPopup);
+
+  function wrapWords(el){
+    if(el.dataset.wrapped) return;
+    el.dataset.wrapped = '1';
+    const text = el.textContent;
+    el.innerHTML = text.split(/(\s+)/).map(tok=>{
+      if(/^\s+$/.test(tok) || tok === '') return tok;
+      const clean = tok.replace(/[^a-zA-Z']/g,'');
+      if(!clean) return tok;
+      return '<span class="w" data-word="'+clean+'">'+tok+'</span>';
+    }).join('');
+  }
+  function wrapAllDocLines(){
+    document.querySelectorAll('.doc-en').forEach(wrapWords);
+  }
+  document.addEventListener('click', async (e)=>{
+    if(!e.target.classList.contains('w')) { wordPopup.classList.remove('show'); return; }
+    const word = e.target.dataset.word;
+    const rect = e.target.getBoundingClientRect();
+    wordPopup.style.left = Math.max(8, rect.left) + 'px';
+    wordPopup.style.top = (rect.bottom + 6) + 'px';
+    wordPopup.textContent = 'Đang tra "'+word+'"...';
+    wordPopup.classList.add('show');
+    try{
+      const raw = await callClaude("You are a compact EN-VI dictionary. Respond ONLY with the Vietnamese meaning of the given English word as used in everyday context, 1-4 words, no explanation, no quotes.", [{role:'user', content:word}], 60);
+      wordPopup.innerHTML = word + ' → ' + raw.trim() + ' <button class="mini-speak-btn" id="word-popup-speak">🔊</button>';
+      document.getElementById('word-popup-speak').addEventListener('click', (ev)=>{ ev.stopPropagation(); speak(word); });
+    }catch(err){
+      wordPopup.textContent = 'Lỗi tra từ: ' + err.message;
+    }
+  });
+
+  // ---- GHI CHU (luu cau/tu tam dac) ----
+  async function loadNotes(){
+    try{
+      const res = await storage.get('notes');
+      return JSON.parse(res.value);
+    }catch(e){ return []; }
+  }
+  async function saveNotes(notes){
+    try{ await storage.set('notes', JSON.stringify(notes)); }catch(e){}
+  }
+  // ---- BI KIP HOC TOT ----
+  const TIPS_DATA = {
+    noi: [
+      {text:"Nói to thành tiếng mỗi ngày dù chỉ 5 phút, kể cả nói một mình — miệng quen vận động thì phản xạ mới nhanh, chỉ đọc thầm trong đầu sẽ không lên trình được.", author:"CÀY"},
+      {text:"Ghi âm lại giọng mình rồi nghe lại — nghe hơi ngại lúc đầu nhưng đây là cách nhanh nhất để tự phát hiện lỗi phát âm của chính mình.", author:"CÀY"}
+    ],
+    nghe: [
+      {text:"Nghe đi nghe lại ĐÚNG một đoạn ngắn 5-10 lần thay vì nghe lướt qua nhiều đoạn khác nhau — tai sẽ quen dần với tốc độ nói thật của người bản xứ.", author:"CÀY"},
+      {text:"Đừng cố dịch từng từ trong đầu khi nghe — cứ để tai bắt ý chính trước, dịch chi tiết tính sau, không thì sẽ bị \"trôi\" mất đoạn tiếp theo.", author:"CÀY"}
+    ],
+    tuvung: [
+      {text:"Cách để nhớ từ mới là bạn thường xuyên DÙNG từ mới đó trong cuộc sống sinh hoạt như nói, nhắn tin, hoặc viết — học mà không dùng thì quên rất nhanh.", author:"Bùi Văn Khuyến"},
+      {text:"Học từ theo cụm (collocation) thay vì học từ đơn lẻ — ví dụ học nguyên cụm \"make a decision\" sẽ nhớ lâu và dùng đúng hơn là học rời \"make\" và \"decision\".", author:"CÀY"}
+    ]
+  };
+  let bikipCat = 'noi';
+  async function loadPendingTipsCount(){ return 0; } // placeholder cho tương lai nếu cần hiện số lượng chờ duyệt
+  function renderBikip(){
+    const list = document.getElementById('bikip-list');
+    const items = TIPS_DATA[bikipCat] || [];
+    if(!items.length){
+      list.innerHTML = '<p class="notes-empty">Chưa có bí kíp nào ở mục này.</p>';
+      return;
+    }
+    list.innerHTML = items.map(t =>
+      '<div class="card" style="margin-bottom:10px;"><p style="font-size:13px;line-height:1.6;margin:0 0 6px;">💡 '+t.text+'</p><p style="font-size:11px;color:var(--muted);margin:0;text-align:right;">— '+t.author+' góp ý</p></div>'
+    ).join('');
+  }
+  document.querySelectorAll('.cat-btn').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      document.querySelectorAll('.cat-btn').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      bikipCat = b.dataset.cat;
+      renderBikip();
+    });
+  });
+  renderBikip();
+  document.getElementById('bikip-submit').addEventListener('click', async ()=>{
+    const cat = document.getElementById('bikip-cat-select').value;
+    const text = document.getElementById('bikip-text').value.trim();
+    const author = document.getElementById('bikip-author').value.trim() || 'Ẩn danh';
+    if(!text){ showMentorToast('Gõ nội dung bí kíp trước đã nhé.'); return; }
+    if(!window.__db){ showMentorToast('Chưa kết nối được kho lưu trữ, thử lại sau nhé.'); return; }
+    try{
+      await window.__db.collection('pending_tips').add({ category: cat, text, author, createdAt: Date.now(), status: 'pending' });
+      document.getElementById('bikip-text').value = '';
+      document.getElementById('bikip-author').value = '';
+      showMentorToast('Cảm ơn bạn đã góp bí kíp! Admin duyệt xong sẽ hiển thị công khai nhé 🙌');
+    }catch(err){
+      showMentorToast('Lỗi gửi bí kíp: ' + err.message);
+    }
+  });
+
+  async function renderNotes(){
+    const notes = await loadNotes();
+    const list = document.getElementById('notes-list');
+    if(notes.length === 0){
+      list.innerHTML = '<p class="notes-empty">Chưa có ghi chú nào — sang tab ĐỌC, bấm 💾 ở câu bạn thích để lưu vào đây.</p>';
+      return;
+    }
+    list.innerHTML = notes.map((n,i)=>
+      '<div class="note-card"><button class="note-del" data-i="'+i+'">Xóa</button><p class="ne">'+n.en+'</p><p class="nv">'+n.vi+'</p></div>'
+    ).join('');
+    list.querySelectorAll('.note-del').forEach(btn=>{
+      btn.addEventListener('click', async ()=>{
+        const notes2 = await loadNotes();
+        notes2.splice(parseInt(btn.dataset.i),1);
+        await saveNotes(notes2);
+        renderNotes();
+      });
+    });
+  }
+  document.addEventListener('click', async (e)=>{
+    if(!e.target.classList.contains('save-btn')) return;
+    const en = e.target.dataset.en, vi = e.target.dataset.vi;
+    const notes = await loadNotes();
+    if(notes.some(n=>n.en===en)) { showMentorToast('Câu này đã có trong Ghi chú rồi 👍'); return; }
+    notes.push({en, vi, ts: Date.now()});
+    await saveNotes(notes);
+    e.target.classList.add('saved');
+    showMentorToast('Đã lưu vào Ghi chú! Sang tab GHI CHÚ để xem lại bất cứ lúc nào 💾');
+  });
+
+  // ---- CAP DO (mo khoa dan kieu game) ----
+  const LEVELS = [
+    { key:'tap-su', name:'Tập Sự', badge:'🌱', need:0, desc:'Từ vựng cơ bản, câu ngắn' },
+    { key:'hoc-vien', name:'Học Viên', badge:'📘', need:8, desc:'Câu dài hơn 1 chút' },
+    { key:'thao-viec', name:'Thạo Việc', badge:'🧭', need:18, desc:'Ngữ pháp đa dạng hơn' },
+    { key:'cao-thu', name:'Cao Thủ', badge:'⚔️', need:32, desc:'Câu phức, ít gợi ý hơn' },
+    { key:'dai-cao-thu', name:'Đại Cao Thủ', badge:'🛡️', need:50, desc:'Tốc độ nói nhanh hơn' },
+    { key:'chuyen-gia', name:'Chuyên Gia', badge:'🎓', need:75, desc:'Chủ đề chuyên sâu hơn' },
+    { key:'bac-thay', name:'Bậc Thầy', badge:'👑', need:110, desc:'Gần như người bản xứ' }
+  ];
+  async function renderLevels(){
+    const count = progress.actionCount || 0;
+    if(!progress.currentLevelKey) progress.currentLevelKey = 'tap-su';
+    const list = document.getElementById('level-list');
+    list.innerHTML = LEVELS.map(lv=>{
+      const unlocked = count >= lv.need;
+      const isCurrent = progress.currentLevelKey === lv.key;
+      let cls = 'level-card';
+      if(isCurrent) cls += ' current';
+      if(!isCurrent){
+        if(unlocked) cls += ' unlocked';
+        else cls += ' locked';
+      }
+      return '<div class="'+cls+'" data-key="'+lv.key+'" data-unlocked="'+unlocked+'">'+
+        '<div class="lv-left"><div class="lv-badge'+(unlocked ? '' : ' locked-badge')+'">'+lv.badge+(unlocked ? '' : '<span class="lv-lock-pin">🔒</span>')+'</div>'+
+        '<div><div class="lv-name">'+lv.name+'</div><div class="lv-desc">'+(unlocked ? lv.desc : 'Cần '+lv.need+' hoạt động để mở khóa (đang có '+count+') — bấm để xem thử')+'</div></div></div>'+
+        (isCurrent ? '<span class="lv-current-tag">'+(unlocked ? 'ĐANG HỌC' : 'ĐANG XEM THỬ')+'</span>' : '') +
+        '</div>';
+    }).join('');
+    list.querySelectorAll('.level-card').forEach(card=>{
+      card.addEventListener('click', async ()=>{
+        const lv = LEVELS.find(l=>l.key===card.dataset.key);
+        if(card.dataset.unlocked !== 'true') {
+          const ok = confirm('Cấp "'+lv.name+'" chưa mở khóa thật (cần '+lv.need+' hoạt động). Bạn có muốn XEM THỬ nội dung ở độ khó này không? (Chỉ để xem trước, không tính là đã mở khóa)');
+          if(!ok) return;
+          progress.currentLevelKey = card.dataset.key;
+          await saveProgress(progress);
+          renderLevels();
+          showMentorToast('Đang xem thử độ khó "'+lv.name+'" — bài đọc/trợ lý sẽ theo độ khó này, nhưng thành tích mở khóa thật vẫn giữ nguyên nhé 👀');
+          return;
+        }
+        progress.currentLevelKey = card.dataset.key;
+        await saveProgress(progress);
+        renderLevels();
+        showMentorToast('Đã chuyển sang cấp "'+lv.name+'" — bài đọc và trợ lý sẽ điều chỉnh độ khó theo cấp này nhé 🎯');
+      });
+    });
+  }
+  function currentLevelInfo(){
+    const key = (progress && progress.currentLevelKey) || 'tap-su';
+    return LEVELS.find(l=>l.key===key) || LEVELS[0];
+  }
+
+  // ---- CHU DE DOC & AI SOAN BAI MOI ----
+  let currentTopic = 'mau';
+  const originalDocContentHTML = document.getElementById('doc-content').innerHTML;
+  const topicLabels = {
+    'mau':'chủ đề khởi nghiệp nhỏ (kinh doanh đời thường)',
+    'the-thao':'thể thao',
+    'am-nhac':'âm nhạc',
+    'nguoi-noi-tieng':'người nổi tiếng (nhân vật hư cấu, không dùng tên người thật)',
+    'cong-nghe':'công nghệ',
+    'doi-song':'đời sống hằng ngày',
+    'hoi-hoa':'hội họa',
+    'danh-ngon':'danh ngôn truyền cảm hứng'
+  };
+  document.querySelectorAll('.topic-chip').forEach(chip=>{
+    chip.addEventListener('click', ()=>{
+      document.querySelectorAll('.topic-chip').forEach(c=>c.classList.remove('active'));
+      chip.classList.add('active');
+      currentTopic = chip.dataset.topic;
+      const quizMau = document.getElementById('doc-quiz-mau');
+      const quizMau2 = document.getElementById('doc-quiz-mau2');
+      if(currentTopic === 'mau'){
+        document.getElementById('doc-content').innerHTML = originalDocContentHTML;
+        wrapAllDocLines();
+        quizMau.style.display = 'block';
+        quizMau2.style.display = 'block';
+      }
+    });
+  });
+  // Danh ngon DA KIEM CHUNG THAT (khong de AI tu bia), nguon: SUCCESS.com, Goodreads, BrainyQuote, AZQuotes
+  const VERIFIED_QUOTES = [
+    { en:"Discipline is the bridge between goals and accomplishment.", vi:"Kỷ luật là cây cầu nối giữa mục tiêu và thành quả.", author:"Jim Rohn" },
+    { en:"Success is not to be pursued; it is to be attracted by the person you become.", vi:"Thành công không phải để theo đuổi, mà tự tìm đến người mà bạn trở thành.", author:"Jim Rohn" },
+    { en:"Formal education will make you a living; self-education will make you a fortune.", vi:"Học ở trường giúp bạn kiếm sống; tự học giúp bạn làm giàu.", author:"Jim Rohn" },
+    { en:"Don't wish it were easier. Wish you were better.", vi:"Đừng ước mọi thứ dễ dàng hơn. Hãy ước bản thân giỏi hơn.", author:"Jim Rohn" },
+    { en:"Your life does not get better by chance, it gets better by change.", vi:"Cuộc sống không tốt lên nhờ may mắn, mà nhờ sự thay đổi.", author:"Jim Rohn" },
+    { en:"The smallest of disciplines practiced every day start an incredible process that can change our lives forever.", vi:"Chỉ cần một kỷ luật nhỏ được duy trì mỗi ngày cũng có thể khởi đầu một quá trình thay đổi cả cuộc đời bạn.", author:"Jim Rohn" },
+    { en:"Take care of your body. It's the only place you have to live.", vi:"Hãy chăm sóc cơ thể bạn. Đó là nơi duy nhất bạn có để sống.", author:"Jim Rohn" },
+    { en:"Happiness is not by chance, but by choice.", vi:"Hạnh phúc không đến từ may mắn, mà từ sự lựa chọn.", author:"Jim Rohn" }
+  ];
+
+  document.getElementById('doc-generate').addEventListener('click', async ()=>{
+    const contentEl = document.getElementById('doc-content');
+    const quizMau = document.getElementById('doc-quiz-mau');
+    const quizMau2 = document.getElementById('doc-quiz-mau2');
+    if(currentTopic === 'mau'){
+      showMentorToast('Đây là bài mẫu có sẵn, bấm chủ đề khác để AI soạn bài mới nhé 🙂');
+      return;
+    }
+    quizMau.style.display = 'none';
+    quizMau2.style.display = 'none';
+    if(currentTopic === 'danh-ngon'){
+      const q = VERIFIED_QUOTES[Math.floor(Math.random()*VERIFIED_QUOTES.length)];
+      contentEl.innerHTML = '<div class="card doc-line"><p class="doc-en" style="font-size:16px;font-weight:600;">"'+q.en+'"</p>'+
+        '<p class="doc-vi">"'+q.vi+'" <button class="save-btn" data-en="'+q.en.replace(/"/g,'&quot;')+'" data-vi="'+q.vi.replace(/"/g,'&quot;')+'">💾</button></p>'+
+        '<p style="font-size:12px;color:var(--muted);margin-top:8px;text-align:right;">— '+q.author+' (danh ngôn đã kiểm chứng)</p></div>';
+      wrapAllDocLines();
+      return;
+    }
+    contentEl.innerHTML = '<p class="doc-loading">Đang soạn bài về '+topicLabels[currentTopic]+'...</p>';
+    const lv = currentLevelInfo();
+    const audienceGuide = progress.audience === 'hocsinh'
+      ? "The reader is a Vietnamese student (school-age). Use topics and settings relatable to school life, friends, family, hobbies — never workplace/office topics."
+      : "The reader is a Vietnamese working adult. Topics can relate to work, career, daily adult life.";
+    const sys = "You write short, upbeat reading passages for a Vietnamese learner of English. Learner's current level tier: " + lv.name + " (" + lv.desc + "). Adjust sentence length, grammar complexity and vocabulary rarity to match this tier — lower tiers get very short simple sentences and only the most common words; higher tiers can use longer sentences and a bit more varied vocabulary, but NEVER academic or highly technical words at any tier. " + audienceGuide + " Topic: " + topicLabels[currentTopic] + ". Write 5 sentences forming a mini positive/uplifting article, no real named public figures or brands, keep it fictional/generic. For EACH sentence give the Vietnamese translation too. Respond ONLY with raw JSON, no markdown: {\"lines\":[{\"en\":\"...\",\"vi\":\"...\"}, ...]} with exactly 5 items.";
+    try{
+      const raw = await callClaude(sys, [{role:'user', content:'Soạn bài đọc mới.'}], 1200);
+      const data = safeParseJSON(raw);
+      contentEl.innerHTML = data.lines.map(l=>
+        '<div class="card doc-line"><p class="doc-en">'+l.en+'</p><p class="doc-vi">'+l.vi+' <button class="save-btn" data-en="'+l.en.replace(/"/g,'&quot;')+'" data-vi="'+l.vi.replace(/"/g,'&quot;')+'">💾</button></p></div>'
+      ).join('');
+      wrapAllDocLines();
+    }catch(err){
+      contentEl.innerHTML = '<p class="doc-loading">Lỗi soạn bài: '+err.message+' — thử bấm lại nhé.</p>';
+    }
+  });
+
+  // initApp() được gọi ở cuối file (sau khi mọi dữ liệu như viet_prompts, phap_data đã khai báo xong)
+
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.register('/sw.js').catch(()=>{});
+  }
+
+  // ---- TRO LY: chat + dich ----
+  document.querySelectorAll('.stg').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      document.querySelectorAll('.stg').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      const m = b.dataset.mode;
+      document.getElementById('mode-chat').style.display = (m==='chat') ? 'block' : 'none';
+      document.getElementById('mode-dich').style.display = (m==='dich') ? 'block' : 'none';
+    });
+  });
+
+  function safeParseJSON(raw){
+    let clean = raw.replace(/```json|```/g,'').trim();
+    const first = clean.indexOf('{');
+    const last = clean.lastIndexOf('}');
+    if(first !== -1 && last !== -1 && last > first){
+      clean = clean.slice(first, last+1);
+    }
+    return JSON.parse(clean);
+  }
+
+  async function callClaude(systemPrompt, messages, maxTokens, _isRetry){
+    let response;
+    try{
+      response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          system: systemPrompt,
+          messages: messages,
+          max_tokens: maxTokens || 800
+        })
+      });
+    }catch(networkErr){
+      // fetch tự nó fail (mất mạng thật sự) — thử lại đúng 1 lần trước khi báo lỗi
+      if(!_isRetry) return callClaude(systemPrompt, messages, maxTokens, true);
+      throw new Error('Mất kết nối mạng, kiểm tra lại Wi-Fi/4G rồi thử lại.');
+    }
+    if(!response.ok){
+      // Vercel timeout (Hobby plan giới hạn ~10s) trả về trang lỗi 504 dạng HTML, không phải JSON —
+      // bắt riêng trường hợp này để báo đúng nguyên nhân thay vì lỗi JSON.parse khó hiểu.
+      if(response.status === 504 || response.status === 502){
+        if(!_isRetry) return callClaude(systemPrompt, messages, Math.min(maxTokens || 800, 500), true);
+        throw new Error('Máy chủ phản hồi quá lâu (timeout), thử lại với nội dung ngắn hơn nhé.');
+      }
+    }
+    let data;
+    try{
+      data = await response.json();
+    }catch(parseErr){
+      if(!_isRetry) return callClaude(systemPrompt, messages, maxTokens, true);
+      throw new Error('Máy chủ trả về dữ liệu không hợp lệ (mã lỗi ' + response.status + '), thử lại nhé.');
+    }
+    if(data.error){
+      const msg = typeof data.error === 'string' ? data.error : JSON.stringify(data.error);
+      if(!_isRetry && /overloaded|rate.?limit|429|529/i.test(msg)) return callClaude(systemPrompt, messages, maxTokens, true);
+      throw new Error(msg);
+    }
+    const text = (data.content || []).map(b => b.text || "").join("");
+    return text;
+  }
+
+  // ---- NHAN VAT TRO CHUYEN (6 nguoi, moi nguoi nho rieng lich su) ----
+  const CHARACTERS = [
+    { id:'peter', name:'Peter', role:'Bạn thân Gen Z', gender:'nam', color:'#4A6FA5', avatar:'😎', avatarSeed:'Peter-cool-guy',
+      persona:"You are Peter, a chill Gen-Z guy around the learner's age. Talk like texting a close bro: casual slang (yo, lol, ngl, fr, bruh-style energy but keep it tasteful), light jokes, emojis sometimes, super relaxed — never formal or teacher-like. Use natural everyday spoken English with contractions (gonna, wanna, kinda, I'm, it's) — real-life texting style, not textbook-perfect grammar." },
+    { id:'james', name:'James', role:'Thầy giáo nghiêm túc', gender:'nam', color:'#2F6E4F', avatar:'🧐', avatarSeed:'James-teacher-formal',
+      persona:"You are James, a strict, old-school, formal male English teacher. Speak properly and precisely, address the learner respectfully, correct mistakes clearly and directly (still kindly), avoid slang or casual tone entirely." },
+    { id:'david', name:'David', role:'Mentor kinh doanh', gender:'nam', color:'#8A5A2B', avatar:'🕴️', avatarSeed:'David-business-mentor',
+      persona:"You are David, a confident, sharp male business mentor. Speak like a senior exec giving advice — professional vocabulary, weave in career/business/negotiation context, motivating but businesslike tone." },
+    { id:'emma', name:'Emma', role:'Bạn gái vui vẻ', gender:'nu', color:'#B5548B', avatar:'🤩', avatarSeed:'Emma-cheerful-girl',
+      persona:"You are Emma, a super bubbly, high-energy female friend. Chat with lots of enthusiasm, compliments, exclamation points, playful emojis — like an excitable best friend hyping the learner up. Speak like real everyday chatting/movie dialogue, contractions and casual expressions welcome — doesn't need to be textbook-perfect." },
+    { id:'sophia', name:'Sophia', role:'Cô giáo tận tâm', gender:'nu', color:'#3B8A8C', avatar:'👩‍🏫', avatarSeed:'Sophia-caring-teacher',
+      persona:"You are Sophia, a warm, nurturing, patient female English teacher. Explain gently and clearly, praise effort generously, correct mistakes softly like a caring mentor, never rushed." },
+    { id:'lisa', name:'Lisa', role:'Đồng nghiệp lầy lội', gender:'nu', color:'#C1721E', avatar:'💁‍♀️', avatarSeed:'Lisa-witty-coworker',
+      persona:"You are Lisa, a witty, sassy, a bit cheeky female coworker. Talk casually about everyday office life and gossip with humor and playful sarcasm (always friendly, never mean), relaxed and fun tone. Sound like a real person chatting or a character in a movie — natural contractions and casual phrasing over stiff textbook grammar." },
+    { id:'interview', name:'Cô Hà', role:'Gia sư phỏng vấn', gender:'nu', color:'#5B4B8A', avatar:'💼', avatarSeed:'Ha-interview-coach',
+      persona:"You are Ha, a professional HR interviewer running a mock English job interview with the learner. Ask ONE realistic interview question at a time (background, strengths/weaknesses, why this job, salary expectation, handling conflict, etc.), wait for their answer, then briefly comment on how strong the answer was and gently suggest a better phrasing if needed before asking the next question. Keep a warm but professional interviewer tone throughout." },
+    { id:'presenter', name:'Thầy Minh', role:'Gia sư thuyết trình', gender:'nam', color:'#1F7A6C', avatar:'🎤', avatarSeed:'Minh-presentation-coach',
+      persona:"You are Minh, an English presentation-skills coach. Ask the learner to explain or pitch something briefly in English (a product, an idea, their day, a topic they choose), then give short, specific feedback on clarity, structure (opening-body-closing), and filler words — like a supportive speaking coach preparing them for a real presentation. Keep pushing them to practice one short segment at a time rather than long monologues." },
+    { id:'office', name:'Chị Lan', role:'Gia sư công sở', gender:'nu', color:'#8A3B47', avatar:'📧', avatarSeed:'Lan-office-coach',
+      persona:"You are Lan, a workplace-communication coach. Roleplay realistic English office situations with the learner one at a time — writing a polite email request, small talk before a meeting, asking for a day off, giving a status update, pushing back on a deadline — and coach them toward professional, natural business phrasing. Correct overly stiff or overly casual phrasing toward appropriate workplace tone." }
+  ];
+  let activeChar = CHARACTERS[0];
+  let chatMessages = []; // {role:'user'|'assistant', content:string}
+
+  function renderCharGrid(){
+    const grid = document.getElementById('char-grid');
+    grid.innerHTML = CHARACTERS.map(c=>
+      '<div class="char-card'+(c.id===activeChar.id?' active':'')+'" data-id="'+c.id+'">'+
+      '<div class="char-avatar" style="background:'+c.color+';">'+
+        '<img src="https://api.dicebear.com/9.x/notionists/svg?seed='+encodeURIComponent(c.avatarSeed)+'&backgroundColor=transparent" alt="'+c.name+'" onerror="this.remove();this.parentElement.textContent=\''+c.avatar+'\';">'+
+      '</div>'+
+      '<div class="char-name">'+c.name+'</div><div class="char-role">'+c.role+'</div></div>'
+    ).join('');
+    grid.querySelectorAll('.char-card').forEach(card=>{
+      card.addEventListener('click', async ()=>{
+        const c = CHARACTERS.find(x=>x.id===card.dataset.id);
+        if(c.id === activeChar.id) return;
+        activeChar = c;
+        renderCharGrid();
+        document.getElementById('char-active-label').textContent = 'Đang chat với ' + c.name + ' (' + c.role + ')';
+        chatMessages = await loadChatHistory();
+        renderChatHistory();
+      });
+    });
+    document.getElementById('char-active-label').textContent = 'Đang chat với ' + activeChar.name + ' (' + activeChar.role + ')';
+  }
+
+  async function loadChatHistory(){
+    try{
+      const res = await storage.get('chat_history_'+activeChar.id);
+      return JSON.parse(res.value);
+    }catch(e){ return []; }
+  }
+  async function saveChatHistory(){
+    try{ await storage.set('chat_history_'+activeChar.id, JSON.stringify(chatMessages.slice(-30))); }catch(e){}
+  }
+  // Bong bóng tin nhắn kiểu "voice message" (giống Zalo): có nút play + nút "Aa" để
+  // hiện/ẩn chữ. Với tin của học viên (thu âm thật) thì play = phát lại đúng giọng đã thu.
+  // Với tin của nhân vật (không có file âm thanh thật) thì play = đọc to bằng giọng máy (TTS).
+  function buildVoiceBubble(isUser, text, audioURL){
+    const wrap = document.createElement('div');
+    wrap.className = 'msg ' + (isUser ? 'user' : 'bot');
+    const row = document.createElement('div');
+    row.className = 'voice-row';
+    const playBtn = document.createElement('button');
+    playBtn.className = 'voice-play-btn';
+    playBtn.textContent = '▶';
+    const wave = document.createElement('div');
+    wave.className = 'voice-wave';
+    const toggleBtn = document.createElement('button');
+    toggleBtn.className = 'voice-toggle-btn';
+    toggleBtn.textContent = 'Aa';
+    toggleBtn.title = 'Bấm để hiện/ẩn chữ của tin nhắn thoại này';
+    if(!localStorage.getItem('cay_aa_hint_shown')){
+      localStorage.setItem('cay_aa_hint_shown', '1');
+      setTimeout(()=> showMentorToast('💡 Mẹo: bấm nút "Aa" cạnh tin nhắn thoại để hiện/ẩn chữ nhé!'), 400);
+    }
+    row.appendChild(playBtn);
+    row.appendChild(wave);
+    row.appendChild(toggleBtn);
+    wrap.appendChild(row);
+    const textDiv = document.createElement('div');
+    textDiv.className = 'voice-text';
+    textDiv.textContent = text;
+    wrap.appendChild(textDiv);
+
+    let audioEl = audioURL ? new Audio(audioURL) : null;
+    if(audioEl) audioEl.onended = () => { playBtn.textContent = '▶'; if(activeVoiceBtn===playBtn) activeVoiceBtn=null; };
+
+    playBtn.addEventListener('click', ()=>{
+      // Nếu đang có 1 bong bóng khác chạy dở, tắt nó trước để không bị kẹt 2 cái cùng lúc
+      if(activeVoiceBtn && activeVoiceBtn !== playBtn){
+        activeVoiceBtn.textContent = '▶';
+        if(activeVoiceAudio){ activeVoiceAudio.pause(); activeVoiceAudio.currentTime = 0; }
+        speechSynthesis.cancel();
+      }
+      if(audioEl){
+        if(audioEl.paused){
+          audioEl.play();
+          playBtn.textContent = '⏸';
+          activeVoiceBtn = playBtn; activeVoiceAudio = audioEl;
+        } else {
+          audioEl.pause(); playBtn.textContent = '▶'; activeVoiceBtn = null;
+        }
+      } else {
+        if(activeVoiceBtn === playBtn){
+          speechSynthesis.cancel(); playBtn.textContent = '▶'; activeVoiceBtn = null; return;
+        }
+        const enPart = text.split('(')[0].trim() || text;
+        playBtn.textContent = '⏳';
+        // Chỉ đổi icon thành "đang phát" khi TTS thật sự bắt đầu chạy (onStart) — tránh
+        // kẹt icon nếu trình duyệt âm thầm chặn không phát được.
+        let started = false;
+        speak(enPart, () => { playBtn.textContent = '▶'; activeVoiceBtn = null; },
+          () => { started = true; playBtn.textContent = '⏸'; activeVoiceBtn = playBtn; activeVoiceAudio = null; });
+        setTimeout(()=>{ if(!started && playBtn.textContent === '⏳'){ playBtn.textContent = '▶'; showMentorToast('Không phát được giọng đọc, thử bấm lại nhé.'); } }, 1500);
+      }
+    });
+    toggleBtn.addEventListener('click', ()=>{
+      textDiv.classList.toggle('show');
+    });
+    return wrap;
+  }
+
+  function renderChatHistory(){
+    const box = document.getElementById('chatbox');
+    box.innerHTML = '';
+    if(chatMessages.length === 0){
+      const greetText = "Hi! I'm "+activeChar.name+". Nice to meet you! (Chào bạn! Mình là "+activeChar.name+". Rất vui được gặp bạn!)";
+      const greetDiv = buildVoiceBubble(false, greetText, null);
+      box.appendChild(greetDiv);
+      return;
+    }
+    chatMessages.forEach(m=>{
+      const div = buildVoiceBubble(m.role === 'user', m.content, null);
+      box.appendChild(div);
+    });
+    box.scrollTop = box.scrollHeight;
+  }
+
+  // ---- CAU DONG VIEN MOI LAN MO APP ----
+  const MOTIVATION_QUOTES = [
+    "Tiếng Anh là ngôn ngữ phổ biến nhất thế giới — biết thêm 1 ngôn ngữ là mở thêm 1 cánh cửa cơ hội.",
+    "Học máy tính, công nghệ, AI... tài liệu hay nhất đa số đều bằng tiếng Anh. Giỏi tiếng Anh là đi tắt đón đầu.",
+    "Mỗi ngày cày một ít, một năm sau nhìn lại bạn sẽ bất ngờ vì mình đã đi xa đến đâu.",
+    "Không cần giỏi ngay, chỉ cần không bỏ cuộc. Nhất quán quan trọng hơn hoàn hảo.",
+    "Nói sai không sao, không nói mới là vấn đề. Cứ mạnh dạn mở miệng ra đã.",
+    "Tiếng Anh tốt giúp bạn tự tin hơn khi đi làm, đi phỏng vấn, hay đơn giản là đọc hiểu 1 cái app mới.",
+    "Cơ hội việc làm lương cao đa phần đòi hỏi tiếng Anh — đầu tư hôm nay là tiết kiệm thời gian sau này.",
+    "5 phút mỗi ngày còn hơn 5 tiếng một lần rồi bỏ luôn cả tháng. Đều đặn thắng cường độ.",
+    "Người giỏi tiếng Anh không phải người thông minh nhất, mà là người kiên trì nhất.",
+    "Xem phim, nghe nhạc, lướt mạng bằng tiếng Anh — biến việc học thành giải trí, sẽ nhẹ nhàng hơn nhiều.",
+    "Thế giới đang phẳng hơn từng ngày — tiếng Anh là tấm vé để bạn bước ra ngoài biên giới Việt Nam.",
+    "Bạn không cần hoàn hảo, chỉ cần hôm nay giỏi hơn hôm qua một chút."
+  ];
+  function showMotivationQuote(){
+    const el = document.getElementById('motivation-quote');
+    if(el) el.textContent = '💬 ' + MOTIVATION_QUOTES[Math.floor(Math.random()*MOTIVATION_QUOTES.length)];
+  }
+  showMotivationQuote();
+
+  const CHAT_DAILY_LIMIT = 20;
+  function getChatUsage(){
+    const today = new Date().toISOString().slice(0,10);
+    if(localStorage.getItem('cay_chat_usage_date') !== today){
+      localStorage.setItem('cay_chat_usage_date', today);
+      localStorage.setItem('cay_chat_usage_count', '0');
+    }
+    return parseInt(localStorage.getItem('cay_chat_usage_count') || '0', 10);
+  }
+  function bumpChatUsage(){
+    localStorage.setItem('cay_chat_usage_count', String(getChatUsage() + 1));
+    updateChatUsageBadge();
+  }
+  function updateChatUsageBadge(){
+    const el = document.getElementById('chat-usage-badge');
+    if(el) el.textContent = getChatUsage() + '/' + CHAT_DAILY_LIMIT + ' lượt hôm nay';
+  }
+
+  document.getElementById('chat-send').addEventListener('click', ()=>sendChat());
+  function blobToBase64(blob){
+    return new Promise((resolve, reject)=>{
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result.split(',')[1]);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  }
+  let chatMediaRecorder = null;
+  document.getElementById('chat-mic').addEventListener('click', async ()=>{
+    if(getChatUsage() >= CHAT_DAILY_LIMIT){
+      document.getElementById('vip-modal').style.display = 'flex';
+      return;
+    }
+    const micBtn = document.getElementById('chat-mic');
+    // Bấm lần 2 khi đang ghi -> dừng lại
+    if(micBtn.classList.contains('recording')){
+      if(chatMediaRecorder && chatMediaRecorder.state !== 'inactive') chatMediaRecorder.stop();
+      return;
+    }
+    // Chỉ dùng DUY NHẤT 1 đường ghi âm thật (MediaRecorder), rồi gửi file lên OpenAI Whisper để
+    // chuyển thành chữ — tránh hẳn việc chạy chung SpeechRecognition + MediaRecorder cùng lúc
+    // (nguyên nhân khiến điện thoại Android báo "Không nghe rõ" liên tục dù mic vẫn ghi tốt).
+    // Đổi lại: giữ được giọng nói THẬT để phát lại trong bong bóng thoại, giống tin nhắn Zalo.
+    let stream;
+    try{
+      stream = await navigator.mediaDevices.getUserMedia({audio:true});
+    }catch(e){
+      showMentorToast('Trình duyệt đang chặn quyền micro — bấm biểu tượng 🔒/ⓘ trên thanh địa chỉ, cho phép Micrô rồi thử lại nhé.');
+      return;
+    }
+    const chunks = [];
+    const mr = new MediaRecorder(stream);
+    chatMediaRecorder = mr;
+    mr.ondataavailable = e => { if(e.data.size > 0) chunks.push(e.data); };
+    mr.start();
+    micBtn.innerHTML = '<span class="spin-inline">🔴</span>';
+    micBtn.classList.add('recording');
+    showMentorToast('Đang ghi âm... bấm lại nút mic khi nói xong nhé.');
+
+    // Tự dừng sau 20 giây phòng trường hợp quên bấm dừng
+    const autoStopTimer = setTimeout(()=>{ if(mr.state !== 'inactive') mr.stop(); }, 20000);
+
+    mr.onstop = async ()=>{
+      clearTimeout(autoStopTimer);
+      stream.getTracks().forEach(t => t.stop());
+      micBtn.classList.remove('recording');
+      micBtn.classList.add('processing');
+      micBtn.innerHTML = '<span class="spin-inline">⏳</span>';
+      const blob = new Blob(chunks, {type: mr.mimeType || 'audio/webm'});
+      const audioURL = URL.createObjectURL(blob);
+      try{
+        const base64 = await blobToBase64(blob);
+        const resp = await fetch('/api/transcribe', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ audioBase64: base64, mimeType: blob.type })
+        });
+        const data = await resp.json();
+        micBtn.classList.remove('processing');
+        micBtn.textContent = '🎤';
+        if(data.error){ showMentorToast('Lỗi nhận diện: ' + data.error); return; }
+        const transcript = (data.text || '').trim();
+        if(transcript){ sendChat(transcript, audioURL); }
+        else { showMentorToast('Không nghe rõ, thử nói lại nhé.'); }
+      }catch(err){
+        micBtn.classList.remove('processing');
+        micBtn.textContent = '🎤';
+        showMentorToast('Lỗi nhận diện giọng nói: ' + err.message);
+      }
+    };
+  });
+  document.getElementById('chat-input').addEventListener('keydown', (e)=>{
+    if(e.key==='Enter') sendChat();
+  });
+  async function sendChat(voiceText, voiceAudioURL){
+    // Giới hạn 20 lượt chat/ghi âm miễn phí mỗi ngày với Bạn ảo (tính năng tốn phí AI thật).
+    // Hết lượt trong ngày -> mời nâng cấp VIP thay vì gọi API tốn tiền.
+    if(getChatUsage() >= CHAT_DAILY_LIMIT){
+      document.getElementById('vip-modal').style.display = 'flex';
+      return;
+    }
+    const inp = document.getElementById('chat-input');
+    const text = voiceText || inp.value.trim();
+    if(!text) return;
+    const box = document.getElementById('chatbox');
+
+    const userDiv = voiceAudioURL ? buildVoiceBubble(true, text, voiceAudioURL) : (()=>{
+      const d = document.createElement('div');
+      d.className = 'msg user';
+      d.textContent = text;
+      return d;
+    })();
+    box.appendChild(userDiv);
+    inp.value = '';
+    chatMessages.push({role:'user', content:text});
+
+    const typing = document.createElement('div');
+    typing.className = 'typing';
+    typing.textContent = activeChar.name + ' đang gõ...';
+    box.appendChild(typing);
+    box.scrollTop = box.scrollHeight;
+
+    const learnedList = progress.learnedWords.map(x => x.w).filter(Boolean).join(', ') || 'chưa có';
+    const childMode = document.getElementById('child-mode-toggle') && document.getElementById('child-mode-toggle').checked;
+    const memoryNote = "Ghi nhớ về học viên: streak hiện tại " + (progress.streak||0) + " ngày, cấp độ hiện tại: " + currentLevelInfo().name + " (" + currentLevelInfo().desc + "), từ vựng đã học: " + learnedList + ". Điều chỉnh độ khó câu trả lời tiếng Anh cho khớp cấp độ này." + (childMode ? " QUAN TRỌNG: học viên là TRẺ EM — chỉ dùng từ vựng cực kỳ đơn giản, chủ đề gần gũi (gia đình, trường lớp, đồ chơi, con vật), giọng điệu vui vẻ, nhẹ nhàng, không dùng từ trừu tượng hay chủ đề người lớn." : "");
+    const lvIndexForLength = LEVELS.findIndex(l => l.key === currentLevelInfo().key);
+    const lengthGuide = childMode
+      ? "1 short, very simple sentence (pre-A1 level, like talking to a young child) — easy words only, cheerful tone."
+      : lvIndexForLength <= 1
+      ? "1-2 short simple sentences (A1-A2 level) — keep it easy since the learner is still early."
+      : lvIndexForLength <= 3
+      ? "2-4 sentences (A2-B1 level), a bit more descriptive and engaging, feel free to add a little detail or a follow-up question."
+      : "3-5 sentences (B1-B2 level), vivid and engaging like a real conversation — add color, personality, maybe a follow-up question, don't just give a flat short reply.";
+    const sys = activeChar.persona + " You act like a real friend/mentor who has been chatting with this Vietnamese learner for a while and genuinely remembers them — refer back naturally to earlier parts of the conversation when it fits. Never mock mistakes; make corrections feel like a caring tip, not a red pen. CRITICAL FORMAT RULE: every reply MUST be bilingual — write the English sentence(s) first, then immediately the full Vietnamese translation in parentheses, e.g. 'That sounds fun! (Nghe vui đấy!)'. Never send English-only text. Length of the English part: " + lengthGuide + " " + memoryNote + " Respond ONLY with raw JSON, no markdown fences, no preamble, in this exact shape: {\"reply\": \"your bilingual English (Vietnamese) reply\", \"correction\": \"if the learner's message had a grammar or word-choice mistake, a short one-sentence explanation IN VIETNAMESE of the fix, caring tone, otherwise null\"}";
+
+    try{
+      const raw = await callClaude(sys, chatMessages.slice(-20), 500);
+      let parsed;
+      try{
+        parsed = safeParseJSON(raw);
+      }catch(parseErr){
+        // Nhân vật phong cách phá cách (Peter, Emma...) đôi khi trả lời tự nhiên mà không
+        // đúng khuôn JSON app cần đọc — thay vì báo lỗi, coi cả câu trả lời là "reply" luôn
+        // để cuộc trò chuyện không bị gãy giữa chừng.
+        parsed = { reply: raw.trim(), correction: null };
+      }
+      typing.remove();
+      bumpChatUsage(); // chỉ tính lượt khi thật sự nhận được trả lời thành công
+
+      const replyText = parsed.reply || '...';
+      const botDiv = buildVoiceBubble(false, replyText, null);
+      box.appendChild(botDiv);
+      // KHÔNG tự động phát giọng nói ở đây nữa — điện thoại thường ÂM THẦM CHẶN việc tự
+      // phát âm thanh khi không xuất phát trực tiếp từ 1 cú bấm thật của người dùng, khiến
+      // nút bị kẹt mãi ở trạng thái "⏸" dù không phát được gì. Để học viên tự bấm ▶ nghe,
+      // đảm bảo chạy đúng 100% vì đó luôn là 1 cú bấm thật.
+
+      chatMessages.push({role:'assistant', content: replyText});
+      await saveChatHistory();
+
+      if(parsed.correction && parsed.correction !== 'null'){
+        const noteDiv = document.createElement('div');
+        noteDiv.className = 'msg note';
+        noteDiv.textContent = '💡 ' + parsed.correction;
+        box.appendChild(noteDiv);
+        if(!progress.remindersToReview.some(r=>r.note===parsed.correction)){
+          progress.remindersToReview.push({type:'chat', title:'Mẹo từ '+activeChar.name, note:parsed.correction});
+          if(progress.remindersToReview.length > 30) progress.remindersToReview.shift();
+          await saveProgress(progress);
+          renderReview();
+        }
+      }
+    }catch(err){
+      typing.remove();
+      // Nếu không rollback, tin nhắn lỗi này vẫn nằm trong lịch sử và làm SAI thứ tự
+      // người gửi (user liền user) cho lần chat tiếp theo — đây là lý do chính khiến
+      // 1 lần lỗi kéo theo lỗi liên tục mãi về sau. Bỏ nó ra để lần gửi tiếp theo bình thường trở lại.
+      chatMessages.pop();
+      inp.value = text;
+      const errDiv = document.createElement('div');
+      errDiv.className = 'msg bot';
+      errDiv.textContent = 'Lỗi: ' + err.message + ' — nội dung đã được điền lại vào ô chat, bấm Gửi thử lại nhé.';
+      box.appendChild(errDiv);
+    }
+    box.scrollTop = box.scrollHeight;
+  }
+
+  // dich
+  document.getElementById('dich-btn').addEventListener('click', async ()=>{
+    const text = document.getElementById('dich-input').value.trim();
+    const dir = document.getElementById('dich-dir').value;
+    const resultEl = document.getElementById('dich-result');
+    if(!text){ resultEl.textContent = 'Nhập văn bản trước đã.'; return; }
+    resultEl.textContent = 'Đang dịch...';
+
+    const dirLabel = dir === 'en-vi' ? 'English to Vietnamese' : 'Vietnamese to English';
+    const sys = "Translate the user's text from " + dirLabel + ". Respond ONLY with the translated text. No quotes, no explanation, no extra text.";
+
+    try{
+      const raw = await callClaude(sys, [{role:'user', content:text}], 800);
+      const translated = raw.trim();
+      const englishSide = (dir === 'vi-en') ? translated : text;
+      resultEl.innerHTML = translated.replace(/"/g,'&quot;') +
+        ' <button class="mini-speak-btn" id="dich-speak-btn">🔊</button>';
+      document.getElementById('dich-speak-btn').addEventListener('click', ()=> speak(englishSide));
+    }catch(err){
+      resultEl.textContent = 'Lỗi: ' + err.message;
+    }
+  });
+
+  // ---- VIET (dien dat tu do, khong cham loi gat) ----
+  const viet_prompts = [
+    "Tôi muốn đi chơi.",
+    "Hôm nay tôi đi làm trễ.",
+    "Bạn có thể giúp tôi việc này không?",
+    "Tôi rất thích công việc hiện tại của mình.",
+    "Cuối tuần này tôi sẽ về quê thăm gia đình.",
+    "Tôi nghĩ chúng ta nên nghỉ ngơi một chút.",
+    "Anh ấy làm việc rất chăm chỉ mỗi ngày.",
+    "Tôi đang học tiếng Anh để phát triển công việc.",
+    "Con tôi rất thích xem hoạt hình vào buổi tối.",
+    "Tôi hy vọng năm sau công việc sẽ thuận lợi hơn.",
+    "Cuối tuần tôi thường đưa gia đình đi ăn ngoài.",
+    "Tôi vừa mua một chiếc điện thoại mới.",
+    "Sáng nay tôi dậy sớm để tập thể dục.",
+    "Chúng tôi vừa hoàn thành một dự án lớn.",
+    "Tôi thấy hơi lo lắng trước cuộc họp ngày mai.",
+    "Bạn tôi vừa chuyển đến thành phố mới.",
+    "Tôi muốn tiết kiệm tiền để mua nhà.",
+    "Thời tiết hôm nay đẹp quá, tôi muốn ra ngoài đi dạo.",
+    "Tôi đang tìm một quán cà phê yên tĩnh để làm việc.",
+    "Sếp tôi vừa giao cho tôi một nhiệm vụ mới."
+  ];
+  const viet_topic_pool = ["công việc","gia đình","sức khỏe","du lịch","tiền bạc","sở thích","bạn bè","kế hoạch tương lai","cảm xúc","cuộc sống hằng ngày"];
+  let viet_i = 0;
+  function loadVietPrompt(){
+    document.getElementById('viet-prompt').textContent = viet_prompts[viet_i % viet_prompts.length];
+    document.getElementById('viet-text').value = '';
+    document.getElementById('viet-count').textContent = '0';
+    document.getElementById('viet-feedback-box').innerHTML = '';
+  }
+  document.getElementById('viet-text').addEventListener('input', (e)=>{
+    const words = e.target.value.trim().split(/\s+/).filter(Boolean);
+    document.getElementById('viet-count').textContent = e.target.value.trim() ? words.length : 0;
+  });
+  document.getElementById('viet-next').addEventListener('click', ()=>{
+    viet_i++;
+    loadVietPrompt();
+  });
+  document.getElementById('viet-random').addEventListener('click', async ()=>{
+    const btn = document.getElementById('viet-random');
+    btn.disabled = true;
+    const promptEl = document.getElementById('viet-prompt');
+    promptEl.textContent = 'Đang soạn đề mới...';
+    const topic = viet_topic_pool[Math.floor(Math.random()*viet_topic_pool.length)];
+    const sys = "Write ONE short, natural Vietnamese sentence (about a Vietnamese adult's everyday life, topic: " + topic + ") that a learner will try to translate into English for practice. Respond ONLY with raw JSON, no markdown: {\"vi\":\"<the Vietnamese sentence>\"}.";
+    try{
+      const raw = await callClaude(sys, [{role:'user', content:'Cho đề bài mới.'}], 200);
+      const d = safeParseJSON(raw);
+      promptEl.textContent = d.vi;
+      document.getElementById('viet-text').value = '';
+      document.getElementById('viet-count').textContent = '0';
+      document.getElementById('viet-feedback-box').innerHTML = '';
+    }catch(err){
+      promptEl.textContent = 'Lỗi tạo đề, thử lại nhé.';
+    }
+    btn.disabled = false;
+  });
+  document.getElementById('viet-submit').addEventListener('click', async ()=>{
+    const attempt = document.getElementById('viet-text').value.trim();
+    const box = document.getElementById('viet-feedback-box');
+    if(!attempt){ box.innerHTML = '<p class="notes-empty">Gõ thử gì đó trước đã, sai mấy cũng được!</p>'; return; }
+    box.innerHTML = '<p class="doc-loading">Trợ lý đang xem...</p>';
+    const viCau = document.getElementById('viet-prompt').textContent;
+    const sys = "You are a warm, encouraging English mentor for a Vietnamese learner. The learner was asked to freely express this Vietnamese sentence in English (grammar and spelling mistakes are totally fine, the goal is confidence and fluency, NOT accuracy): \"" + viCau + "\". They wrote: \"" + attempt + "\". Respond ONLY with raw JSON: {\"encouragement\":\"<1 short warm Vietnamese sentence praising the EFFORT, never criticize>\",\"natural_version\":\"<one natural, everyday way a native speaker might say it, simple level>\"}. Keep it light and positive, this is not a grading exercise.";
+    try{
+      const raw = await callClaude(sys, [{role:'user', content: attempt}], 300);
+      const d = safeParseJSON(raw);
+      box.innerHTML = '<div class="card"><p style="font-size:13px;color:var(--green);font-weight:600;margin:0 0 8px;">'+d.encouragement+'</p>'+
+        '<p style="font-size:12px;color:var(--muted);margin:0 0 4px;">Một cách nói tự nhiên khác:</p>'+
+        '<p style="font-size:14px;margin:0;">'+d.natural_version+'</p></div>';
+      bumpActionCount();
+    }catch(err){
+      box.innerHTML = '<p class="notes-empty">Lỗi: '+err.message+'</p>';
+    }
+  });
+  loadVietPrompt();
+
+  // ---- VIDEO ----
+  function extractYouTubeId(url){
+    const m = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([a-zA-Z0-9_-]{6,15})/);
+    return m ? m[1] : null;
+  }
+  async function loadVideoHistory(){
+    try{
+      const res = await storage.get('video_history');
+      return JSON.parse(res.value);
+    }catch(e){ return []; }
+  }
+  async function saveVideoHistory(list){
+    try{ await storage.set('video_history', JSON.stringify(list.slice(-10))); }catch(e){}
+  }
+  async function renderVideoHistory(){
+    const list = await loadVideoHistory();
+    const card = document.getElementById('video-history-card');
+    const box = document.getElementById('video-history-list');
+    if(list.length === 0){ card.style.display = 'none'; return; }
+    card.style.display = 'block';
+    box.innerHTML = list.slice().reverse().map((v,i)=>
+      '<button class="qt-btn" style="margin:0 6px 6px 0;" data-url="'+v.url.replace(/"/g,'&quot;')+'" data-topic="'+(v.topic||'').replace(/"/g,'&quot;')+'">▶ '+(v.topic || 'Video')+'</button>'
+    ).join('');
+    box.querySelectorAll('button').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        document.getElementById('video-url').value = btn.dataset.url;
+        document.getElementById('video-topic').value = btn.dataset.topic;
+        document.getElementById('video-load').click();
+      });
+    });
+  }
+  async function embedVideo(url){
+    const box = document.getElementById('video-embed-box');
+    const id = extractYouTubeId(url);
+    if(!id){
+      box.innerHTML = '<span style="color:#f66;font-size:13px;padding:20px;">Link chưa đúng định dạng YouTube, thử dán lại nhé.</span>';
+      return false;
+    }
+    box.innerHTML = '<iframe width="100%" height="220" style="border-radius:8px;border:none;" src="https://www.youtube.com/embed/'+id+'" allowfullscreen></iframe>';
+    return true;
+  }
+  document.getElementById('video-howto-toggle').addEventListener('click', ()=>{
+    const box = document.getElementById('video-howto-box');
+    box.style.display = box.style.display === 'none' ? 'block' : 'none';
+  });
+  document.getElementById('video-load').addEventListener('click', async ()=>{
+    const url = document.getElementById('video-url').value.trim();
+    const topic = document.getElementById('video-topic').value.trim();
+    const ok = await embedVideo(url);
+    if(ok){
+      const list = await loadVideoHistory();
+      if(!list.some(v=>v.url===url)){
+        list.push({url, topic, ts: Date.now()});
+        await saveVideoHistory(list);
+        renderVideoHistory();
+      }
+    }
+  });
+
+  // Điện thoại (đặc biệt Android Chrome) hay tự tải lại trang khi mình chuyển sang app khác
+  // (ví dụ sang copy phụ đề) rồi quay lại — mọi thứ đang gõ dở trong ô nhớ tạm (RAM) sẽ mất trắng.
+  // Lưu nháp link/chủ đề/phụ đề liên tục vào localStorage để quay lại vẫn còn nguyên.
+  function saveVideoDraft(){
+    const draft = {
+      url: document.getElementById('video-url').value,
+      topic: document.getElementById('video-topic').value,
+      transcript: document.getElementById('video-transcript').value
+    };
+    storage.set('video_draft', JSON.stringify(draft)).catch(()=>{});
+  }
+  async function restoreVideoDraft(){
+    try{
+      const res = await storage.get('video_draft');
+      const d = JSON.parse(res.value);
+      if(d.url){ document.getElementById('video-url').value = d.url; embedVideo(d.url); }
+      if(d.topic) document.getElementById('video-topic').value = d.topic;
+      if(d.transcript) document.getElementById('video-transcript').value = d.transcript;
+    }catch(e){}
+  }
+  ['video-url','video-topic','video-transcript'].forEach(id=>{
+    document.getElementById(id).addEventListener('input', saveVideoDraft);
+  });
+  restoreVideoDraft();
+  // Chia phụ đề dài thành từng đoạn nhỏ (~900 ký tự) rồi dịch tuần tự từng đoạn.
+  // Lý do: gửi nguyên cả phụ đề dài trong 1 lần dễ khiến AI trả JSON bị cắt giữa chừng
+  // (đây là nguyên nhân gây lỗi "Expected ',' or ']'..." trước đây) hoặc vượt thời gian chờ server.
+  function chunkTranscript(text, maxLen){
+    const words = text.split(/\s+/);
+    const chunks = [];
+    let cur = '';
+    for(const w of words){
+      if((cur + ' ' + w).trim().length > maxLen && cur){
+        chunks.push(cur.trim());
+        cur = w;
+      } else {
+        cur = (cur ? cur + ' ' : '') + w;
+      }
+    }
+    if(cur.trim()) chunks.push(cur.trim());
+    return chunks;
+  }
+  document.getElementById('video-translate-btn').addEventListener('click', async ()=>{
+    const transcript = document.getElementById('video-transcript').value.trim();
+    const resultEl = document.getElementById('video-transcript-result');
+    const copyRow = document.getElementById('video-transcript-copy-row');
+    if(!transcript){ resultEl.innerHTML = '<p class="notes-empty">Dán phụ đề/bản ghi video vào ô trên trước đã.</p>'; return; }
+    copyRow.style.display = 'none';
+    const chunks = chunkTranscript(transcript, 900);
+    const sys = "The user will give you a real English transcript/subtitle text from a video (it may be messy, no punctuation, run-on). Split it into natural short sentences/segments and translate EACH into Vietnamese. Keep the English EXACTLY as given (do not rewrite or invent), just segment it sensibly. Respond ONLY with raw JSON, no markdown fences: {\"lines\":[{\"en\":\"...\",\"vi\":\"...\"}, ...]}.";
+    let allLines = [];
+    try{
+      for(let i=0; i<chunks.length; i++){
+        resultEl.innerHTML = '<p class="doc-loading">Đang dịch song ngữ theo đúng nội dung... ('+(i+1)+'/'+chunks.length+')</p>';
+        const raw = await callClaude(sys, [{role:'user', content: chunks[i]}], 1800);
+        const d = safeParseJSON(raw);
+        allLines = allLines.concat(d.lines || []);
+      }
+      resultEl.innerHTML = allLines.map(l=>
+        '<div class="card doc-line" style="padding:10px 14px;"><p class="doc-en" style="margin:0;">'+l.en+'</p><p class="doc-vi" style="margin:2px 0 0;">'+l.vi+'</p></div>'
+      ).join('');
+      wrapAllDocLines();
+      window.__lastTranscript = allLines;
+      copyRow.style.display = 'flex';
+    }catch(err){
+      resultEl.innerHTML = '<p class="notes-empty">Lỗi kết nối: '+err.message+' — phụ đề hơi dài, thử dán từng đoạn ngắn hơn hoặc bấm lại nhé.</p>'+
+        (allLines.length ? allLines.map(l=>'<div class="card doc-line" style="padding:10px 14px;"><p class="doc-en" style="margin:0;">'+l.en+'</p><p class="doc-vi" style="margin:2px 0 0;">'+l.vi+'</p></div>').join('') : '');
+      wrapAllDocLines();
+    }
+  });
+  document.getElementById('video-transcript-copy-btn').addEventListener('click', async ()=>{
+    const lines = window.__lastTranscript || [];
+    const text = lines.map(l => l.en+'\n'+l.vi).join('\n\n');
+    try{
+      await navigator.clipboard.writeText(text);
+      showMentorToast('Đã copy đúng nội dung video! Dán vào Zalo/Messenger để lưu và học lại nhé 📋');
+    }catch(e){
+      showMentorToast('Trình duyệt chặn copy tự động, bôi đen đoạn text rồi copy tay nhé.');
+    }
+  });
+
+  document.getElementById('video-vocab-btn').addEventListener('click', async ()=>{
+    const topic = document.getElementById('video-topic').value.trim();
+    const resultEl = document.getElementById('video-vocab-result');
+    const copyRow = document.getElementById('video-copy-row');
+    if(!topic){ resultEl.innerHTML = '<p class="notes-empty">Gõ chủ đề video trước đã.</p>'; return; }
+    resultEl.innerHTML = '<p class="doc-loading">Đang soạn hội thoại mẫu...</p>';
+    copyRow.style.display = 'none';
+    const sys = "Write a short sample bilingual dialogue (8 lines) between two people about this topic, using common everyday English: \"" + topic + "\". This is a PRACTICE dialogue, not a real transcript. Make it sound natural and 'alive' like real conversation or movie dialogue — use contractions (I'm, that's, gonna) and casual everyday phrasing, not stiff textbook grammar. Each line: give the English sentence and its Vietnamese translation. Respond ONLY with raw JSON: {\"lines\":[{\"speaker\":\"A or B\",\"en\":\"...\",\"vi\":\"...\"}, ...]} with exactly 8 items.";
+    try{
+      const raw = await callClaude(sys, [{role:'user', content: topic}], 1200);
+      const d = safeParseJSON(raw);
+      resultEl.innerHTML = d.lines.map(it=>
+        '<div class="card doc-line" style="padding:10px 14px;"><p class="doc-en" style="margin:0;"><b>'+it.speaker+':</b> '+it.en+'</p><p class="doc-vi" style="margin:2px 0 0;">'+it.vi+'</p></div>'
+      ).join('');
+      wrapAllDocLines();
+      window.__lastDialogue = d.lines;
+      copyRow.style.display = 'flex';
+    }catch(err){
+      resultEl.innerHTML = '<p class="notes-empty">Lỗi kết nối: '+err.message+' — thử lại nhé.</p>';
+    }
+  });
+  document.getElementById('video-copy-btn').addEventListener('click', async ()=>{
+    const lines = window.__lastDialogue || [];
+    const text = lines.map(l => l.speaker+': '+l.en+'\n'+l.vi).join('\n\n');
+    try{
+      await navigator.clipboard.writeText(text);
+      showMentorToast('Đã copy! Giờ dán (paste) vào Zalo hoặc Messenger để gửi/lưu nhé 📋');
+    }catch(e){
+      showMentorToast('Trình duyệt chặn copy tự động, bôi đen đoạn text rồi copy tay nhé.');
+    }
+  });
+  renderVideoHistory();
+  initApp();
+
+  // ---- Đối tượng học (Học sinh / Người đi làm) ----
+  function openAudienceModal(){ document.getElementById('audience-modal').style.display = 'flex'; }
+  function closeAudienceModal(){ document.getElementById('audience-modal').style.display = 'none'; }
+  function updateAudienceLabel(){
+    const lbl = document.getElementById('audience-btn-label');
+    lbl.textContent = progress.audience === 'hocsinh' ? 'Học sinh' : progress.audience === 'dilam' ? 'Người đi làm' : 'Đối tượng';
+  }
+  document.querySelectorAll('#audience-modal [data-audience]').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      progress.audience = b.dataset.audience;
+      saveProgress(progress);
+      updateAudienceLabel();
+      closeAudienceModal();
+    });
+  });
+  document.getElementById('audience-open-btn').addEventListener('click', openAudienceModal);
+  setTimeout(()=>{
+    updateAudienceLabel();
+  }, 1200);
+
+  // ==========================================================
+  // ONBOARDING CÁ NHÂN HOÁ — quiz 5 bước, chạy 1 lần cho user mới
+  // (đối tượng, mục tiêu học, sở thích, tập trung kỹ năng, xác nhận)
+  // ==========================================================
+  const INTEREST_VI = {
+    shopping:'Mua sắm', travel:'Du lịch', games:'Trò chơi điện tử', art:'Nghệ thuật',
+    movies:'Phim & giải trí', cooking:'Nấu ăn', photo:'Nhiếp ảnh', sports:'Thể thao',
+    tech:'Công nghệ', garden:'Làm vườn', finance:'Tài chính'
+  };
+  (function(){
+    const GOALS = [
+      {v:'career', label:'💼 Thúc đẩy sự nghiệp của tôi'},
+      {v:'education', label:'📖 Hỗ trợ giáo dục của tôi'},
+      {v:'move', label:'✈️ Chuyển đến một quốc gia khác'},
+      {v:'connect', label:'🤝 Kết nối với mọi người'},
+      {v:'travel', label:'🏝️ Chuẩn bị đi du lịch'},
+    ];
+    const INTEREST_OPTS = Object.keys(INTEREST_VI).map(v=>({v, label:INTEREST_VI[v]}));
+    const FOCUS_OPTS = [
+      {v:'grammar', label:'Ngữ pháp — dùng câu đúng và rõ ràng'},
+      {v:'vocab', label:'Từ vựng — học từ mới'},
+      {v:'pronun', label:'Phát âm — nói từ tốt hơn'},
+      {v:'convo', label:'Hội thoại — thoải mái khi nói chuyện'},
+    ];
+    const TOTAL = 5;
+    const pz = { audience:null, goal:null, interests:[], focus:'ai' };
+    let pzStep = 0;
+
+    function optBtn(cls, selected, dataAttr, dataVal, label){
+      return '<button class="quiz-opt '+cls+(selected?' selected':'')+'" data-'+dataAttr+'="'+dataVal+'">'+label+'</button>';
+    }
+
+    function pzRender(){
+      document.getElementById('pz-progress').textContent = 'Bước '+(pzStep+1)+'/'+TOTAL;
+      const c = document.getElementById('pz-step-content');
+      const back = document.getElementById('pz-back');
+      const next = document.getElementById('pz-next');
+      back.style.display = pzStep === 0 ? 'none' : 'inline-block';
+      next.textContent = pzStep === TOTAL-1 ? 'Xác nhận và bắt đầu học' : 'Tiếp →';
+
+      if(pzStep === 0){
+        c.innerHTML = '<h3>Bạn học tiếng Anh để...?</h3><p class="hint">CÀY sẽ soạn nội dung, chủ đề phù hợp hơn với bạn.</p>' +
+          optBtn('', pz.audience==='hocsinh', 'v', 'hocsinh', '🎒 Tôi là học sinh') +
+          optBtn('', pz.audience==='dilam', 'v', 'dilam', '💼 Tôi đi làm');
+        c.querySelectorAll('[data-v]').forEach(b=>b.addEventListener('click', ()=>{ pz.audience=b.dataset.v; pzRender(); }));
+        next.disabled = !pz.audience;
+      } else if(pzStep === 1){
+        c.innerHTML = '<h3>Mục tiêu học tập của bạn?</h3><p class="hint">Bài học sẽ được tạo phù hợp với mục tiêu này.</p>' +
+          GOALS.map(g=>optBtn('', pz.goal===g.v, 'v', g.v, g.label)).join('');
+        c.querySelectorAll('[data-v]').forEach(b=>b.addEventListener('click', ()=>{ pz.goal=b.dataset.v; pzRender(); }));
+        next.disabled = !pz.goal;
+      } else if(pzStep === 2){
+        c.innerHTML = '<h3>Sở thích của bạn là gì?</h3><p class="hint">Chọn 2-3 mục để AI chọn chủ đề bạn thích cho bài học.</p>' +
+          INTEREST_OPTS.map(i=>optBtn('chip', pz.interests.includes(i.v), 'v', i.v, i.label)).join('');
+        c.querySelectorAll('[data-v]').forEach(b=>b.addEventListener('click', ()=>{
+          const v = b.dataset.v, idx = pz.interests.indexOf(v);
+          if(idx>=0) pz.interests.splice(idx,1);
+          else if(pz.interests.length<3) pz.interests.push(v);
+          pzRender();
+        }));
+        next.disabled = pz.interests.length < 2;
+      } else if(pzStep === 3){
+        c.innerHTML = '<h3>Bạn muốn tập trung vào điều gì?</h3>' +
+          optBtn('', pz.focus==='ai', 'focus-ai', '1', '✨ Để AI quyết định') +
+          '<p style="font-size:12px;color:var(--muted);margin:10px 0 6px;">Hoặc chọn ít nhất hai</p>' +
+          FOCUS_OPTS.map(f=>optBtn('chip', Array.isArray(pz.focus)&&pz.focus.includes(f.v), 'focus-item', f.v, f.label)).join('');
+        c.querySelector('[data-focus-ai]').addEventListener('click', ()=>{ pz.focus='ai'; pzRender(); });
+        c.querySelectorAll('[data-focus-item]').forEach(b=>b.addEventListener('click', ()=>{
+          if(!Array.isArray(pz.focus)) pz.focus = [];
+          const v = b.dataset.focusItem, idx = pz.focus.indexOf(v);
+          if(idx>=0) pz.focus.splice(idx,1); else pz.focus.push(v);
+          pzRender();
+        }));
+        next.disabled = !(pz.focus === 'ai' || (Array.isArray(pz.focus) && pz.focus.length>=2));
+      } else if(pzStep === 4){
+        const goalLabel = (GOALS.find(g=>g.v===pz.goal)||{}).label || '—';
+        const interestLabels = pz.interests.map(v=>INTEREST_VI[v]).join(', ') || '—';
+        const focusLabel = pz.focus==='ai' ? '✨ Để AI quyết định' : pz.focus.map(v=>(FOCUS_OPTS.find(f=>f.v===v)||{}).label).join(', ');
+        const levelLabel = progress.placementLevel || 'Chưa xác định';
+        c.innerHTML = '<h3>Lộ trình học của bạn đã sẵn sàng!</h3>' +
+          '<div class="card" style="text-align:left;padding:12px;"><b>Trình độ:</b> '+levelLabel+'</div>' +
+          '<div class="card" style="text-align:left;padding:12px;"><b>Đối tượng:</b> '+(pz.audience==='hocsinh'?'🎒 Học sinh':'💼 Người đi làm')+'</div>' +
+          '<div class="card" style="text-align:left;padding:12px;"><b>Mục tiêu:</b> '+goalLabel+'</div>' +
+          '<div class="card" style="text-align:left;padding:12px;"><b>Sở thích:</b> '+interestLabels+'</div>' +
+          '<div class="card" style="text-align:left;padding:12px;"><b>Tập trung:</b> '+focusLabel+'</div>';
+        next.disabled = false;
+      }
+    }
+
+    document.getElementById('pz-next').addEventListener('click', async ()=>{
+      if(pzStep < TOTAL-1){ pzStep++; pzRender(); return; }
+      progress.audience = pz.audience;
+      progress.goal = pz.goal;
+      progress.interests = pz.interests;
+      progress.focus = pz.focus;
+      progress.onboardDone = true;
+      await saveProgress(progress);
+      updateAudienceLabel();
+      document.getElementById('personalize-modal').style.display = 'none';
+      showMentorToast('Đã lưu lộ trình cá nhân hoá của bạn! 🎉');
+    });
+    document.getElementById('pz-back').addEventListener('click', ()=>{ if(pzStep>0){ pzStep--; pzRender(); } });
+
+    window.openPersonalizeModal = function(){
+      pzStep = 0;
+      document.getElementById('personalize-modal').style.display = 'flex';
+      pzRender();
+    };
+  })();
+
+  // ==========================================================
+  // PHÒNG LUYỆN NÓI NHÓM — ghép ngẫu nhiên, chủ đề gợi ý sẵn,
+  // chặn thông tin liên hệ 2 lớp (client + Firestore Rules).
+  // ==========================================================
+  (function(){
+    const TOPICS_CHUNG = [
+      { title: 'Sở thích cuối tuần', prompt: 'Cuối tuần này bạn định làm gì? Kể một hoạt động bạn thích nhé.' },
+      { title: 'Món ăn yêu thích', prompt: 'Món ăn nào bạn hay ăn nhất tuần này? Vì sao bạn thích nó?' },
+      { title: 'Du lịch', prompt: 'Nếu được đi du lịch tuần sau, bạn muốn đi đâu?' },
+      { title: 'Phim / sách yêu thích', prompt: 'Bạn vừa xem phim hoặc đọc sách nào hay? Kể sơ qua nhé.' },
+    ];
+    const TOPICS_HOCSINH = [
+      { title: 'Môn học yêu thích', prompt: 'Môn học nào ở trường bạn thấy thú vị nhất? Vì sao?' },
+      { title: 'Bạn bè ở lớp', prompt: 'Kể về một người bạn thân ở lớp của bạn nhé.' },
+    ];
+    const TOPICS_DILAM = [
+      { title: 'Công việc hôm nay', prompt: 'Hôm nay công việc của bạn thế nào? Có gì đáng nhớ không?' },
+      { title: 'Kỹ năng muốn học', prompt: 'Bạn đang muốn học thêm kỹ năng gì cho công việc?' },
+    ];
+    const GUIDE_TIPS = [
+      'Thử dùng thì hiện tại đơn để nói thói quen: "I usually..."',
+      'Bạn có thể hỏi lại một bạn trong phòng xem họ nghĩ gì.',
+      'Thêm một tính từ cảm xúc — ví dụ: relaxing, exciting, tiring.',
+    ];
+    const EMOJIS = ['🐼','🦊','🐨','🐸','🐧','🦁','🐯','🐰'];
+    function emojiFor(id){
+      let h = 0; for(const c of String(id)) h = (h*31 + c.charCodeAt(0)) >>> 0;
+      return EMOJIS[h % EMOJIS.length];
+    }
+
+    // Bộ lọc client (chặn ngay lúc gõ). PHẢI khớp với regex trong
+    // firestore.rules — nếu sửa 1 bên nhớ sửa bên kia.
+    const phoneRe = /(\+?84|0)[\s.\-]?(3|5|7|8|9)([\s.\-]?\d){8}/;
+    const urlRe = /https?:\/\/|www\.|\.(com|vn|net|io)\b/i;
+    const handleRe = /@[a-zA-Z0-9._]{3,}/;
+    const socialWordRe = /zalo|facebook|fb\.com|instagram|tiktok|telegram|messenger|whatsapp|line id|sdt|s\u0111t|s\u1ed1\s?\u0111i\u1ec7n\s?tho\u1ea1i/i;
+    function isBlockedClient(text){
+      return phoneRe.test(text) || urlRe.test(text) || handleRe.test(text) || socialWordRe.test(text);
+    }
+
+    function pnCurrentUser(){
+      const phone = localStorage.getItem('cay_current_user');
+      const name = localStorage.getItem('cay_current_name');
+      if(phone && name) return { id: phone, name: name };
+      let id = localStorage.getItem('cay_sr_anon_id');
+      if(!id){ id = 'anon_' + Math.random().toString(36).slice(2,10); localStorage.setItem('cay_sr_anon_id', id); }
+      let nick = localStorage.getItem('cay_sr_nick');
+      if(!nick){ nick = 'Learner_' + Math.floor(1000 + Math.random()*9000); localStorage.setItem('cay_sr_nick', nick); }
+      return { id, name: nick };
+    }
+
+    let pnRoomId = null;
+    let pnUnsubMsgs = null;
+    let pnUnsubRoom = null;
+    let pnStarted = false;
+    const pnUser = pnCurrentUser();
+
+    const pnEl = {
+      members: document.getElementById('pn-members'),
+      topicTitle: document.getElementById('pn-topic-title'),
+      topicText: document.getElementById('pn-topic-text'),
+      chatbox: document.getElementById('pn-chatbox'),
+      input: document.getElementById('pn-input'),
+      send: document.getElementById('pn-send'),
+    };
+
+    function pnAddMsg({ who, text, kind, msgId, senderId }){
+      // kind: 'peer' | 'me' | 'guide' | 'system'
+      const row = document.createElement('div');
+      row.className = 'msg ' + (kind === 'me' ? 'user' : kind === 'system' ? 'system' : kind === 'guide' ? 'note' : 'bot');
+      let inner = '';
+      if(who && kind !== 'me' && kind !== 'system'){
+        inner += '<div class="msg-who">'+ emojiFor(senderId||who) +' '+ who +'</div>';
+      }
+      inner += '<span>'+ text.replace(/</g,'&lt;') +'</span>';
+      if(kind === 'peer' && msgId){
+        inner += '<button class="msg-report" title="Báo cáo tin nhắn này" data-msgid="'+msgId+'" data-text="'+text.replace(/"/g,'&quot;')+'">🚩</button>';
+      }
+      row.innerHTML = inner;
+      pnEl.chatbox.appendChild(row);
+      pnEl.chatbox.scrollTop = pnEl.chatbox.scrollHeight;
+    }
+
+    function pnRenderMembers(members){
+      pnEl.members.innerHTML = (members||[]).map(m =>
+        '<div class="room-member"><span class="rm-avatar">'+emojiFor(m.id)+'</span>'+(m.id===pnUser.id?'Bạn':m.name)+'</div>'
+      ).join('');
+    }
+
+    async function pnJoinOrCreateRoom(){
+      const roomsRef = window.__db.collection('speakingRooms');
+      const snap = await roomsRef.where('status','==','open').orderBy('createdAt','desc').limit(5).get();
+      for(const d of snap.docs){
+        const room = d.data();
+        const members = room.members || [];
+        if(members.length < 4 && !members.some(m=>m.id===pnUser.id)){
+          const ref = roomsRef.doc(d.id);
+          const joined = await window.__db.runTransaction(async (tx)=>{
+            const fresh = await tx.get(ref);
+            const fm = fresh.data().members || [];
+            if(fm.length >= 4) return false;
+            if(fm.some(m=>m.id===pnUser.id)) return true;
+            tx.update(ref, { members: fm.concat([{id:pnUser.id, name:pnUser.name}]) });
+            return true;
+          });
+          if(joined) return d.id;
+        }
+      }
+      const pool = TOPICS_CHUNG.concat(progress.audience === 'hocsinh' ? TOPICS_HOCSINH : progress.audience === 'dilam' ? TOPICS_DILAM : []);
+      const topic = pool[Math.floor(Math.random()*pool.length)];
+      const newRoom = await roomsRef.add({
+        status: 'open',
+        topicTitle: topic.title,
+        topicPrompt: topic.prompt,
+        members: [{id:pnUser.id, name:pnUser.name}],
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      });
+      return newRoom.id;
+    }
+
+    function pnSubscribeRoom(roomId){
+      const roomRef = window.__db.collection('speakingRooms').doc(roomId);
+      if(pnUnsubRoom) pnUnsubRoom();
+      pnUnsubRoom = roomRef.onSnapshot(snap=>{
+        const room = snap.data();
+        if(!room) return;
+        pnEl.topicTitle.textContent = room.topicTitle || 'Phòng luyện nói';
+        pnEl.topicText.textContent = room.topicPrompt || '';
+        pnRenderMembers(room.members || []);
+      });
+
+      const msgsRef = roomRef.collection('messages').orderBy('createdAt','asc').limit(100);
+      pnEl.chatbox.innerHTML = '';
+      if(pnUnsubMsgs) pnUnsubMsgs();
+      pnUnsubMsgs = msgsRef.onSnapshot(snap=>{
+        snap.docChanges().forEach(change=>{
+          if(change.type !== 'added') return;
+          const m = change.doc.data();
+          if(m.kind === 'system') pnAddMsg({ text: m.text, kind: 'system' });
+          else if(m.kind === 'guide') pnAddMsg({ who: 'AI Hướng dẫn', text: m.text, kind: 'guide' });
+          else pnAddMsg({ who: m.senderId===pnUser.id ? null : m.senderName, text: m.text, kind: m.senderId===pnUser.id ? 'me' : 'peer', msgId: change.doc.id, senderId: m.senderId });
+        });
+      });
+    }
+
+    let pnTurn = 0;
+    async function pnSendMessage(text){
+      if(!text.trim()) return;
+      if(isBlockedClient(text)){
+        pnAddMsg({ text: '🚫 Tin nhắn chứa thông tin liên hệ (SĐT / link / mạng xã hội) nên không thể gửi. Hãy tiếp tục trò chuyện trong chủ đề nhé!', kind: 'system' });
+        return;
+      }
+      const msgsRef = window.__db.collection('speakingRooms').doc(pnRoomId).collection('messages');
+      try{
+        await msgsRef.add({
+          senderId: pnUser.id, senderName: pnUser.name, text, kind: 'text',
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        });
+      }catch(e){
+        pnAddMsg({ text: '🚫 Tin nhắn này không được phép gửi trong phòng luyện nói.', kind: 'system' });
+        console.warn('[phong-noi] Bị chặn bởi Firestore rules:', e.message);
+        return;
+      }
+      pnTurn++;
+      if(pnTurn % 3 === 0){
+        const tip = GUIDE_TIPS[Math.floor(pnTurn/3 - 1) % GUIDE_TIPS.length];
+        setTimeout(()=> msgsRef.add({ kind:'guide', text: tip, createdAt: firebase.firestore.FieldValue.serverTimestamp() }), 1200);
+      }
+    }
+
+    async function pnReportMessage(msgId, text){
+      try{
+        await window.__db.collection('reports').add({
+          roomId: pnRoomId, messageId: msgId, text,
+          reporterId: pnUser.id, createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        });
+        showMentorToast('Đã gửi báo cáo cho quản trị viên, cảm ơn bạn đã báo! 🙏');
+      }catch(e){ console.warn('[phong-noi] Không gửi được báo cáo:', e.message); }
+    }
+
+    async function initSpeakingRoom(){
+      if(pnStarted) return;
+      pnStarted = true;
+      if(!window.__db){ pnAddMsg({ text:'Chưa kết nối được máy chủ phòng luyện nói, thử tải lại trang nhé.', kind:'system' }); return; }
+      pnRoomId = await pnJoinOrCreateRoom();
+      pnSubscribeRoom(pnRoomId);
+    }
+
+    pnEl.send.addEventListener('click', ()=>{ const t = pnEl.input.value; pnEl.input.value=''; pnSendMessage(t); });
+    pnEl.input.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ const t = pnEl.input.value; pnEl.input.value=''; pnSendMessage(t); } });
+    pnEl.chatbox.addEventListener('click', (e)=>{
+      const btn = e.target.closest('.msg-report');
+      if(btn) pnReportMessage(btn.dataset.msgid, btn.dataset.text);
+    });
+    document.querySelector('.tab[data-tab="phongnoi"]').addEventListener('click', initSpeakingRoom);
+  })();
+</script>
+</body>
+</html>
