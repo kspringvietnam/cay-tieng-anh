@@ -875,6 +875,15 @@
       <div class="row" style="margin-top:12px;">
         <button class="btn ghost small" id="review-next" style="display:none;">Từ tiếp theo →</button>
       </div>
+
+      <h2 class="stitle" style="margin-top:22px;font-size:17px;">📝 Kiểm tra nhanh</h2>
+      <p class="shint">Đầu giờ ôn lại bài cũ, cuối giờ kiểm tra luôn bài mới vừa học — nhớ lâu hơn học xong bỏ đó.</p>
+      <div class="row" style="gap:8px;margin-bottom:12px;">
+        <button class="btn small" id="test-old-start">Kiểm tra bài cũ (đầu giờ)</button>
+        <button class="btn small ghost" id="test-new-start">Kiểm tra bài mới (cuối giờ)</button>
+      </div>
+      <div id="test-area"></div>
+
       <h2 class="stitle" style="margin-top:22px;font-size:17px;">💡 Điều cần nhớ</h2>
       <p class="shint">Tự động gom lại từ ngữ pháp và mẹo bạn ảo đã sửa cho bạn.</p>
       <div id="reminders-area"></div>
@@ -1855,6 +1864,10 @@
       typeof item === 'number' ? noi_data[item % noi_data.length] : item
     ).filter(Boolean);
     progress.learnedWords = noi_learned;
+    // Chụp lại danh sách từ đã có TRƯỚC khi mở app lần này — dùng để phân biệt
+    // "bài cũ" (đã học từ trước) và "bài mới" (học trong chính buổi đang mở) cho
+    // 2 nút Kiểm tra đầu giờ / cuối giờ ở tab ÔN TẬP.
+    sessionBaselineWords = noi_learned.map(w => w.w);
 
     // Quay lại vào một ngày MỚI (không phải mở lại trong cùng ngày) → tự động nhảy sang
     // câu/bài/từ khác thay vì luôn bắt đầu lại từ đầu, đỡ nhàm cho học viên.
@@ -2002,6 +2015,76 @@
     review_i++;
     showReviewCard();
   });
+
+  // ---- KIEM TRA DAU GIO / CUOI GIO ----
+  // Tự sinh trắc nghiệm từ chính kho từ đã học (không gọi AI, nhanh và miễn phí).
+  // "old" = từ đã học TRƯỚC buổi hôm nay (sessionBaselineWords).
+  // "new" = từ mới học TRONG buổi đang mở (có trong noi_learned nhưng không có trong baseline).
+  let sessionBaselineWords = [];
+  let test_current = null;
+
+  function shuffleArr(arr){ return arr.slice().sort(()=>Math.random()-0.5); }
+
+  function buildQuizList(pool){
+    return shuffleArr(pool).slice(0,5).map(item=>{
+      const distractors = shuffleArr(noi_learned.filter(x=>x.w!==item.w && x.vi)).slice(0,3).map(x=>x.vi);
+      const options = shuffleArr(distractors.concat([item.vi]));
+      return { word:item.w, phon:item.p, correctVi:item.vi, options, correctIdx: options.indexOf(item.vi) };
+    });
+  }
+
+  function renderTest(type){
+    const area = document.getElementById('test-area');
+    const pool = type === 'old'
+      ? noi_learned.filter(w => sessionBaselineWords.includes(w.w) && w.vi)
+      : noi_learned.filter(w => !sessionBaselineWords.includes(w.w) && w.vi);
+    if(pool.length < 4){
+      area.innerHTML = '<p class="review-empty">' + (type==='old'
+        ? 'Chưa đủ từ bài cũ để kiểm tra — học thêm vài buổi nữa rồi quay lại nhé.'
+        : 'Chưa học từ mới nào trong buổi này — sang tab NÓI hoặc NGHE học vài từ rồi quay lại kiểm tra cuối giờ nhé.') + '</p>';
+      return;
+    }
+    test_current = { type, list: buildQuizList(pool), i:0, correctCount:0 };
+    showTestQuestion();
+  }
+
+  function showTestQuestion(){
+    const area = document.getElementById('test-area');
+    const t = test_current;
+    if(t.i >= t.list.length){
+      const pct = Math.round(t.correctCount / t.list.length * 100);
+      const msg = pct>=80 ? 'Xuất sắc! Nhớ tốt lắm 🎯' : pct>=50 ? 'Khá ổn, ôn thêm vài từ nhé 💪' : 'Cần ôn lại kỹ hơn, đừng nản — luyện thêm sẽ nhớ 👍';
+      area.innerHTML = '<div class="card"><p style="font-weight:600;margin:0 0 6px;">Kết quả: '+t.correctCount+'/'+t.list.length+' câu đúng ('+pct+'%)</p><p style="font-size:13px;color:var(--muted);margin:0;">'+msg+'</p></div>';
+      showMentorToast(t.type==='old' ? 'Đã kiểm tra xong bài cũ, sẵn sàng học bài mới rồi 🚀' : 'Đã kiểm tra xong bài mới hôm nay, tốt lắm! 🎉');
+      bumpActionCount();
+      return;
+    }
+    const q = t.list[t.i];
+    let html = '<div class="card"><p class="counter" style="margin:0 0 8px;">Câu '+(t.i+1)+'/'+t.list.length+' — '+(t.type==='old'?'Bài cũ':'Bài mới')+'</p>';
+    html += '<p style="font-weight:600;font-size:17px;margin:0 0 4px;">'+q.word+'</p>';
+    if(q.phon) html += '<p style="color:var(--muted);font-size:13px;margin:0 0 10px;">'+q.phon+'</p>';
+    html += '<p style="font-size:13px;margin:0 0 10px;">Từ này nghĩa là gì?</p><div id="test-opts"></div></div>';
+    area.innerHTML = html;
+    const optWrap = document.getElementById('test-opts');
+    q.options.forEach((opt, idx)=>{
+      const btn = document.createElement('button');
+      btn.className = 'quiz-opt';
+      btn.textContent = opt;
+      btn.addEventListener('click', ()=>{
+        optWrap.querySelectorAll('.quiz-opt').forEach((b,i2)=>{
+          b.disabled = true;
+          if(i2===q.correctIdx) b.classList.add('correct');
+          else if(b===btn) b.classList.add('wrong');
+        });
+        if(idx===q.correctIdx){ t.correctCount++; speak(q.word); }
+        setTimeout(()=>{ t.i++; showTestQuestion(); }, 1100);
+      });
+      optWrap.appendChild(btn);
+    });
+  }
+
+  document.getElementById('test-old-start').addEventListener('click', ()=> renderTest('old'));
+  document.getElementById('test-new-start').addEventListener('click', ()=> renderTest('new'));
 
   // ---- CO VAN THONG MINH ----
   let mentorTimer = null;
