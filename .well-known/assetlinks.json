@@ -1,0 +1,13 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "vn.com.kspring.caytienganh.twa",
+      "sha256_cert_fingerprints": [
+        "BD:5A:79:4D:76:E9:82:C3:70:07:30:E6:BE:34:68:C8:19:7A:C2:59:63:6D:12:15:24:78:B4:EC:93:CD:44:DE",
+        "8E:25:E3:25:B2:A4:07:47:B6:07:24:10:E3:F6:B8:C2:2F:66:03:D8:E6:0D:80:35:C8:30:88:CB:91:AB:67:84"
+      ]
+    }
+  }
+]
